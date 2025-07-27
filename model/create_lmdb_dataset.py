@@ -14,15 +14,21 @@ dragon_names = ['WATER_DRAGON', 'AIR_DRAGON', 'CHEMTECH_DRAGON', 'FIRE_DRAGON', 
 def convert_json_sample_to_numpy(sample):
     l = []
 
+    player_keys = [
+        'champion', 'kills', 'deaths', 'assists', 'baronTimer', 'elderTimer',
+        'deathTimer', 'gold', 'level', 'creepscore', 'x', 'y'
+    ]
+
     for team in sample['teams']:
         for player in team['players']:
-            for k in player:
+            for k in player_keys:
                 if k == 'champion':
                     l.append(champ_to_idx[player['champion']])
                 elif k == 'deathTimer':
                     l.append(round(player['deathTimer']))
                 else:
                     l.append(player[k])
+
         for i in range(4):
             one_hot = [0, 0, 0, 0, 0, 0]
             if i < len(team['drakes']):
@@ -83,4 +89,5 @@ def main():
     save_lmdb(test_paths, 'test.lmdb')
 
 
-main()
+if __name__ == '__main__':
+    main()
