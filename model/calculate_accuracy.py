@@ -8,8 +8,8 @@ dataset = Dataset('test.lmdb')
 
 data_iter = iter(dataset)
 
-l = [0] * 40
-t = [0] * 40
+acc = 0
+total = 0
 
 net = DNN()
 net.load_state_dict(torch.load('dnn.pth', weights_only=True))
@@ -19,27 +19,30 @@ with torch.no_grad():
         inputs, label = sample
 
         inputs = torch.tensor(inputs).view(1, -1)
-        label = torch.tensor(label, dtype=torch.float)
 
-        time = inputs[0][-1].item()
-        if time >= 40:
-            continue
-        y = torch.sigmoid(net(inputs)).round()
+        y = net(inputs)
+        ans = 0
+        if y.item() > 0.5:
+            ans = 1
 
-        l[time] += (y == label).float().item()
-        t[time] += 1
+        if label == ans:
+            acc += 1
+        total += 1
 
-for i in range(40):
-    l[i] /= max(t[i], 1)
-    l[i] *= 100
-    l[i] = round(l[i])
+print(acc / total)
 
-x = list(range(40))
 
-plt.figure(figsize=(8, 5))
-plt.bar(x, l)
-plt.xlabel('Time Interval')
-plt.ylabel('Accuracy')
-plt.title('Model Accuracy Over Time')
-plt.yticks(list(range(0, 100, 10)))
-plt.show()
+# for i in range(40):
+#     l[i] /= max(t[i], 1)
+#     l[i] *= 100
+#     l[i] = round(l[i])
+
+# x = list(range(40))
+
+# plt.figure(figsize=(8, 5))
+# plt.bar(x, l)
+# plt.xlabel('Time Interval')
+# plt.ylabel('Accuracy')
+# plt.title('Model Accuracy Over Time')
+# plt.yticks(list(range(0, 100, 10)))
+# plt.show()
