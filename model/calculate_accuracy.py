@@ -6,43 +6,49 @@ import matplotlib.pyplot as plt
 
 dataset = Dataset('test.lmdb')
 
-data_iter = iter(dataset)
-
-acc = 0
-total = 0
-
 net = DNN()
 net.load_state_dict(torch.load('dnn.pth', weights_only=True))
+net.eval()
+
+time_index = -1
+num_bins = 6    
+interval_minutes = 5
+
+correct = [0] * num_bins
+total = [0] * num_bins
 
 with torch.no_grad():
     for sample in tqdm(dataset):
         inputs, label = sample
-
         inputs = torch.tensor(inputs).view(1, -1)
-
+    
+        time = inputs[0, -1].item()
+        bin_index = int(time // interval_minutes)
+        if bin_index >= num_bins:
+            continue 
+    
         y = net(inputs)
-        ans = 0
-        if y.item() > 0.5:
-            ans = 1
+        ans = 1 if y.item() > 0.5 else 0
 
+        total[bin_index] += 1
         if label == ans:
-            acc += 1
-        total += 1
+            correct[bin_index] += 1
 
-print(acc / total)
+accuracy = [0] * num_bins
+for i in range(num_bins):
+    if total[i] > 0:
+        accuracy[i] = correct[i] / total[i] * 100
 
+x_labels = [f"{i*5}-{(i+1)*5}m" for i in range(num_bins)]
 
-# for i in range(40):
-#     l[i] /= max(t[i], 1)
-#     l[i] *= 100
-#     l[i] = round(l[i])
+plt.figure(figsize=(10, 6))
+plt.bar(x_labels, accuracy, color='skyblue')
+plt.ylim(0, 100)
+plt.xlabel('Time Interval')
+plt.ylabel('Accuracy (%)')
+plt.title('Model Accuracy Over Time')
+plt.grid(axis='y')
+plt.tight_layout()
+plt.show()
 
-# x = list(range(40))
-
-# plt.figure(figsize=(8, 5))
-# plt.bar(x, l)
-# plt.xlabel('Time Interval')
-# plt.ylabel('Accuracy')
-# plt.title('Model Accuracy Over Time')
-# plt.yticks(list(range(0, 100, 10)))
-# plt.show()
+print(accuracy)
