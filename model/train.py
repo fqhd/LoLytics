@@ -11,10 +11,10 @@ net = DNN()
 
 train_ds = Dataset('train.lmdb')
 test_ds = Dataset('test.lmdb')
-train_dl = DataLoader(train_ds, batch_size=256, shuffle=True)
+train_dl = DataLoader(train_ds, batch_size=1024, shuffle=True)
 test_dl = DataLoader(test_ds, batch_size=512, shuffle=True)
 
-optimizer = optim.SGD(net.parameters(), lr=1e-3, momentum=0.999)
+optimizer = optim.SGD(net.parameters(), lr=2e-4, momentum=0.99)
 loss_fn = nn.MSELoss()
 
 def train_epoch(model, optimizer, criterion, dataloader):
