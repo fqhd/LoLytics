@@ -1,4 +1,3 @@
-import torch
 from dataset import Dataset
 import numpy as np
 import json
@@ -12,8 +11,6 @@ gold = []
 creepscore = []
 
 data_iter = iter(dataset)
-
-print(len(dataset))
 
 for i in range(len(dataset)):
     sample, _ = next(data_iter)
@@ -34,13 +31,7 @@ assists = np.array(assists)
 gold = np.array(gold)
 creepscore = np.array(creepscore)
 
-print(f'Kills | std: {kills.std()} mean: {kills.mean()}')
-print(f'Deaths | std: {deaths.std()} mean: {deaths.mean()}')
-print(f'Assists | std: {assists.std()} mean: {assists.mean()}')
-print(f'Gold | std: {gold.std()} mean: {gold.mean()}')
-print(f'CS | std: {creepscore.std()} mean: {creepscore.mean()}')
-
-metrics = {
+stats = {
     'kills': {
         'std': kills.std().item(),
         'mean': kills.mean().item()
@@ -63,5 +54,5 @@ metrics = {
     }
 }
 
-with open('metrics.json', 'w') as f:
-    json.dump(metrics, f)
+with open('stats.json', 'w') as f:
+    json.dump(stats, f)

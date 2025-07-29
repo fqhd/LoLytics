@@ -32,8 +32,8 @@ class DNN(nn.Module):
         self.x_indices = torch.tensor([9, 20, 31, 42, 53, 105, 116, 127, 138, 149])
         self.y_indices = torch.tensor([10, 21, 32, 43, 54, 106, 117, 128, 139, 150])
 
-        with open('metrics.json') as f:
-            self.metrics = json.load(f)
+        with open('stats.json') as f:
+            self.stats = json.load(f)
 
         self.load_embeddings()
 
@@ -63,11 +63,11 @@ class DNN(nn.Module):
 
 
     def normalize(self, x):
-        x[:, self.kill_indices] = (x[:, self.kill_indices] - self.metrics['kills']['mean']) / self.metrics['kills']['std']
-        x[:, self.death_indices] = (x[:, self.death_indices] - self.metrics['deaths']['mean']) / self.metrics['deaths']['std']
-        x[:, self.assist_indices] = (x[:, self.assist_indices] - self.metrics['assists']['mean']) / self.metrics['assists']['std']
-        x[:, self.gold_indices] = (x[:, self.gold_indices] - self.metrics['gold']['mean']) / self.metrics['gold']['std']
-        x[:, self.cs_indices] = (x[:, self.cs_indices] - self.metrics['creepscore']['mean']) / self.metrics['creepscore']['std']
+        x[:, self.kill_indices] = (x[:, self.kill_indices] - self.stats['kills']['mean']) / self.stats['kills']['std']
+        x[:, self.death_indices] = (x[:, self.death_indices] - self.stats['deaths']['mean']) / self.stats['deaths']['std']
+        x[:, self.assist_indices] = (x[:, self.assist_indices] - self.stats['assists']['mean']) / self.stats['assists']['std']
+        x[:, self.gold_indices] = (x[:, self.gold_indices] - self.stats['gold']['mean']) / self.stats['gold']['std']
+        x[:, self.cs_indices] = (x[:, self.cs_indices] - self.stats['creepscore']['mean']) / self.stats['creepscore']['std']
 
         x[:, self.baron_indices] /= 3*60
         x[:, self.elder_indices] /= 2*60+30
