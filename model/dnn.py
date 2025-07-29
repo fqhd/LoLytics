@@ -34,13 +34,13 @@ class DNN(nn.Module):
 
         with open('metrics.json') as f:
             self.metrics = json.load(f)
-        
+
         self.load_embeddings()
 
     def load_embeddings(self):
         with open('champion_to_index.json') as f:
             champion_to_index = json.load(f)
-        
+
         df = pd.read_csv('data.csv')
 
         numeric_data = df.drop(columns=['championName'])
@@ -51,10 +51,8 @@ class DNN(nn.Module):
 
         normalized_data = (numeric_data - means) / stds
 
-        # Allocate the embeddings tensor
         self.embeddings = torch.empty(size=(171, len(numeric_data.columns)))
 
-        # Loop through each row and insert into the tensor
         for _, row in df.iterrows():
             name = row['championName']
             index = champion_to_index[name]
@@ -82,26 +80,16 @@ class DNN(nn.Module):
     def forward(self, x):
         B = x.size(0)
 
-        # Step 1: Extract champion IDs from input
         champion_ids = x[:, self.champion_indices].long()  # shape: (B, num_champ_ids)
-
-        # Step 2: Get embeddings for each ID in the row
-        # Assume self.embeddings has shape (num_champions, embed_dim)
         embedded = self.embeddings[champion_ids]  # shape: (B, num_champ_ids, embed_dim)
-
-        # Step 3: Flatten embedded features into (B, num_champ_ids * embed_dim)
         embedded_flat = embedded.view(B, -1)
 
-        # Step 4: Get non-categorical (numeric) features
         mask = torch.ones(x.size(1), dtype=torch.bool, device=x.device)
         mask[self.champion_indices] = False
         x_non_cat = x[:, mask].float()
 
-        self.normalize(x_non_cat)  # optional normalization step
+        self.normalize(x_non_cat)
 
-        # Step 5: Concatenate embeddings with non-categorical features
         x_final = torch.cat([x_non_cat, embedded_flat], dim=1)
 
-        # Step 6: Feed into fully connected layer
         return self.fc(x_final)
-
