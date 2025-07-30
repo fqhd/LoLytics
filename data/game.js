@@ -16,10 +16,10 @@ export async function get_game_data(MATCH_ID, key) {
 	return states;
 }
 
-function create_players() {
+export function create_players(game, team_id) {
 	const players = [];
 	for (let j = 0; j < 5; j++) {
-		const playerIndex = i * 5 + j;
+		const playerIndex = team_id * 5 + j;
 		const champion = game.info.participants[playerIndex].championName;
 		players.push({
 			champion,
@@ -39,9 +39,9 @@ function create_players() {
 	return players;
 }
 
-function create_team() {
+function create_team(game, team_id) {
 	return {
-		players: create_players(),
+		players: create_players(game, team_id),
 		drakes: [],
 		rifts: 0,
 		atakhan: 0,
@@ -69,7 +69,7 @@ function create_team() {
 
 function create_initial_state(game) {
 	return {
-		teams: [create_team(), create_team()],
+		teams: [create_team(game, 0), create_team(game, 1)],
 		time: -1,
 		win: game.info.participants[0].win,
 	};
