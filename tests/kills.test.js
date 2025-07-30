@@ -35,4 +35,8 @@ describe('process_champion_kill', () => {
     it('updates the killers kda', () => {
         expect(state.teams[1].players[0].kills).toBe(1);
     });
+
+    it('updates the victims kda', () => {
+        expect(state.teams[0].players[4].deaths).toBe(1);
+    });
 });
