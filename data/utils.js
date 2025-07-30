@@ -4,8 +4,16 @@ export function api_call(url) {
 	return new Promise((resolve, reject) => {
 		setTimeout(async () => {
 			try {
-				const data = await fetch(url);
-				resolve(data);
+				const response = await fetch(url);
+
+				if (!response.ok) {
+					const error = new Error(`Request failed with status ${response.status}`);
+					error.response = response;
+					throw error;
+				}
+
+				const json = await response.json();
+				resolve(json);
 			} catch (e) {
 				reject(e);
 			}
