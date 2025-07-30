@@ -5,7 +5,8 @@ describe('process_champion_kill', () => {
     const event = {
         killerId: 6,
         victimId: 5,
-        assistingParticipantIds: [2, 1, 8, 7]
+        assistingParticipantIds: [2, 1, 8, 7],
+        timestamp: 300000
     };
 
     const state = {
@@ -38,5 +39,9 @@ describe('process_champion_kill', () => {
 
     it('updates the victims kda', () => {
         expect(state.teams[0].players[4].deaths).toBe(1);
+    });
+
+    it('correctly assigns death timer', () => {
+        expect(state.teams[0].players[4].deathTimer).toBeGreaterThan(0);
     });
 });
