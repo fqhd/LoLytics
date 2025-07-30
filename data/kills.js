@@ -1,0 +1,25 @@
+import { calc_death_timer } from "./death.js";
+
+export function process_champion_kill(state, event) {
+	const time = event.timestamp / 1000 / 60;
+	const team_id = parseInt((event.killerId - 1) / 5);
+	if (event.killerId > 0) {
+		state.teams[team_id].players[(event.killerId - 1) % 5].kills += 1;
+	}
+	const victim_team_id = parseInt((event.victimId - 1) / 5);
+	const victim =
+		state.teams[victim_team_id].players[(event.victimId - 1) % 5];
+	victim.deaths += 1;
+	victim.baronTimer = 0;
+	victim.elderTimer = 0;
+	const deathTimer = calc_death_timer(victim.level, time);
+	const nextWholeMinute = (Math.ceil(time) - time) * 60;
+	victim.deathTimer = Math.max(deathTimer - nextWholeMinute, 0);
+	if (event.assistingParticipantIds) {
+		for (const assist_id of event.assistingParticipantIds) {
+			const assist_team_id = parseInt((assist_id - 1) / 5);
+			state.teams[assist_team_id].players[(assist_id - 1) % 5].assists +=
+				1;
+		}
+	}
+}

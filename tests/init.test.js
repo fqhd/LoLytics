@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { create_players } from '../data/game.js';
+import { create_players } from '../data/init.js';
 
 describe('create_players', () => {
     const game = {
