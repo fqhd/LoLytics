@@ -1,21 +1,5 @@
-import { api_call, fetch_with_retries } from "./utils.js";
+import { api_call, fetch_with_retries, shuffle } from "./utils.js";
 import { API_KEYS } from "./api_keys.js";
-
-function shuffle(array) {
-	let current_index = array.length,
-		random_index;
-
-	while (current_index > 0) {
-		random_index = Math.floor(Math.random() * current_index);
-		current_index--;
-		[array[current_index], array[random_index]] = [
-			array[random_index],
-			array[current_index],
-		];
-	}
-
-	return array;
-}
 
 async function get_summoner_ids(rank, tier, page, key) {
 	const summoner_ids = [];

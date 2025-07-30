@@ -43,6 +43,22 @@ export function deep_copy(obj) {
 	return copy;
 }
 
+export function shuffle(array) {
+	let current_index = array.length,
+		random_index;
+
+	while (current_index > 0) {
+		random_index = Math.floor(Math.random() * current_index);
+		current_index--;
+		[array[current_index], array[random_index]] = [
+			array[random_index],
+			array[current_index],
+		];
+	}
+
+	return array;
+}
+
 export async function fetch_with_retries(url, timeout = 3000) {
 	for (let attempt = 1; attempt <= 3; attempt++) {
 		try {
