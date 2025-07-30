@@ -21,7 +21,7 @@ export async function get_game_data(MATCH_ID, key) {
 	}
 	timeline = await timeline.json();
 
-	const state = await create_initial_state(game);
+	const state = create_initial_state(game);
 	if (state == null) {
 		console.log("failed to create initial state");
 		return null;
@@ -36,7 +36,7 @@ export async function get_game_data(MATCH_ID, key) {
 	return states;
 }
 
-async function create_initial_state(game) {
+function create_initial_state(game) {
 	const state = {
 		teams: [],
 		time: -1,
