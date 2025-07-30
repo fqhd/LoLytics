@@ -44,4 +44,11 @@ describe('process_champion_kill', () => {
     it('correctly assigns death timer', () => {
         expect(state.teams[0].players[4].deathTimer).toBeGreaterThan(0);
     });
+
+    it('correctly updates kda of assisting participants', () => {
+        expect(state.teams[0].players[1].assists).toBe(1);
+        expect(state.teams[0].players[0].assists).toBe(1);
+        expect(state.teams[1].players[2].assists).toBe(1);
+        expect(state.teams[1].players[1].assists).toBe(1);
+    });
 });
