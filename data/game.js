@@ -1,31 +1,11 @@
 import { api_call, deep_copy } from "./utils.js";
 
 export async function get_game_data(MATCH_ID, key) {
-	let game = await api_call(
-		`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}?api_key=${key}`,
-	);
-	if (game.status != 200) {
-		console.log(game);
-		console.log(key);
-		console.log("failed to get game data");
-		return null;
-	}
-	game = await game.json();
+	const game = await api_call(`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}?api_key=${key}`);
 
-	let timeline = await api_call(
-		`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}/timeline?api_key=${key}`,
-	);
-	if (timeline.status != 200) {
-		console.log("failed to get timeline data");
-		return null;
-	}
-	timeline = await timeline.json();
+	const timeline = await api_call(`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}/timeline?api_key=${key}`);
 
 	const state = create_initial_state(game);
-	if (state == null) {
-		console.log("failed to create initial state");
-		return null;
-	}
 
 	const states = [];
 	for (const frame of timeline.info.frames) {
