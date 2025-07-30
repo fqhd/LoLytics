@@ -12,19 +12,19 @@ describe('process_champion_kill', () => {
         teams: [
             {
                 players: [
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
                 ]
             },{
                 players: [
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
-                    {kills: 0, deaths: 0, assists: 0},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
+                    {kills: 0, deaths: 0, assists: 0, level: 1},
                 ]
             },
         ]
