@@ -41,4 +41,8 @@ describe('create_players', () => {
         const result = create_players(game, 0);
         expect(result.length).toEqual(5);
     });
+
+    it('throws error if game is malformed', () => {
+        expect(() => create_players({ championAttr: '2' }, 0)).toThrow();
+    });
 });
