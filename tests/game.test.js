@@ -3,21 +3,21 @@ import { create_players } from '../data/game.js';
 
 describe('create_players', () => {
     const game = {
-            info: {
-                participants: [
-                    { championName: 'Malzahar', win: false },
-                    { championName: 'Ahri' },
-                    { championName: 'Zed' },
-                    { championName: 'Lux' },
-                    { championName: 'Garen' },
-                    { championName: 'Yasuo' },
-                    { championName: 'Jinx' },
-                    { championName: 'LeeSin' },
-                    { championName: 'Veigar' },
-                    { championName: 'Teemo' }
-                ]
-            }
-        };
+        info: {
+            participants: [
+                { championName: 'Malzahar', win: false },
+                { championName: 'Ahri' },
+                { championName: 'Zed' },
+                { championName: 'Lux' },
+                { championName: 'Garen' },
+                { championName: 'Yasuo' },
+                { championName: 'Jinx' },
+                { championName: 'LeeSin' },
+                { championName: 'Veigar' },
+                { championName: 'Teemo' }
+            ]
+        }
+    };
 
     it('creates correct first object', () => {
         const result = create_players(game, 0);
@@ -35,5 +35,10 @@ describe('create_players', () => {
             x: 0,
             y: 0,
         });
+    });
+
+    it('returns correct number of players per team', () => {
+        const result = create_players(game, 0);
+        expect(result.length).toEqual(5);
     });
 });
