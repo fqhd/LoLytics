@@ -43,9 +43,9 @@ export function get_tower_id(state, event) {
 		const t1 = state.teams[team_id].towers[9];
 		const t2 = state.teams[team_id].towers[10];
 		if (t1 == 0 && t2 == 0) {
-			tower_id = 10;
-		} else {
 			tower_id = 9;
+		} else {
+			tower_id = 10;
 		}
 	}
 	return tower_id;
