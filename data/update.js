@@ -9,9 +9,7 @@ export function update_with_frame(state, frame) {
     }
 }
 
-export function update_general_stats(state, frame) {
-    state.time += 1;
-
+export function assign_participant_stats_to_players(state, frame) {
     for (const participant_id in frame.participantFrames) {
         const participant = frame.participantFrames[participant_id];
         const participant_id_int = parseInt(participant_id) - 1;
@@ -27,35 +25,45 @@ export function update_general_stats(state, frame) {
         state.teams[team_id].players[participant_id_int % 5].gold =
             participant.totalGold;
     }
+}
 
+export function update_player_timers(team) {
+    for (const player of team.players) {
+        player.deathTimer -= 60;
+        player.deathTimer = Math.max(player.deathTimer, 0);
+        player.baronTimer -= 60;
+        player.baronTimer = Math.max(player.baronTimer, 0);
+        player.elderTimer -= 60;
+        player.elderTimer = Math.max(player.elderTimer, 0);
+    }
+}
+
+export function update_inhib_timers(state) {
+    for (let i = 0; i < 3; i++) {
+        state.teams[team_id].inhibs[i] -= 1;
+        state.teams[team_id].inhibs[i] = Math.max(
+            state.teams[team_id].inhibs[i],
+            0,
+        );
+    }
+}
+
+export function update_nexus_tower_timers(state) {
+    for (const tower_id of [9, 10]) {
+        state.teams[team_id].towers[tower_id] -= 1;
+        state.teams[team_id].towers[tower_id] = Math.max(
+            state.teams[team_id].towers[tower_id],
+            0,
+        );
+    }
+}
+
+export function update_general_stats(state, frame) {
+    state.time += 1;
     for (let team_id = 0; team_id < 2; team_id++) {
-        // Update timers
-        for (const player of state.teams[team_id].players) {
-            player.deathTimer -= 60;
-            player.deathTimer = Math.max(player.deathTimer, 0);
-            player.baronTimer -= 60;
-            player.baronTimer = Math.max(player.baronTimer, 0);
-            player.elderTimer -= 60;
-            player.elderTimer = Math.max(player.elderTimer, 0);
-        }
-
-        // Update inhib timers
-        for (let i = 0; i < 3; i++) {
-            state.teams[team_id].inhibs[i] -= 1;
-            state.teams[team_id].inhibs[i] = Math.max(
-                state.teams[team_id].inhibs[i],
-                0,
-            ); // Cap inhib respawn timer to 0
-        }
-
-        // Update nexus tower timers
-        for (const tower_id of [9, 10]) {
-            state.teams[team_id].towers[tower_id] -= 1;
-            state.teams[team_id].towers[tower_id] = Math.max(
-                state.teams[team_id].towers[tower_id],
-                0,
-            ); // Cap tower respawn timer to 0
-        }
+        update_player_timers(state.teams[team_id]);
+        update_inhib_timers(state);
+        update_nexus_tower_timers(state);
     }
 }
 
