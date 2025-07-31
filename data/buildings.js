@@ -18,8 +18,8 @@ export function process_inhibitor_kill(state, event) {
 }
 
 export function process_tower_kill(state, event) {
-	const team_id = parseInt(event.teamId / 100) - 1;
 	const tower_id = get_tower_id(state, event);
+	const team_id = parseInt(event.teamId / 100) - 1;
 	if (tower_id == 9 || tower_id == 10) {
 		state.teams[team_id].towers[tower_id] = 3;
 	} else {
