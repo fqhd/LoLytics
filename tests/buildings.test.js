@@ -47,7 +47,8 @@ describe('process_tower_kill', () => {
 		};
 
 		const event = {
-			teamId: 100
+			teamId: 100,
+            towerType: 'NEXUS_TURRET'
 		};
 
 		process_tower_kill(state, event);
@@ -63,10 +64,12 @@ describe('process_tower_kill', () => {
 		};
 
 		const event = {
-			teamId: 200
+			teamId: 200,
+            laneType: 'BOT_LANE',
+            towerType: 'BASE_TURRET'
 		};
 
 		process_tower_kill(state, event);
-		expect(state.teams[1].towers[4]).toBe(0);
+		expect(state.teams[1].towers[8]).toBe(0);
 	});
 });
