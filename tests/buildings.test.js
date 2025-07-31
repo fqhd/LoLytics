@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { process_inhibitor_kill } from '../data/buildings.js';
 
 describe('process_inhibitor_kill', () => {
-	it('should set the top lane inhibitor (lane 0) to 5 for team 1', () => {
+	it('should set blue top inhibitor to 5', () => {
 		const state = {
 			teams: [
 				{ inhibs: [0, 0, 0] },
@@ -19,7 +19,7 @@ describe('process_inhibitor_kill', () => {
 		expect(state.teams[0].inhibs).toEqual([5, 0, 0]);
 	});
 
-	it('should set the bot lane inhibitor (lane 2) to 5 for team 2', () => {
+	it('should set red bot inhibitor to 5', () => {
 		const state = {
 			teams: [
 				{ inhibs: [0, 0, 0] },
