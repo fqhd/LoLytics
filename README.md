@@ -1,4 +1,5 @@
 ## LoLytics — League of Legends Analytics Platform
+[![CI](https://github.com/fqhd/LoLytics/actions/workflows/ci.yml/badge.svg)](https://github.com/fqhd/LoLytics/actions/workflows/ci.yml)
 
 **LoLytics** is an interactive analytics platform built for *League of Legends* players who want to improve by reviewing their matches.
 
