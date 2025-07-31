@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { process_building_kill } from '../data/buildings';
+import { process_inhibitor_kill } from '../data/buildings.js';
 
 describe('process_inhibitor_kill', () => {
 	it('should set the top lane inhibitor (lane 0) to 5 for team 1', () => {
