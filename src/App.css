@@ -112,13 +112,14 @@ input:hover {
 }
 
 .match-history-container {
+    padding: 20px;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -40%);
+    transform: translate(-50%, -42%);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     align-items: center;
 
     width: 0;
@@ -142,7 +143,7 @@ input:hover {
 
 .match-card {
     width: 800px;
-    height: 120px;
+    height: 130px;
     background-color: #2a2a2a;
     border-radius: 16px;
     opacity: 0;
@@ -154,4 +155,9 @@ input:hover {
 .match-card.show {
     opacity: 1;
     transform: scale(1) translateY(0);
+}
+
+.match-card:hover {
+    transform: scale(1.03);
+    cursor: pointer;   
 }
