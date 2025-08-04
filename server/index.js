@@ -2,11 +2,14 @@ import '../data/game.js';
 import express from 'express';
 import { config } from 'dotenv';
 import axios from 'axios';
+import cors from 'cors';
 
 config();
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors());
 
 function send_server_error(res) {
     res.status(500).json({ error: 'Internal Server Error' });
