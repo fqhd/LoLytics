@@ -94,7 +94,7 @@ input:hover {
 
 .title-shrink {
     font-size: 32px;
-    transform: translateY(-250px);
+    transform: translateY(-300px);
     margin-bottom: 0;
 }
 
@@ -115,7 +115,7 @@ input:hover {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -40%);
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -134,15 +134,15 @@ input:hover {
 }
 
 .match-history-container.show {
-    width: 520px; /* width of cards + gaps (adjust as needed) */
-    height: 580px; /* height for 5 cards + gaps (adjust as needed) */
+    width: 820px;
+    height: 700px;
     opacity: 1;
     pointer-events: auto;
 }
 
 .match-card {
-    width: 500px;
-    height: 100px;
+    width: 800px;
+    height: 120px;
     background-color: #2a2a2a;
     border-radius: 16px;
     opacity: 0;

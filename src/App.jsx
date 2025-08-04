@@ -9,10 +9,9 @@ function App() {
     const handleSearch = () => {
         setSearched(true);
 
-        // Delay showing matches for smoother animation
         setTimeout(() => {
             setShowMatches(true);
-        }, 1000); // wait 2s for title/input animations
+        }, 1000);
     };
 
     useEffect(() => {
@@ -41,7 +40,6 @@ function App() {
                 </button>
             </div>
 
-            {/* Match cards container */}
             <div className={`match-history-container ${showMatches ? 'show' : ''}`}>
                 {[...Array(5)].map((_, i) => (
                     <MatchCard key={i} visible={showMatches} index={i} />
