@@ -94,7 +94,7 @@ input:hover {
 
 .title-shrink {
     font-size: 32px;
-    transform: translateY(-250px);
+    transform: translateY(-320px);
     margin-bottom: 0;
 }
 
@@ -109,4 +109,147 @@ input:hover {
     opacity: 0;
     transform: translateY(-50px);
     pointer-events: none;
+}
+
+.match-history-container {
+    padding: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+
+    width: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+
+    transition:
+        width 0.4s ease,
+        height 0.4s ease,
+        opacity 0.4s ease;
+}
+
+.match-history-container.show {
+    width: 820px;
+    height: 730px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.match-card {
+    width: 800px;
+    height: 150px;
+    background-color: #2a2a2a;
+    border-radius: 16px;
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: auto;
+}
+
+.match-card.show {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.match-card:hover {
+    transform: scale(1.03);
+    cursor: pointer;
+}
+
+.match-details {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%, 20px) scale(0.95);
+    transform-origin: bottom center;
+    width: 90vw;
+    height: calc(100vh - 200px);
+    background-color: #2a2a2a;
+    border-radius: 20px;
+    opacity: 0;
+    padding: 40px;
+    text-align: center;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+    color: white;
+}
+
+.match-details.show {
+    opacity: 1;
+    transform: translate(-50%, 0px) scale(1);
+    pointer-events: auto;
+}
+
+.back-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #15a9ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: #3fb3f7;
+}
+
+.match-card-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.match-card-text {
+    text-shadow:
+        0 0 2px rgb(0, 0, 0),
+        0 0 4px rgb(0, 0, 0),
+        0 0 8px rgb(0, 0, 0),
+        0 0 10px rgb(0, 0, 0),
+        0 0 12px rgb(0, 0, 0);
+    color: #e3e3e3;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: 500;
+    z-index: 2;
+}
+
+.match-card-image {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 56%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+}
+
+.match-card-image.left {
+    left: 0;
+    z-index: 1;
+    clip-path: polygon(0 0, 80% 0, 100% 100%, 0 100%);
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+
+.match-card-image.right {
+    right: 0;
+    z-index: 1;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%);
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
 }

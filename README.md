@@ -18,3 +18,4 @@ Whether you're a casual player or a ranked grinder, Lolytics helps you break dow
 - **Match History Listing** – Show recent games for a given summoner  
 - **Win Probability Estimation** – Model and graph the likelihood of winning over time  
 - **Inhibitor and Nexus Tower Respawn Timers** – Accurately track and display respawn times in seconds  
+- **Improve player embeddings** - Add more champion specific statistics such as damage type and vision score
