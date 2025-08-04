@@ -28,7 +28,8 @@ function App() {
             const match = await detail.json();
             imagePaths.push({
                 left: `/images/${match.player_champion}.jpg`,
-                right: `/images/${match.opponent_champion}.jpg`
+                right: `/images/${match.opponent_champion}.jpg`,
+                win: match.win
             });
         }
         setMatchImages(imagePaths);
@@ -91,6 +92,7 @@ function App() {
                         onClick={() => handleMatchClick(i)}
                         leftImage={matchImages[i]?.left}
                         rightImage={matchImages[i]?.right}
+                        win={matchImages[i]?.win}
                     />
                 ))}
             </div>
