@@ -5,26 +5,34 @@ import MatchCard from './MatchCard';
 function App() {
     const [searched, setSearched] = useState(false);
     const [showMatches, setShowMatches] = useState(false);
+    const [selectedMatch, setSelectedMatch] = useState(null); // NEW
 
     const handleSearch = () => {
         setSearched(true);
-
         setTimeout(() => {
             setShowMatches(true);
         }, 1000);
     };
 
+    const handleBack = () => {
+        setSelectedMatch(null);
+    };
+
     useEffect(() => {
         const handleKeyPress = e => {
             if (e.key === 'Escape') {
-                setSearched(false);
-                setShowMatches(false);
+                if (selectedMatch !== null) {
+                    setSelectedMatch(null);
+                } else {
+                    setSearched(false);
+                    setShowMatches(false);
+                }
             }
         };
 
         document.addEventListener('keydown', handleKeyPress);
         return () => document.removeEventListener('keydown', handleKeyPress);
-    }, []);
+    }, [selectedMatch]);
 
     return (
         <div className="container">
@@ -40,11 +48,22 @@ function App() {
                 </button>
             </div>
 
-            <div className={`match-history-container ${showMatches ? 'show' : ''}`}>
+            <div className={`match-history-container ${showMatches && selectedMatch === null ? 'show' : ''}`}>
                 {[...Array(5)].map((_, i) => (
-                    <MatchCard key={i} visible={showMatches} index={i} />
+                    <MatchCard
+                        key={i}
+                        visible={showMatches && selectedMatch === null}
+                        index={i}
+                        onClick={() => setSelectedMatch(i)}
+                    />
                 ))}
             </div>
+
+            {selectedMatch !== null && (
+                <div className="match-details show">
+                    <h2>Match {selectedMatch + 1} Details</h2>
+                </div>
+            )}
         </div>
     );
 }
