@@ -211,31 +211,39 @@ input:hover {
 }
 
 .match-card-text {
+    color: #e3e3e3;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 24px;
     font-weight: 500;
-    z-index: 1;
+    z-index: 2;
 }
 
 .match-card-image {
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 47%;
+    width: 56%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.7;
-    z-index: 0;
     transition: transform 0.3s ease;
+    pointer-events: none;
 }
 
 .match-card-image.left {
     left: 0;
+    z-index: 1;
+    clip-path: polygon(0 0, 80% 0, 100% 100%, 0 100%);
     border-top-left-radius: 16px;
     border-bottom-left-radius: 16px;
 }
 
 .match-card-image.right {
     right: 0;
+    z-index: 1;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%);
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
 }

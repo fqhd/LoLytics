@@ -15,7 +15,7 @@ function MatchCard({ visible, index, onClick, leftImage, rightImage }) {
                         className="match-card-image left"
                     />
                 )}
-                <span className="match-card-text">Match {index + 1}</span>
+                <span className="match-card-text">vs</span>
                 {rightImage && (
                     <img
                         src={rightImage}
