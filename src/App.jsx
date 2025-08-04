@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -7,6 +7,20 @@ function App() {
     const handleSearch = () => {
         setSearched(true);
     };
+
+    useEffect(() => {
+        const handleKeyPress = e => {
+            if (e.key == 'Escape') {
+                setSearched(false);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyPress);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyPress);
+        };
+    }, []);
 
     return (
         <div className="container">
