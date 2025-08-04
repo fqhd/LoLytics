@@ -210,6 +210,12 @@ input:hover {
 }
 
 .match-card-text {
+    text-shadow:
+        0 0 2px rgb(0, 0, 0),
+        0 0 4px rgb(0, 0, 0),
+        0 0 8px rgb(0, 0, 0),
+        0 0 10px rgb(0, 0, 0),
+        0 0 12px rgb(0, 0, 0);
     color: #e3e3e3;
     position: absolute;
     top: 50%;
