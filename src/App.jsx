@@ -7,9 +7,17 @@ function App() {
     const [showMatches, setShowMatches] = useState(false);
     const [selectedMatch, setSelectedMatch] = useState(null);
     const [showMatchDetails, setShowMatchDetails] = useState(false);
+    const [matchImages, setMatchImages] = useState([]);
 
     const handleSearch = () => {
         setSearched(true);
+
+        const generatedImages = [...Array(5)].map((_, i) => ({
+            left: `/left-${i + 1}.jpg`,
+            right: `/right-${i + 1}.jpg`,
+        }));
+        setMatchImages(generatedImages);
+
         setTimeout(() => {
             setShowMatches(true);
         }, 1000);
@@ -66,6 +74,8 @@ function App() {
                         visible={showMatches && selectedMatch === null}
                         index={i}
                         onClick={() => handleMatchClick(i)}
+                        leftImage={matchImages[i]?.left}
+                        rightImage={matchImages[i]?.right}
                     />
                 ))}
             </div>
