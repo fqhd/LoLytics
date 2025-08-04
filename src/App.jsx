@@ -8,15 +8,30 @@ function App() {
     const [selectedMatch, setSelectedMatch] = useState(null);
     const [showMatchDetails, setShowMatchDetails] = useState(false);
     const [matchImages, setMatchImages] = useState([]);
+    const [name, setName] = useState('');
+    const [tag, setTag] = useState('');
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         setSearched(true);
+        
+        let history = await fetch(`http://localhost:3000/match_history?name=${name}&tag=${tag}`);
+        history = await history.json();
 
-        const generatedImages = [...Array(5)].map((_, i) => ({
-            left: `/left-${i + 1}.jpg`,
-            right: `/right-${i + 1}.jpg`,
-        }));
-        setMatchImages(generatedImages);
+        let matchDetails = [];
+        for (const match_id of history.match_ids.slice(0, 5)) {
+            matchDetails.push(fetch(`http://localhost:3000/match_details?id=${match_id}&puuid=${history.puuid}`));
+        }
+        matchDetails = await Promise.all(matchDetails);
+
+        const imagePaths = [];
+        for (const detail of matchDetails) {
+            const match = await detail.json();
+            imagePaths.push({
+                left: `/images/${match.player_champion}.jpg`,
+                right: `/images/${match.opponent_champion}.jpg`
+            });
+        }
+        setMatchImages(imagePaths);
 
         setTimeout(() => {
             setShowMatches(true);
@@ -59,8 +74,8 @@ function App() {
 
             <div className={`input-group-wrapper ${searched ? 'fade-out' : ''}`}>
                 <div className="input-group">
-                    <input className="input-left" placeholder="Name" />
-                    <input className="input-right" placeholder="Tag" />
+                    <input className="input-left" placeholder="Name" onChange={(e) => setName(e.target.value)} />
+                    <input className="input-right" placeholder="Tag" onChange={(e) => setTag(e.target.value)} />
                 </div>
                 <button className="search-button" onClick={handleSearch}>
                     <span className="search-button-text">Search</span>
