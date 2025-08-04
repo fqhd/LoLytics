@@ -164,25 +164,25 @@ input:hover {
 
 .match-details {
     position: absolute;
-    top: 100px; /* Below the title */
+    top: 100px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, 20px) scale(0.95);
+    transform-origin: bottom center;
     width: 90vw;
     height: calc(100vh - 200px);
     background-color: #2a2a2a;
     border-radius: 20px;
     opacity: 0;
-    scale: 0.95;
     padding: 40px;
     text-align: center;
-    transition: opacity 0.4s ease, scale 0.4s ease;
+    transition: opacity 0.4s ease, transform 0.4s ease;
     pointer-events: none;
     color: white;
 }
 
 .match-details.show {
     opacity: 1;
-    scale: 1;
+    transform: translate(-50%, 0px) scale(1);
     pointer-events: auto;
 }
 

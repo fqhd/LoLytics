@@ -5,7 +5,8 @@ import MatchCard from './MatchCard';
 function App() {
     const [searched, setSearched] = useState(false);
     const [showMatches, setShowMatches] = useState(false);
-    const [selectedMatch, setSelectedMatch] = useState(null); // NEW
+    const [selectedMatch, setSelectedMatch] = useState(null);
+    const [showMatchDetails, setShowMatchDetails] = useState(false);
 
     const handleSearch = () => {
         setSearched(true);
@@ -14,15 +15,25 @@ function App() {
         }, 1000);
     };
 
+    const handleMatchClick = (i) => {
+        setSelectedMatch(i);
+        setTimeout(() => {
+            setShowMatchDetails(true);
+        }, 50);
+    };
+
     const handleBack = () => {
-        setSelectedMatch(null);
+        setShowMatchDetails(false);
+        setTimeout(() => {
+            setSelectedMatch(null);
+        }, 400);
     };
 
     useEffect(() => {
         const handleKeyPress = e => {
             if (e.key === 'Escape') {
                 if (selectedMatch !== null) {
-                    setSelectedMatch(null);
+                    handleBack();
                 } else {
                     setSearched(false);
                     setShowMatches(false);
@@ -54,14 +65,15 @@ function App() {
                         key={i}
                         visible={showMatches && selectedMatch === null}
                         index={i}
-                        onClick={() => setSelectedMatch(i)}
+                        onClick={() => handleMatchClick(i)}
                     />
                 ))}
             </div>
 
             {selectedMatch !== null && (
-                <div className="match-details show">
+                <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
                     <h2>Match {selectedMatch + 1} Details</h2>
+                    <button className="back-button" onClick={handleBack}>Back</button>
                 </div>
             )}
         </div>
