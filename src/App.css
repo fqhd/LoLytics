@@ -191,7 +191,7 @@ input:hover {
 
 .timeline {
     width: 60%;
-    height: 60%;
+    height: 50%;
     border-radius: 20px;
     padding: 10px 20px 20px 20px;
     background-color: #1e1e1e;
@@ -200,7 +200,7 @@ input:hover {
 
 .minimap {
     aspect-ratio: 1 / 1;
-    height: 60%;
+    height: 50%;
     background-image: url('/images/minimap.png');
     background-size: cover;
     background-position: center;
@@ -214,12 +214,6 @@ input:hover {
     width: 40%;
     height: 40%;
     background-color: purple;
-}
-
-.scoreboard {
-    width: 30%;
-    height: 40%;
-    background-color: red;
 }
 
 .runes {
