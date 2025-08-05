@@ -99,7 +99,7 @@ function App() {
 
             {selectedMatch !== null && (
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
-                    <h2>Match {selectedMatch + 1} Details</h2>
+                    <div className="data"></div>
                     <button className="back-button" onClick={handleBack}>Back</button>
                 </div>
             )}
