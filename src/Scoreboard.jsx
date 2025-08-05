@@ -12,7 +12,6 @@ const ROLE_ICONS = [
 export default function Scoreboard({ data }) {
   return (
     <div className="scoreboard">
-      {/* Left Team */}
       <div className="team left-team">
         {data.blue.map((champion, index) => (
           <div className="champion-row" key={index}>
