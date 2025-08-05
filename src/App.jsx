@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import MatchCard from './MatchCard';
 import LineChart from './LineChart';
+import Scoreboard from './Scoreboard';
 
 function App() {
     const [searched, setSearched] = useState(false);
@@ -14,7 +15,7 @@ function App() {
 
     const handleSearch = async () => {
         setSearched(true);
-        
+
         let history = await fetch(`http://localhost:3000/match_history?name=${name}&tag=${tag}`);
         history = await history.json();
 
@@ -28,8 +29,8 @@ function App() {
         for (const detail of matchDetails) {
             const match = await detail.json();
             imagePaths.push({
-                left: `/images/${match.player_champion}.jpg`,
-                right: `/images/${match.opponent_champion}.jpg`,
+                left: `/images/splash/${match.player_champion}.jpg`,
+                right: `/images/splash/${match.opponent_champion}.jpg`,
                 win: match.win
             });
         }
@@ -70,6 +71,23 @@ function App() {
         return () => document.removeEventListener('keydown', handleKeyPress);
     }, [selectedMatch]);
 
+    const data = {
+        blue: [
+            { name: 'Ahri', icon: '/icons/ahri.png', cs: 120, kills: 5, deaths: 1, assists: 3 },
+            { name: 'LeeSin', icon: '/icons/lee_sin.png', cs: 100, kills: 3, deaths: 2, assists: 4 },
+            { name: 'MasterYi', icon: '/icons/lee_sin.png', cs: 100, kills: 3, deaths: 2, assists: 4 },
+            { name: 'Riven', icon: '/icons/lee_sin.png', cs: 100, kills: 3, deaths: 2, assists: 4 },
+            { name: 'VelKoz', icon: '/icons/lee_sin.png', cs: 100, kills: 3, deaths: 2, assists: 4 },
+        ],
+        red: [
+            { name: 'Zed', icon: '/icons/zed.png', cs: 110, kills: 2, deaths: 5, assists: 1 },
+            { name: 'Jinx', icon: '/icons/jinx.png', cs: 130, kills: 6, deaths: 0, assists: 6 },
+            { name: 'JarvanIV', icon: '/icons/jinx.png', cs: 130, kills: 6, deaths: 0, assists: 6 },
+            { name: 'BelVeth', icon: '/icons/jinx.png', cs: 130, kills: 6, deaths: 0, assists: 6 },
+            { name: 'Annie', icon: '/icons/jinx.png', cs: 130, kills: 6, deaths: 0, assists: 6 },
+        ]
+    };
+
     return (
         <div className="container">
             <div className={`title ${searched ? 'title-shrink' : ''}`}>LoLytics</div>
@@ -106,7 +124,7 @@ function App() {
                         </div>
                         <div className='minimap'></div>
                         <div className='items'></div>
-                        <div className='scoreboard'></div>
+                        <Scoreboard data={data} />
                         <div className='runes'></div>
                     </div>
                     <button className="back-button" onClick={handleBack}>Back</button>
