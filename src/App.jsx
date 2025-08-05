@@ -126,10 +126,10 @@ function App() {
                         <div className='minimap'></div>
                         <div className='items'>
                             <PurchasePath iconPaths={[
-                                '/images/icons/Ahri.jpg',
-                                '/images/icons/Riven.jpg',
-                                '/images/icons/Annie.jpg',
-                                '/images/icons/Jhin.jpg',
+                                '/images/items/1001.jpg',
+                                '/images/items/1006.jpg',
+                                '/images/items/2003.jpg',
+                                '/images/items/1027.jpg',
                             ]} />
                         </div>
                         <Scoreboard data={data} />
