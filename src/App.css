@@ -192,7 +192,9 @@ input:hover {
 .timeline {
     width: 60%;
     height: 60%;
-    background-color: blue;
+    border-radius: 20px;
+    padding: 10px 20px 20px 20px;
+    background-color: #1e1e1e;
 }
 
 .minimap {

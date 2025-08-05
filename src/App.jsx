@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import MatchCard from './MatchCard';
+import LineChart from './LineChart';
 
 function App() {
     const [searched, setSearched] = useState(false);
@@ -100,9 +101,10 @@ function App() {
             {selectedMatch !== null && (
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
                     <div className="data">
-                        <div className="timeline"></div>
+                        <div className="timeline">
+                            <LineChart />
+                        </div>
                         <div className='minimap'></div>
-
                         <div className='items'></div>
                         <div className='scoreboard'></div>
                         <div className='runes'></div>
