@@ -3,6 +3,7 @@ import './App.css';
 import MatchCard from './MatchCard';
 import LineChart from './LineChart';
 import Scoreboard from './Scoreboard';
+import PurchasePath from './PurchasePath';
 
 function App() {
     const [searched, setSearched] = useState(false);
@@ -123,7 +124,14 @@ function App() {
                             <LineChart />
                         </div>
                         <div className='minimap'></div>
-                        <div className='items'></div>
+                        <div className='items'>
+                            <PurchasePath iconPaths={[
+                                '/images/icons/Ahri.jpg',
+                                '/images/icons/Riven.jpg',
+                                '/images/icons/Annie.jpg',
+                                '/images/icons/Jhin.jpg',
+                            ]} />
+                        </div>
                         <Scoreboard data={data} />
                         <div className='runes'></div>
                     </div>

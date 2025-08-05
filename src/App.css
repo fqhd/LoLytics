@@ -211,9 +211,12 @@ input:hover {
 }
 
 .items {
-    width: 40%;
+    padding: 10px 20px 20px 20px;
+    width: 30%;
     height: 40%;
-    background-color: purple;
+    background-color: #1e1e1e;
+    border: 4px solid white;
+    border-radius: 20px;
 }
 
 .runes {
