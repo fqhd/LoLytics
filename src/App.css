@@ -163,6 +163,7 @@ input:hover {
 }
 
 .match-details {
+    border: 3px solid white;
     position: absolute;
     top: 100px;
     left: 50%;
@@ -195,7 +196,7 @@ input:hover {
     border-radius: 20px;
     padding: 10px 20px 20px 20px;
     background-color: #1e1e1e;
-    border: 4px solid white;
+    border: 3px solid white;
 }
 
 .minimap {
@@ -206,7 +207,7 @@ input:hover {
     background-position: center;
     background-repeat: no-repeat;
     border-radius: 20px;
-    border: 4px solid white;
+    border: 3px solid white;
     padding: 10px 20px 20px 20px;
 }
 
@@ -215,7 +216,7 @@ input:hover {
     width: 30%;
     height: 40%;
     background-color: #1e1e1e;
-    border: 4px solid white;
+    border: 3px solid white;
     border-radius: 20px;
 }
 
