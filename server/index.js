@@ -3,6 +3,9 @@ import express from 'express';
 import { config } from 'dotenv';
 import axios from 'axios';
 import cors from 'cors';
+import { create_initial_state } from '../data/init.js';
+import { update_with_frame } from '../data/update.js';
+import { deep_copy } from '../data/utils.js';
 
 config();
 
@@ -86,6 +89,35 @@ app.get('/match_details/', async (req, res) => {
             send_server_error(res);
         }
     }
+});
+
+
+app.get('/match_analysis', async (req, res) => {
+    const { id } = req.query;
+
+    try {
+        
+        
+        // Normalize gamestates
+        // Pass gamestates through model
+        // Return probabilities
+    } catch (error) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                res.status(404).json({ error: 'Match not found' });
+            } else {
+                console.error('API error:', error.response.status, error.response.data);
+                send_server_error(res);
+            }
+        } else {
+            console.error('Network error:', error.message);
+            send_server_error(res);
+        }
+    }
+
+
+
+
 });
 
 app.listen(PORT, () => {
