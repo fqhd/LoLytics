@@ -35,6 +35,21 @@ class DNN(nn.Module):
         with open('stats.json') as f:
             self.stats = json.load(f)
 
+        self.register_buffer("kills_mean", torch.tensor(self.stats['kills']['mean']))
+        self.register_buffer("kills_std", torch.tensor(self.stats['kills']['std']))
+
+        self.register_buffer("deaths_mean", torch.tensor(self.stats['deaths']['mean']))
+        self.register_buffer("deaths_std", torch.tensor(self.stats['deaths']['std']))
+
+        self.register_buffer("assists_mean", torch.tensor(self.stats['assists']['mean']))
+        self.register_buffer("assists_std", torch.tensor(self.stats['assists']['std']))
+
+        self.register_buffer("gold_mean", torch.tensor(self.stats['gold']['mean']))
+        self.register_buffer("gold_std", torch.tensor(self.stats['gold']['std']))
+
+        self.register_buffer("creepscore_mean", torch.tensor(self.stats['creepscore']['mean']))
+        self.register_buffer("creepscore_std", torch.tensor(self.stats['creepscore']['std']))
+
         self.load_embeddings()
 
     def load_embeddings(self):
@@ -42,13 +57,10 @@ class DNN(nn.Module):
             champion_to_index = json.load(f)
 
         df = pd.read_csv('data.csv')
-
         numeric_data = df.drop(columns=['championName'])
 
-        # Compute z-score normalization (mean 0, std 1)
         means = numeric_data.mean()
         stds = numeric_data.std()
-
         normalized_data = (numeric_data - means) / stds
 
         self.embeddings = torch.empty(size=(171, len(numeric_data.columns)))
@@ -61,16 +73,15 @@ class DNN(nn.Module):
 
         print("Embeddings loaded and normalized")
 
-
     def normalize(self, x):
-        x[:, self.kill_indices] = (x[:, self.kill_indices] - self.stats['kills']['mean']) / self.stats['kills']['std']
-        x[:, self.death_indices] = (x[:, self.death_indices] - self.stats['deaths']['mean']) / self.stats['deaths']['std']
-        x[:, self.assist_indices] = (x[:, self.assist_indices] - self.stats['assists']['mean']) / self.stats['assists']['std']
-        x[:, self.gold_indices] = (x[:, self.gold_indices] - self.stats['gold']['mean']) / self.stats['gold']['std']
-        x[:, self.cs_indices] = (x[:, self.cs_indices] - self.stats['creepscore']['mean']) / self.stats['creepscore']['std']
+        x[:, self.kill_indices] = (x[:, self.kill_indices] - self.kills_mean) / self.kills_std
+        x[:, self.death_indices] = (x[:, self.death_indices] - self.deaths_mean) / self.deaths_std
+        x[:, self.assist_indices] = (x[:, self.assist_indices] - self.assists_mean) / self.assists_std
+        x[:, self.gold_indices] = (x[:, self.gold_indices] - self.gold_mean) / self.gold_std
+        x[:, self.cs_indices] = (x[:, self.cs_indices] - self.creepscore_mean) / self.creepscore_std
 
-        x[:, self.baron_indices] /= 3*60
-        x[:, self.elder_indices] /= 2*60+30
+        x[:, self.baron_indices] /= 3 * 60
+        x[:, self.elder_indices] /= 2 * 60 + 30
         x[:, self.death_timer_indices] /= 79
         x[:, self.level_indices] /= 18
         x[:, self.x_indices] /= 14500
@@ -80,8 +91,8 @@ class DNN(nn.Module):
     def forward(self, x):
         B = x.size(0)
 
-        champion_ids = x[:, self.champion_indices].long()  # shape: (B, num_champ_ids)
-        embedded = self.embeddings[champion_ids]  # shape: (B, num_champ_ids, embed_dim)
+        champion_ids = x[:, self.champion_indices].long()
+        embedded = self.embeddings[champion_ids]
         embedded_flat = embedded.view(B, -1)
 
         mask = torch.ones(x.size(1), dtype=torch.bool, device=x.device)
