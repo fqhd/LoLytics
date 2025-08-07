@@ -6,6 +6,7 @@ import cors from 'cors';
 import { create_initial_state } from '../data/init.js';
 import { update_with_frame } from '../data/update.js';
 import { deep_copy } from '../data/utils.js';
+import { readFile } from 'fs/promises';
 
 config();
 
@@ -13,6 +14,9 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
+
+const raw = await readFile('../model/champion_to_index.json');
+const champ_to_index = JSON.parse(raw);
 
 function send_server_error(res) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -91,13 +95,78 @@ app.get('/match_details/', async (req, res) => {
     }
 });
 
+function convert_sample_to_array(sample) {
+    const arr = [];
+
+    const dragonNames = [
+        'WATER_DRAGON', 'AIR_DRAGON', 'CHEMTECH_DRAGON',
+        'FIRE_DRAGON', 'HEXTECH_DRAGON', 'EARTH_DRAGON'
+    ];
+
+    const playerKeys = [
+        'champion', 'kills', 'deaths', 'assists', 'baronTimer', 'elderTimer',
+        'deathTimer', 'gold', 'level', 'creepscore', 'x', 'y'
+    ];
+
+    for (const team of sample.teams) {
+        for (const player of team.players) {
+            for (const key of playerKeys) {
+                if (key === 'champion') {
+                    arr.push(champ_to_index[player.champion]);
+                } else if (key === 'deathTimer') {
+                    arr.push(Math.round(player.deathTimer));
+                } else {
+                    arr.push(player[key]);
+                }
+            }
+        }
+
+        for (let i = 0; i < 4; i++) {
+            const oneHot = [0, 0, 0, 0, 0, 0];
+            if (i < team.drakes.length) {
+                const name = team.drakes[i];
+                const index = dragonNames.indexOf(name);
+                if (index !== -1) oneHot[index] = 1;
+            }
+            arr.push(...oneHot);
+        }
+
+        arr.push(team.rifts);
+        arr.push(team.atakhan);
+        arr.push(team.grubs);
+        arr.push(...team.towers);
+        arr.push(...team.inhibs);
+    }
+
+    arr.push(sample.time);
+    arr.push(sample.win);
+
+    return arr;
+}
+
+
 
 app.get('/match_analysis', async (req, res) => {
     const { id } = req.query;
 
     try {
-        
-        
+        const game = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
+        const timeline = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}/timeline?api_key=${process.env.RIOT_KEY}`);
+
+        const state = create_initial_state(game);
+
+        const states = [];
+        for (const frame of timeline.info.frames) {
+            update_with_frame(state, frame);
+            const parsed_state = deep_copy(state);
+            states.push(parsed_state);
+        }
+
+        const vectorized = [];
+        for (const state of states) {
+            vectorized.push(convert_sample_to_array(state));
+        }
+
         // Normalize gamestates
         // Pass gamestates through model
         // Return probabilities
