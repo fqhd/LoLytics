@@ -15,6 +15,8 @@ function App() {
     const [name, setName] = useState('');
     const [tag, setTag] = useState('');
 
+    const datapoints = [0, 2500, 1300, 2000, 2700, 2500, 2200, 2200, 2100, 1600, 1500, 1700, 1550, 1900, 2000, 1800, 1900, 1890, 1840, 1800, 1670, 1500, 1540, 1430, 1300, 1100, 800, 500, 430, 200, 100, 50];
+
     const handleSearch = async () => {
         setSearched(true);
 
@@ -122,7 +124,7 @@ function App() {
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
                     <div className="data">
                         <div className="timeline">
-                            <LineChart />
+                            <LineChart data={datapoints} />
                         </div>
                         <div className='minimap'></div>
                         <div className='items'>
