@@ -4,6 +4,7 @@ import MatchCard from './MatchCard';
 import LineChart from './LineChart';
 import Scoreboard from './Scoreboard';
 import PurchasePath from './PurchasePath';
+import Runes from './Runes';
 
 function App() {
     const [searched, setSearched] = useState(false);
@@ -133,7 +134,20 @@ function App() {
                             ]} />
                         </div>
                         <Scoreboard data={data} />
-                        <div className='runes'></div>
+                        <Runes
+                            primaryTree={{
+                                keystone: '/images/Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.png',
+                                subs: ['/images/Styles/Resolve/BonePlating/BonePlating.png', '/images/Styles/Resolve/Demolish/Demolish.png', '/images/Styles/Resolve/Conditioning/Conditioning.png']
+                            }}
+                            secondaryTree={{
+                                subs: ['/images/Styles/Precision/LegendAlacrity/LegendAlacrity.png', '/images/Styles/Precision/LegendBloodline/LegendBloodline.png']
+                            }}
+                            statPerks={[
+                                '/images/stats/statmodsadaptiveforceicon.png',
+                                '/images/stats/statmodsadaptiveforceicon.png',
+                                '/images/stats/statmodshealthscalingicon.png'
+                            ]}
+                        />
                     </div>
                     <button className="back-button" onClick={handleBack}>Back</button>
                 </div>

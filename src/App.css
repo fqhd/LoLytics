@@ -220,12 +220,6 @@ input:hover {
     border-radius: 20px;
 }
 
-.runes {
-    width: 19%;
-    height: 40%;
-    background-color: lightblue;
-}
-
 .match-details.show {
     opacity: 1;
     transform: translate(-50%, 0px) scale(1);

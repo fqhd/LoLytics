@@ -1,0 +1,52 @@
+.runes {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 15%;
+    background-color: #111;
+    border-radius: 20px;
+    border: 3px solid white;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.keystone-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #1e1e1e;
+    border: 1px solid white;
+    border-radius: 500px;
+}
+
+.sub-keystones,
+.secondary-subs,
+.stat-perks {
+    display: flex;
+    flex-direction: column;
+}
+
+.sub-keystone-icon {
+    width: 48px;
+    height: 48px;
+    border: 1px solid white;
+    border-radius: 500px;
+}
+
+.stat-icon {
+    width: 24px;
+    height: 24px;
+    background-color: #1e1e1e;
+    border-radius: 500px;
+    border: 1px solid white;
+}
