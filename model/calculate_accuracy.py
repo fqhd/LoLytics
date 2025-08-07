@@ -1,18 +1,7 @@
 import torch
-from dataset import Dataset
-from dnn import DNN
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-
-def load_network():
-    net = DNN()
-    net.load_state_dict(torch.load('dnn.pth', weights_only=True))
-    net.eval()
-    return net
-
-def load_dataset():
-    dataset = Dataset('test.lmdb')
-    return dataset
+from evaluate import load_network, load_dataset
 
 @torch.no_grad()
 def calculate_accuracy(model, dataset, num_bins=6, interval_minutes=5):
