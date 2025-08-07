@@ -15,7 +15,7 @@ const PORT = 3000;
 
 app.use(cors());
 
-const raw = await readFile('../model/champion_to_index.json');
+const raw = await readFile('./model/champion_to_index.json', 'utf-8');
 const champ_to_index = JSON.parse(raw);
 
 function send_server_error(res) {
@@ -143,8 +143,6 @@ function convert_sample_to_array(sample) {
 
     return arr;
 }
-
-
 
 app.get('/match_analysis', async (req, res) => {
     const { id } = req.query;
