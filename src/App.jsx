@@ -14,8 +14,7 @@ function App() {
     const [matchImages, setMatchImages] = useState([]);
     const [name, setName] = useState('');
     const [tag, setTag] = useState('');
-
-    const datapoints = [0, 2500, 1300, 2000, 2700, 2500, 2200, 2200, 2100, 1600, 1500, 1700, 1550, 1900, 2000, 1800, 1900, 1890, 1840, 1800, 1670, 1500, 1540, 1430, 1300, 1100, 800, 500, 430, 200, 100, 50];
+    const [lineData, setLineData] = useState([]);
 
     const handleSearch = async () => {
         setSearched(true);
@@ -30,12 +29,15 @@ function App() {
         matchDetails = await Promise.all(matchDetails);
 
         const imagePaths = [];
-        for (const detail of matchDetails) {
+        for (let i = 0; i < matchDetails.length; i++) {
+            const detail = matchDetails[i];
             const match = await detail.json();
             imagePaths.push({
                 left: `/images/splash/${match.player_champion}.jpg`,
                 right: `/images/splash/${match.opponent_champion}.jpg`,
-                win: match.win
+                win: match.win,
+                id: history.match_ids[i]
+                
             });
         }
         setMatchImages(imagePaths);
@@ -46,7 +48,8 @@ function App() {
     };
 
     const handleMatchClick = (i) => {
-        setSelectedMatch(i);
+        setSelectedMatch(matchImages[i]);
+
         setTimeout(() => {
             setShowMatchDetails(true);
         }, 50);
@@ -124,7 +127,7 @@ function App() {
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
                     <div className="data">
                         <div className="timeline">
-                            <LineChart data={datapoints} />
+                            <LineChart data={lineData} />
                         </div>
                         <div className='minimap'></div>
                         <div className='items'>
