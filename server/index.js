@@ -10,7 +10,7 @@ import { readFile } from 'fs/promises';
 import * as ort from 'onnxruntime-node';
 
 let session;
-ort.InferenceSession.create('model.onnx').then(s => {
+ort.InferenceSession.create('./model/model.onnx').then(s => {
     session = s;
 });
 
@@ -171,8 +171,15 @@ app.get('/match_analysis', async (req, res) => {
             vectorized.push(convert_sample_to_array(state));
         }
 
-        // Pass gamestates through model
-        // Return probabilities
+        const input_array = new Int32Array(vectorized.flat());
+        const input_tensor = ort.Tensor('int32', input_array, [vectorized.length, 203])
+        const feeds = { input: input_tensor };
+        const results = await session.run(feeds);
+        const outputs = results['output'];
+
+        console.log(outputs);
+
+        res({work: 'ok'});
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {
