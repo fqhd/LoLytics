@@ -7,6 +7,12 @@ import { create_initial_state } from '../data/init.js';
 import { update_with_frame } from '../data/update.js';
 import { deep_copy } from '../data/utils.js';
 import { readFile } from 'fs/promises';
+import * as ort from 'onnxruntime-node';
+
+let session;
+ort.InferenceSession.create('model.onnx').then(s => {
+    session = s;
+});
 
 config();
 
@@ -165,7 +171,6 @@ app.get('/match_analysis', async (req, res) => {
             vectorized.push(convert_sample_to_array(state));
         }
 
-        // Normalize gamestates
         // Pass gamestates through model
         // Return probabilities
     } catch (error) {
