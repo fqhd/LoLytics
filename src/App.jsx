@@ -37,7 +37,6 @@ function App() {
                 right: `/images/splash/${match.opponent_champion}.jpg`,
                 win: match.win,
                 id: history.match_ids[i]
-                
             });
         }
         setMatchImages(imagePaths);
@@ -47,8 +46,11 @@ function App() {
         }, 1000);
     };
 
-    const handleMatchClick = (i) => {
+    const handleMatchClick = async (i) => {
         setSelectedMatch(matchImages[i]);
+        let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}`);
+        response = await response.json();
+        console.log(response);
 
         setTimeout(() => {
             setShowMatchDetails(true);
