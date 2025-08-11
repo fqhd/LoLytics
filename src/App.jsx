@@ -36,7 +36,8 @@ function App() {
                 left: `/images/splash/${match.player_champion}.jpg`,
                 right: `/images/splash/${match.opponent_champion}.jpg`,
                 win: match.win,
-                id: history.match_ids[i]
+                id: history.match_ids[i],
+                team: match.team,
             });
         }
         setMatchImages(imagePaths);
@@ -51,9 +52,16 @@ function App() {
         let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}`);
         response = await response.json();
 
+        const relativeProbabilities = response.probabilities.map((p, _) => {
+            if (matchImages[i].team == 200) {
+                return 1 - p;
+            }
+            return p;
+        });
+
         setTimeout(() => {
             setShowMatchDetails(true);
-            setLineData(response.probabilities);
+            setLineData(relativeProbabilities);
         }, 50);
     };
 
