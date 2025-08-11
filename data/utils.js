@@ -66,7 +66,7 @@ export async function fetch_with_retries(url, timeout = 3000) {
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
-			return await response.json(); // or `return response` if you want the raw response
+			return await response.json();
 		} catch (error) {
 			if (attempt < 3) {
 				console.warn(
