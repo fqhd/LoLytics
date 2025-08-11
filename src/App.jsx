@@ -50,10 +50,10 @@ function App() {
         setSelectedMatch(matchImages[i]);
         let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}`);
         response = await response.json();
-        console.log(response);
 
         setTimeout(() => {
             setShowMatchDetails(true);
+            setLineData(response.probabilities);
         }, 50);
     };
 
