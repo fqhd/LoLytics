@@ -84,7 +84,8 @@ app.get('/match_details/', async (req, res) => {
         res.json({
             player_champion: player.championName,
             opponent_champion: opponent.championName,
-            win: player.win
+            win: player.win,
+            team: player.teamId,
         });
     } catch (error) {
         if (error.response) {
@@ -178,11 +179,8 @@ app.get('/match_analysis', async (req, res) => {
         for (const state of states) {
             const vectorized = convert_sample_to_array(state);
             const prediction = await predict(vectorized);
-
             probabilities.push(prediction);
         }
-
-        console.log(probabilities);
 
         res.json({ probabilities });
     } catch (error) {
