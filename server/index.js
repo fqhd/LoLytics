@@ -145,9 +145,17 @@ function convert_sample_to_array(sample) {
     }
 
     arr.push(sample.time);
-    arr.push(sample.win);
 
     return arr;
+}
+
+async function predict(data) {
+    const input_array = new Int32Array(data);
+    const input_tensor = new ort.Tensor('int32', input_array, [1, 203])
+    const feeds = { input: input_tensor };
+    const results = await session.run(feeds);
+    const outputs = results['output'];
+    return outputs.cpuData[0];
 }
 
 app.get('/match_analysis', async (req, res) => {
@@ -157,29 +165,26 @@ app.get('/match_analysis', async (req, res) => {
         const game = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
         const timeline = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}/timeline?api_key=${process.env.RIOT_KEY}`);
 
-        const state = create_initial_state(game);
+        const state = create_initial_state(game.data);
 
         const states = [];
-        for (const frame of timeline.info.frames) {
+        for (const frame of timeline.data.info.frames) {
             update_with_frame(state, frame);
             const parsed_state = deep_copy(state);
             states.push(parsed_state);
         }
 
-        const vectorized = [];
+        let probabilities = [];
         for (const state of states) {
-            vectorized.push(convert_sample_to_array(state));
+            const vectorized = convert_sample_to_array(state);
+            const prediction = await predict(vectorized);
+
+            probabilities.push(prediction);
         }
 
-        const input_array = new Int32Array(vectorized.flat());
-        const input_tensor = ort.Tensor('int32', input_array, [vectorized.length, 203])
-        const feeds = { input: input_tensor };
-        const results = await session.run(feeds);
-        const outputs = results['output'];
+        console.log(probabilities);
 
-        console.log(outputs);
-
-        res({work: 'ok'});
+        res.json({ probabilities });
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {
@@ -193,10 +198,6 @@ app.get('/match_analysis', async (req, res) => {
             send_server_error(res);
         }
     }
-
-
-
-
 });
 
 app.listen(PORT, () => {
