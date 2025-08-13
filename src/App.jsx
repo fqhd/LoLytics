@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import MatchCard from './MatchCard';
 import LineChart from './LineChart';
@@ -60,8 +60,8 @@ function App() {
         });
 
         setTimeout(() => {
-            setShowMatchDetails(true);
             setLineData(relativeProbabilities);
+            setShowMatchDetails(true);
         }, 50);
     };
 

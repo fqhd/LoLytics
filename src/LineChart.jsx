@@ -13,21 +13,14 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Ca
 
 export default function LineChart({ data }) {
   const canvasRef = useRef(null);
-
-  const labels = [];
-  for (let i = 0; i < data.length; i++) {
-    labels.push(`${i+1}m`);
-  }
+  const chartRef = useRef(null);
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d');
-
-
-
-    const chart = new Chart(ctx, {
+    chartRef.current = new Chart(ctx, {
       type: 'line',
       data: {
-        labels,
+        labels: data.map((_, i) => `${i + 1}m`),
         datasets: [
           {
             label: 'Gold',
@@ -44,35 +37,32 @@ export default function LineChart({ data }) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: false,
         plugins: {
           title: {
             display: true,
             text: 'Win Probability Graph',
             color: '#ccc',
-            font: {
-              size: 20,
-              weight: 'bold',
-            },
+            font: { size: 20, weight: 'bold' },
           },
         },
         scales: {
-          x: {
-            ticks: {
-              color: '#ccc',
-            },
-          },
-          y: {
-            beginAtZero: true,
-            ticks: {
-              color: '#ccc',
-            },
-          },
+          x: { ticks: { color: '#ccc' } },
+          y: { beginAtZero: true, ticks: { color: '#ccc' } },
         },
       },
     });
 
-    return () => chart.destroy(); // Clean up on unmount
+    return () => chartRef.current.destroy();
   }, []);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.data.labels = data.map((_, i) => `${i + 1}m`);
+      chartRef.current.data.datasets[0].data = data;
+      chartRef.current.update();
+    }
+  }, [data]);
 
   return <canvas ref={canvasRef} />;
 }
