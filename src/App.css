@@ -242,7 +242,7 @@ input:hover {
     width: 100px;
     align-self: center;
     margin-top: 20px;
-    padding: 10px 20px;
+    padding: 10px;
     background-color: #15a9ff;
     color: white;
     border: none;
@@ -254,6 +254,15 @@ input:hover {
 
 .back-button:hover {
     background-color: #3fb3f7;
+}
+
+.back-button-text {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.back-button:hover .back-button-text {
+    transform: scale(1.1);
 }
 
 .match-card-content {

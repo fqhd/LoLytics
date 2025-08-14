@@ -178,7 +178,7 @@ function App() {
                         {data && <Scoreboard data={data} />}
                         {runes && <Runes data={runes} />}
                     </div>
-                    <button className="back-button" onClick={handleBack}>Back</button>
+                    <button className="back-button" onClick={handleBack}><span className="back-button-text">Back</span></button>
                 </div>
             )}
         </div>
