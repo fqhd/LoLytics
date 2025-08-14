@@ -209,6 +209,18 @@ input:hover {
     border-radius: 20px;
     border: 3px solid white;
     padding: 10px 20px 20px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.minimap-icon {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid white;
+    pointer-events: none;
+    transition: left 0.3s ease, top 0.3s ease;
 }
 
 .items {
