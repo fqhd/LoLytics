@@ -16,6 +16,7 @@ function App() {
     const [tag, setTag] = useState('');
     const [lineData, setLineData] = useState([]);
     const [runes, setRunes] = useState(null);
+    const [items, setItems] = useState([]);
 
     const handleSearch = async () => {
         setSearched(true);
@@ -53,6 +54,8 @@ function App() {
         setSelectedMatch(matchImages[i]);
         let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}`);
         response = await response.json();
+
+        setItems(response.items.map(itemId => `https://ddragon.leagueoflegends.com/cdn/15.16.1/img/item/${itemId}.png`));
 
         const relativeProbabilities = response.probabilities.map((p, _) => {
             if (matchImages[i].team == 200) {
@@ -144,12 +147,7 @@ function App() {
                         </div>
                         <div className='minimap'></div>
                         <div className='items'>
-                            <PurchasePath iconPaths={[
-                                '/images/items/1001.jpg',
-                                '/images/items/1006.jpg',
-                                '/images/items/2003.jpg',
-                                '/images/items/1027.jpg',
-                            ]} />
+                            <PurchasePath iconPaths={items} />
                         </div>
                         <Scoreboard data={data} />
                         {runes && <Runes data={runes} />}

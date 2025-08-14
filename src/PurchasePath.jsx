@@ -8,7 +8,7 @@ export default function PurchasePath({ iconPaths }) {
         <React.Fragment key={index}>
           <img className="item-icon" src={path} alt={`Item ${index + 1}`} />
           {index !== iconPaths.length - 1 && (
-            <span className="arrow">→</span>
+            <span className="arrow"></span>
           )}
         </React.Fragment>
       ))}
