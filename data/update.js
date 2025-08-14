@@ -3,6 +3,7 @@ import { process_building_kill } from './buildings.js';
 import { process_monster_kill } from './monsters.js';
 
 export function update_with_frame(state, frame) {
+    assign_participant_stats_to_players(state, frame);
     update_general_stats(state);
     for (const event of frame.events) {
         update_with_event(state, event);

@@ -60,7 +60,6 @@ async function get_summoner_match_ids(summoner_id, key) {
 	let match_history = await api_call(
 		`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${summoner_id}/ids?startTime=${start}&queue=420&start=0&count=50&api_key=${key}`,
 	);
-	match_history = await match_history.json();
 
 	return match_history;
 }
