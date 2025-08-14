@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import {
   Chart,
   LineController,
@@ -14,6 +14,7 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Ca
 export default function LineChart({ data }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d');
@@ -25,30 +26,54 @@ export default function LineChart({ data }) {
           {
             label: 'Gold',
             data,
-            borderColor: 'rgba(75, 192, 192, 1)',
+            borderColor: '#60dfffff',
+            pointBorderColor: '#60dfffff',
             borderWidth: 3,
-            pointBackgroundColor: '#4fd1c5',
+            pointBackgroundColor: data.map(() => '#60dfffff'), // array for per-point color
             tension: 0.3,
             pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHitRadius: 10,
             fill: false,
           },
         ],
       },
       options: {
+        onHover: (event, elements) => {
+          const target = event.native ? event.native.target : event.target;
+          if (elements.length > 0) {
+            target.style.cursor = 'pointer';
+          } else {
+            target.style.cursor = 'default';
+          }
+        },
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            const firstPoint = elements[0];
+            const index = firstPoint.index;
+
+            setSelectedIndex((prev) => (prev === index ? null : index));
+
+            const label = chartRef.current.data.labels[index];
+            const value = chartRef.current.data.datasets[firstPoint.datasetIndex].data[index];
+          }
+        },
         responsive: true,
         maintainAspectRatio: false,
-        animation: false,
+        animation: {
+          duration: 0,
+        },
         plugins: {
           title: {
             display: true,
             text: 'Win Probability Graph',
-            color: '#ccc',
+            color: '#fff',
             font: { size: 20, weight: 'bold' },
           },
         },
         scales: {
-          x: { ticks: { color: '#ccc' } },
-          y: { beginAtZero: true, ticks: { color: '#ccc' } },
+          x: { ticks: { color: '#fff' } },
+          y: { beginAtZero: true, ticks: { color: '#fff' } },
         },
       },
     });
@@ -57,12 +82,25 @@ export default function LineChart({ data }) {
   }, []);
 
   useEffect(() => {
-    if (chartRef.current) {
-      chartRef.current.data.labels = data.map((_, i) => `${i + 1}m`);
-      chartRef.current.data.datasets[0].data = data;
-      chartRef.current.update();
-    }
-  }, [data]);
+    if (!chartRef.current) return;
+
+    chartRef.current.data.labels = data.map((_, i) => `${i + 1}m`);
+    chartRef.current.data.datasets[0].data = data;
+
+    chartRef.current.data.datasets[0].pointBackgroundColor = data.map((_, i) =>
+      i === selectedIndex ? '#50ff50ff' : '#60dfffff'
+    );
+
+    chartRef.current.data.datasets[0].pointBorderColor = data.map((_, i) =>
+      i === selectedIndex ? '#50ff50ff' : '#60dfffff'
+    );
+
+    chartRef.current.data.datasets[0].pointRadius = data.map((_, i) =>
+      i === selectedIndex ? 5 : 0
+    );
+
+    chartRef.current.update();
+  }, [data, selectedIndex]);
 
   return <canvas ref={canvasRef} />;
 }

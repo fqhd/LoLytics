@@ -17,6 +17,8 @@ function App() {
     const [lineData, setLineData] = useState([]);
     const [runes, setRunes] = useState(null);
     const [items, setItems] = useState([]);
+    const [frames, setFrames] = useState(null);
+    const [frame, setFrame] = useState(null);
 
     const handleSearch = async () => {
         setSearched(true);
@@ -54,6 +56,8 @@ function App() {
         setSelectedMatch(matchImages[i]);
         let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}`);
         response = await response.json();
+
+        setFrames(response.frames);
 
         setItems(response.items.map(itemId => `https://ddragon.leagueoflegends.com/cdn/15.16.1/img/item/${itemId}.png`));
 
