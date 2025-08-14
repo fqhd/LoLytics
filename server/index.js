@@ -21,8 +21,8 @@ const PORT = 3000;
 
 app.use(cors());
 
-const raw = await readFile('./model/champion_to_index.json', 'utf-8');
-const champ_to_index = JSON.parse(raw);
+const champ_to_index = JSON.parse(await readFile('./model/champion_to_index.json', 'utf-8'));
+const rune_data = JSON.parse(await readFile('./server/runes.json', 'utf-8'));
 
 function send_server_error(res) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -159,8 +159,36 @@ async function predict(data) {
     return outputs.cpuData[0];
 }
 
+function find_rune_with_id(id) {
+    if (id == 5001) {
+        return '/images/stats/statmodshealthplusicon.png';
+    } else if (id == 5008) {
+        return '/images/stats/statmodsadaptiveforceicon.png';
+    } else if (id == 5005) {
+        return '/images/stats/statmodsattackspeedicon.png';
+    } else if (id == 5007) {
+        return '/images/stats/statmodscdrscalingicon.png';
+    } else if (id == 5001) {
+        return '/images/stats/statsmodshealthscalingicon.png';
+    } else if (id == 5013) {
+        return '/images/stats/statsmodstenacityicon.png';
+    } else if (id == 5010) {
+        return '/images/stats/statsmodsmovementspeedicon.png';
+    }
+    for (const branch of rune_data) {
+        for (const slot of branch.slots) {
+            for (const rune of slot.runes) {
+                if (id == rune.id) {
+                    return rune.icon;
+                }
+            }
+        }
+    }
+    return null;
+}
+
 app.get('/match_analysis', async (req, res) => {
-    const { id } = req.query;
+    const { id, puuid } = req.query;
 
     try {
         const game = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
@@ -182,7 +210,27 @@ app.get('/match_analysis', async (req, res) => {
             probabilities.push(prediction);
         }
 
-        res.json({ probabilities });
+        const player = find_participant_with_puuid(game.data.info.participants, puuid);
+
+        const runes = {
+            primaryTree: {
+                keystone: find_rune_with_id(player.perks.styles[0].selections[0].perk),
+                subs: [
+                    find_rune_with_id(player.perks.styles[0].selections[1].perk),
+                    find_rune_with_id(player.perks.styles[0].selections[2].perk),
+                    find_rune_with_id(player.perks.styles[0].selections[3].perk),
+                ],
+            },
+            secondaryTree: {
+                subs: [
+                    find_rune_with_id(player.perks.styles[1].selections[0].perk),
+                    find_rune_with_id(player.perks.styles[1].selections[1].perk),
+                ],
+            },
+            statPerks: [find_rune_with_id(player.perks.statPerks.offense), find_rune_with_id(player.perks.statPerks.flex), find_rune_with_id(player.perks.statPerks.defense)],
+        }
+        
+        res.json({ probabilities, runes });
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {

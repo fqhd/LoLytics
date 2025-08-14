@@ -15,6 +15,7 @@ function App() {
     const [name, setName] = useState('');
     const [tag, setTag] = useState('');
     const [lineData, setLineData] = useState([]);
+    const [runes, setRunes] = useState(null);
 
     const handleSearch = async () => {
         setSearched(true);
@@ -27,7 +28,7 @@ function App() {
             matchDetails.push(fetch(`http://localhost:3000/match_details?id=${match_id}&puuid=${history.puuid}`));
         }
         matchDetails = await Promise.all(matchDetails);
-
+        
         const imagePaths = [];
         for (let i = 0; i < matchDetails.length; i++) {
             const detail = matchDetails[i];
@@ -38,6 +39,7 @@ function App() {
                 win: match.win,
                 id: history.match_ids[i],
                 team: match.team,
+                puuid: history.puuid,
             });
         }
         setMatchImages(imagePaths);
@@ -49,7 +51,7 @@ function App() {
 
     const handleMatchClick = async (i) => {
         setSelectedMatch(matchImages[i]);
-        let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}`);
+        let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}`);
         response = await response.json();
 
         const relativeProbabilities = response.probabilities.map((p, _) => {
@@ -60,6 +62,7 @@ function App() {
         });
 
         setTimeout(() => {
+            setRunes(response.runes);
             setLineData(relativeProbabilities);
             setShowMatchDetails(true);
         }, 50);
@@ -149,20 +152,7 @@ function App() {
                             ]} />
                         </div>
                         <Scoreboard data={data} />
-                        <Runes
-                            primaryTree={{
-                                keystone: '/images/Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.png',
-                                subs: ['/images/Styles/Resolve/BonePlating/BonePlating.png', '/images/Styles/Resolve/Demolish/Demolish.png', '/images/Styles/Resolve/Conditioning/Conditioning.png']
-                            }}
-                            secondaryTree={{
-                                subs: ['/images/Styles/Precision/LegendAlacrity/LegendAlacrity.png', '/images/Styles/Precision/LegendBloodline/LegendBloodline.png']
-                            }}
-                            statPerks={[
-                                '/images/stats/statmodsadaptiveforceicon.png',
-                                '/images/stats/statmodsadaptiveforceicon.png',
-                                '/images/stats/statmodshealthscalingicon.png'
-                            ]}
-                        />
+                        {runes && <Runes data={runes} />}
                     </div>
                     <button className="back-button" onClick={handleBack}>Back</button>
                 </div>
