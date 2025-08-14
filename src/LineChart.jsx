@@ -71,8 +71,21 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
           },
         },
         scales: {
-          x: { ticks: { color: '#fff' } },
-          y: { beginAtZero: true, ticks: { color: '#fff' } },
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.5)',
+            },
+            ticks: { color: '#fff' }
+          },
+          y: {
+            min: 0,
+            max: 1,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.5)',
+            },
+            beginAtZero: true,
+            ticks: { color: '#fff' }
+          },
         },
       },
     });
