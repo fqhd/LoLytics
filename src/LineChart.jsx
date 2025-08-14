@@ -51,7 +51,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             const firstPoint = elements[0];
             const index = firstPoint.index;
 
-            setFrameIndex((prev) => (prev === index ? null : index));
+            setFrameIndex(index);
 
             const label = chartRef.current.data.labels[index];
             const value = chartRef.current.data.datasets[firstPoint.datasetIndex].data[index];
