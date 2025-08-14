@@ -187,6 +187,18 @@ function find_rune_with_id(id) {
     return null;
 }
 
+function get_participant_item_purchases(frames, participant_id) {
+    const items = [];
+    for (const frame of frames) {
+        for (const event of frame.events) {
+            if (event.type === 'ITEM_PURCHASED' && event.participantId == participant_id) {
+                items.push(event.itemId);
+            }
+        }
+    }
+    return items;
+}
+
 app.get('/match_analysis', async (req, res) => {
     const { id, puuid } = req.query;
 
@@ -230,7 +242,9 @@ app.get('/match_analysis', async (req, res) => {
             statPerks: [find_rune_with_id(player.perks.statPerks.offense), find_rune_with_id(player.perks.statPerks.flex), find_rune_with_id(player.perks.statPerks.defense)],
         }
         
-        res.json({ probabilities, runes });
+        const items = get_participant_item_purchases(timeline.data.info.frames, player.participantId);
+
+        res.json({ probabilities, runes, items });
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {
