@@ -199,6 +199,21 @@ function get_participant_item_purchases(frames, participant_id) {
     return items;
 }
 
+function parse_condensed_frames(states) {
+    const frames = [];
+    for (const state of states) {
+        const frame = [];
+        for (const team of state.teams) {
+            for (const player of team.players) {
+                const { champion, kills, deaths, assists, cs, deathTimer, x, y } = player;
+                frame.push({ champion, kills, deaths, assists, cs, deathTimer, x, y });
+            }
+        }
+        frames.push(frame);
+    }
+    return frames;
+}
+
 app.get('/match_analysis', async (req, res) => {
     const { id, puuid } = req.query;
 
@@ -241,10 +256,12 @@ app.get('/match_analysis', async (req, res) => {
             },
             statPerks: [find_rune_with_id(player.perks.statPerks.offense), find_rune_with_id(player.perks.statPerks.flex), find_rune_with_id(player.perks.statPerks.defense)],
         }
-        
+
         const items = get_participant_item_purchases(timeline.data.info.frames, player.participantId);
 
-        res.json({ probabilities, runes, items });
+        const frames = parse_condensed_frames(states);
+
+        res.json({ probabilities, runes, items, frames });
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {
