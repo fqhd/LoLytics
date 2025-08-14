@@ -175,6 +175,7 @@ input:hover {
     border-radius: 20px;
     opacity: 0;
     padding: 40px;
+    padding-bottom: 10px;
     text-align: center;
     transition: opacity 0.4s ease, transform 0.4s ease;
     pointer-events: none;
@@ -188,10 +189,11 @@ input:hover {
     height: 100%;
     display: flex;
     flex-flow: row wrap;
+    justify-content: space-between;
 }
 
 .timeline {
-    width: 60%;
+    width: 75%;
     height: 50%;
     border-radius: 20px;
     padding: 10px 20px 20px 20px;
@@ -226,7 +228,6 @@ input:hover {
 .items {
     padding: 10px 20px 20px 20px;
     width: 40%;
-    height: 40%;
     background-color: #1e1e1e;
     border: 3px solid white;
     border-radius: 20px;
