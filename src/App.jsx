@@ -151,7 +151,7 @@ function App() {
                             <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
                         </div>
                         <div className='minimap'>
-                            {frames[frameIndex].map((champ, i) => {
+                            {frames && frames[frameIndex] && frames[frameIndex].map((champ, i) => {
                                 const mapWidth = 15000;
                                 const mapHeight = 15000;
                                 const xPercent = (champ.x / mapWidth) * 100;
