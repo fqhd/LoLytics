@@ -205,8 +205,8 @@ function parse_condensed_frames(states) {
         const frame = [];
         for (const team of state.teams) {
             for (const player of team.players) {
-                const { champion, kills, deaths, assists, cs, deathTimer, x, y } = player;
-                frame.push({ champion, kills, deaths, assists, cs, deathTimer, x, y });
+                const { champion, kills, deaths, assists, creepscore, deathTimer, x, y } = player;
+                frame.push({ champion, kills, deaths, assists, creepscore, deathTimer, x, y });
             }
         }
         frames.push(frame);

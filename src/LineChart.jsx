@@ -11,10 +11,9 @@ import {
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale);
 
-export default function LineChart({ data }) {
+export default function LineChart({ data, frameIndex, setFrameIndex }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d');
@@ -52,7 +51,7 @@ export default function LineChart({ data }) {
             const firstPoint = elements[0];
             const index = firstPoint.index;
 
-            setSelectedIndex((prev) => (prev === index ? null : index));
+            setFrameIndex((prev) => (prev === index ? null : index));
 
             const label = chartRef.current.data.labels[index];
             const value = chartRef.current.data.datasets[firstPoint.datasetIndex].data[index];
@@ -88,19 +87,19 @@ export default function LineChart({ data }) {
     chartRef.current.data.datasets[0].data = data;
 
     chartRef.current.data.datasets[0].pointBackgroundColor = data.map((_, i) =>
-      i === selectedIndex ? '#50ff50ff' : '#60dfffff'
+      i === frameIndex ? '#50ff50ff' : '#60dfffff'
     );
 
     chartRef.current.data.datasets[0].pointBorderColor = data.map((_, i) =>
-      i === selectedIndex ? '#50ff50ff' : '#60dfffff'
+      i === frameIndex ? '#50ff50ff' : '#60dfffff'
     );
 
     chartRef.current.data.datasets[0].pointRadius = data.map((_, i) =>
-      i === selectedIndex ? 5 : 0
+      i === frameIndex ? 5 : 0
     );
 
     chartRef.current.update();
-  }, [data, selectedIndex]);
+  }, [data, frameIndex]);
 
   return <canvas ref={canvasRef} />;
 }

@@ -18,7 +18,7 @@ function App() {
     const [runes, setRunes] = useState(null);
     const [items, setItems] = useState([]);
     const [frames, setFrames] = useState(null);
-    const [frame, setFrame] = useState(null);
+    const [frameIndex, setFrameIndex] = useState(0);
 
     const handleSearch = async () => {
         setSearched(true);
@@ -79,6 +79,7 @@ function App() {
         setShowMatchDetails(false);
         setTimeout(() => {
             setSelectedMatch(null);
+            setFrameIndex(0);
         }, 400);
     };
 
@@ -98,22 +99,22 @@ function App() {
         return () => document.removeEventListener('keydown', handleKeyPress);
     }, [selectedMatch]);
 
-    const data = {
-        blue: [
-            { name: 'Ahri', icon: '/images/icons/Ahri.jpg', cs: 120, kills: 5, deaths: 1, assists: 3 },
-            { name: 'LeeSin', icon: '/images/icons/LeeSin.jpg', cs: 100, kills: 3, deaths: 2, assists: 4 },
-            { name: 'MasterYi', icon: '/images/icons/MasterYi.jpg', cs: 100, kills: 3, deaths: 2, assists: 4 },
-            { name: 'Riven', icon: '/images/icons/Riven.jpg', cs: 100, kills: 3, deaths: 2, assists: 4 },
-            { name: 'VelKoz', icon: '/images/icons/Velkoz.jpg', cs: 100, kills: 3, deaths: 2, assists: 4 },
-        ],
-        red: [
-            { name: 'Zed', icon: '/images/icons/Zed.jpg', cs: 110, kills: 2, deaths: 5, assists: 1 },
-            { name: 'Jinx', icon: '/images/icons/Jinx.jpg', cs: 130, kills: 6, deaths: 0, assists: 6 },
-            { name: 'JarvanIV', icon: '/images/icons/JarvanIV.jpg', cs: 130, kills: 6, deaths: 0, assists: 6 },
-            { name: 'BelVeth', icon: '/images/icons/Belveth.jpg', cs: 130, kills: 6, deaths: 0, assists: 6 },
-            { name: 'Annie', icon: '/images/icons/Annie.jpg', cs: 130, kills: 6, deaths: 0, assists: 6 },
-        ]
-    };
+    const data = frames && frames[frameIndex] ? {
+  blue: [
+    { name: frames[frameIndex][0].champion, cs: frames[frameIndex][0].creepscore, kills: frames[frameIndex][0].kills, deaths: frames[frameIndex][0].deaths, assists: frames[frameIndex][0].assists },
+    { name: frames[frameIndex][1].champion, cs: frames[frameIndex][1].creepscore, kills: frames[frameIndex][1].kills, deaths: frames[frameIndex][1].deaths, assists: frames[frameIndex][1].assists },
+    { name: frames[frameIndex][2].champion, cs: frames[frameIndex][2].creepscore, kills: frames[frameIndex][2].kills, deaths: frames[frameIndex][2].deaths, assists: frames[frameIndex][2].assists },
+    { name: frames[frameIndex][3].champion, cs: frames[frameIndex][3].creepscore, kills: frames[frameIndex][3].kills, deaths: frames[frameIndex][3].deaths, assists: frames[frameIndex][3].assists },
+    { name: frames[frameIndex][4].champion, cs: frames[frameIndex][4].creepscore, kills: frames[frameIndex][4].kills, deaths: frames[frameIndex][4].deaths, assists: frames[frameIndex][4].assists },
+  ],
+  red: [
+    { name: frames[frameIndex][5].champion, cs: frames[frameIndex][5].creepscore, kills: frames[frameIndex][5].kills, deaths: frames[frameIndex][5].deaths, assists: frames[frameIndex][5].assists },
+    { name: frames[frameIndex][6].champion, cs: frames[frameIndex][6].creepscore, kills: frames[frameIndex][6].kills, deaths: frames[frameIndex][6].deaths, assists: frames[frameIndex][6].assists },
+    { name: frames[frameIndex][7].champion, cs: frames[frameIndex][7].creepscore, kills: frames[frameIndex][7].kills, deaths: frames[frameIndex][7].deaths, assists: frames[frameIndex][7].assists },
+    { name: frames[frameIndex][8].champion, cs: frames[frameIndex][8].creepscore, kills: frames[frameIndex][8].kills, deaths: frames[frameIndex][8].deaths, assists: frames[frameIndex][8].assists },
+    { name: frames[frameIndex][9].champion, cs: frames[frameIndex][9].creepscore, kills: frames[frameIndex][9].kills, deaths: frames[frameIndex][9].deaths, assists: frames[frameIndex][9].assists },
+  ]
+} : null;
 
     return (
         <div className="container">
@@ -147,13 +148,13 @@ function App() {
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
                     <div className="data">
                         <div className="timeline">
-                            <LineChart data={lineData} />
+                            <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
                         </div>
                         <div className='minimap'></div>
                         <div className='items'>
                             <PurchasePath iconPaths={items} />
                         </div>
-                        <Scoreboard data={data} />
+                        {data && <Scoreboard data={data} />}
                         {runes && <Runes data={runes} />}
                     </div>
                     <button className="back-button" onClick={handleBack}>Back</button>

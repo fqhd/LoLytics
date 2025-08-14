@@ -15,7 +15,7 @@ export default function Scoreboard({ data }) {
       <div className="team left-team">
         {data.blue.map((champion, index) => (
           <div className="champion-row" key={index}>
-            <img src={champion.icon} alt={champion.name} className="champion-icon" />
+            <img src={'/images/icons/'+champion.name+'.jpg'} alt={champion.name} className="champion-icon" />
             <span className="champion-cs">{champion.cs} CS</span>
             <span className="champion-kda">{champion.kills}/{champion.deaths}/{champion.assists}</span>
           </div>
@@ -36,7 +36,7 @@ export default function Scoreboard({ data }) {
       <div className="team right-team">
         {data.red.map((champion, index) => (
           <div className="champion-row" key={index}>
-            <img src={champion.icon} alt={champion.name} className="champion-icon" />
+            <img src={'/images/icons/'+champion.name+'.jpg'} alt={champion.name} className="champion-icon" />
             <span className="champion-cs">{champion.cs} CS</span>
             <span className="champion-kda">{champion.kills}/{champion.deaths}/{champion.assists}</span>
           </div>
