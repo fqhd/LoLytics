@@ -163,7 +163,7 @@ function App() {
                                         key={i}
                                         src={`/images/icons/${champ.champion}.jpg`}
                                         alt={champ.champion}
-                                        className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''}`}
+                                        className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''} ${i < 5 ? 'blue-icon' : 'red-icon'}`}
                                         style={{
                                             left: `${xPercent}%`,
                                             top: `${yPercent}%`,

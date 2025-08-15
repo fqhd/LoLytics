@@ -229,6 +229,14 @@ input:hover {
     filter: grayscale(100%) brightness(50%);
 }
 
+.red-icon {
+    border-color: #ff5959;
+}
+
+.blue-icon {
+    border-color: #329cff;
+}
+
 .items {
     padding: 10px 20px 20px 20px;
     width: 40%;
