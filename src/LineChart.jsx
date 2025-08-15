@@ -7,13 +7,34 @@ import {
   LinearScale,
   Title,
   CategoryScale,
+  Tooltip
 } from 'chart.js';
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale);
+Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip);
 
 export default function LineChart({ data, frameIndex, setFrameIndex }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+  const hoverIndexRef = useRef(null);
+
+  const verticalLinePlugin = {
+    id: 'verticalLine',
+    beforeDatasetsDraw(chart) {
+      const index = hoverIndexRef.current;
+      if (index === null) return;
+
+      const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x.getPixelForValue(index), top);
+      ctx.lineTo(x.getPixelForValue(index), bottom);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d');
@@ -28,7 +49,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             borderColor: '#60dfffff',
             pointBorderColor: '#60dfffff',
             borderWidth: 3,
-            pointBackgroundColor: data.map(() => '#60dfffff'), // array for per-point color
+            pointBackgroundColor: data.map(() => '#60dfffff'),
             tension: 0.3,
             pointRadius: 0,
             pointHoverRadius: 5,
@@ -38,31 +59,9 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
         ],
       },
       options: {
-        onHover: (event, elements) => {
-          const target = event.native ? event.native.target : event.target;
-          if (elements.length > 0) {
-            target.style.cursor = 'pointer';
-          } else {
-            target.style.cursor = 'default';
-          }
-        },
-        onClick: (event, elements) => {
-          if (elements.length > 0) {
-            const firstPoint = elements[0];
-            const index = firstPoint.index;
-
-            setFrameIndex(index);
-
-            const label = chartRef.current.data.labels[index];
-            const value = chartRef.current.data.datasets[firstPoint.datasetIndex].data[index];
-          }
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-          duration: 0,
-        },
+        interaction: { mode: 'index', intersect: false },
         plugins: {
+          tooltip: { enabled: true },
           title: {
             display: true,
             text: 'Win Probability Graph',
@@ -70,24 +69,52 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             font: { size: 20, weight: 'bold' },
           },
         },
+        onHover: (event) => {
+          const points = chartRef.current.getElementsAtEventForMode(
+            event,
+            'index',
+            { intersect: false },
+            false
+          );
+          if (points.length) {
+            hoverIndexRef.current = points[0].index;
+            event.native.target.style.cursor = 'pointer';
+          } else {
+            hoverIndexRef.current = null;
+            event.native.target.style.cursor = 'default';
+          }
+          chartRef.current.draw();
+        },
+        onClick: (event) => {
+          const points = chartRef.current.getElementsAtEventForMode(
+            event,
+            'index',
+            { intersect: false },
+            false
+          );
+          if (points.length) {
+            const index = points[0].index;
+            setFrameIndex(index);
+          }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 0 },
         scales: {
           x: {
-            grid: {
-              color: 'rgba(255, 255, 255, 0.5)',
-            },
+            grid: { color: 'rgba(255, 255, 255, 0.5)' },
             ticks: { color: '#fff' }
           },
           y: {
             min: 0,
             max: 1,
-            grid: {
-              color: 'rgba(255, 255, 255, 0.5)',
-            },
+            grid: { color: 'rgba(255, 255, 255, 0.5)' },
             beginAtZero: true,
             ticks: { color: '#fff' }
           },
         },
       },
+      plugins: [verticalLinePlugin],
     });
 
     return () => chartRef.current.destroy();
