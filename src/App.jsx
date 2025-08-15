@@ -59,7 +59,7 @@ function App() {
 
         setFrames(response.frames);
 
-        setItems(response.items.map(itemId => `https://ddragon.leagueoflegends.com/cdn/15.16.1/img/item/${itemId}.png`));
+        setItems(response.items.map(itemId => `/images/items/${itemId}.jpg`));
 
         const relativeProbabilities = response.probabilities.map((p, _) => {
             if (matchImages[i].team == 200) {
