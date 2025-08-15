@@ -2,7 +2,6 @@ import '../data/game.js';
 import express from 'express';
 import { config } from 'dotenv';
 import axios from 'axios';
-import cors from 'cors';
 import { create_initial_state } from '../data/init.js';
 import { update_with_frame } from '../data/update.js';
 import { deep_copy } from '../data/utils.js';
@@ -18,8 +17,6 @@ config();
 
 const app = express();
 const PORT = 3000;
-
-app.use(cors());
 
 const champ_to_index = JSON.parse(await readFile('./model/champion_to_index.json', 'utf-8'));
 const rune_data = JSON.parse(await readFile('./server/runes.json', 'utf-8'));
