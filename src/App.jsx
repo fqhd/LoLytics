@@ -156,13 +156,14 @@ function App() {
                                 const mapHeight = 15000;
                                 const xPercent = (champ.x / mapWidth) * 100;
                                 const yPercent = (1 - champ.y / mapHeight) * 100;
+                                const deathTimer = parseInt(champ.deathTimer);
 
                                 return (
                                     <img
                                         key={i}
                                         src={`/images/icons/${champ.champion}.jpg`}
                                         alt={champ.champion}
-                                        className="minimap-icon"
+                                        className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''}`}
                                         style={{
                                             left: `${xPercent}%`,
                                             top: `${yPercent}%`,

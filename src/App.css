@@ -225,6 +225,10 @@ input:hover {
     transition: left 0.3s ease, top 0.3s ease;
 }
 
+.minimap-icon.dead {
+    filter: grayscale(100%) brightness(50%);
+}
+
 .items {
     padding: 10px 20px 20px 20px;
     width: 40%;
