@@ -18,7 +18,7 @@ for i in range(1, 11):
 with open('model/champion_to_index.json') as f:
     champ_to_idx = json.load(f)
 
-results = [(filename, inp, convert_json_sample_to_list(inp, champ_to_idx)) for inp, filename in tests]
+results = [(filename, inp, convert_json_sample_to_list(inp, champ_to_idx)[:-1]) for inp, filename in tests]
 
 with open('tests/fixtures.json', 'w') as f:
     json.dump(results, f)
