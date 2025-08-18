@@ -44,7 +44,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
         labels: data.map((_, i) => `${i + 1}m`),
         datasets: [
           {
-            label: 'Gold',
+            label: 'Win Probability',
             data,
             borderColor: '#60dfffff',
             pointBorderColor: '#60dfffff',
@@ -110,7 +110,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             max: 1,
             grid: { color: 'rgba(255, 255, 255, 0.5)' },
             beginAtZero: true,
-            ticks: { color: '#fff' }
+            ticks: { color: '#fff', callback: (value) => `${Math.round(value * 100)}%` }
           },
         },
       },
