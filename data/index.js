@@ -1,7 +1,7 @@
-import { get_game_data } from "./game.js";
-import fs from "fs";
-import { API_KEYS } from "./api_keys.js";
-import { get_ids } from "./get_match_ids.js";
+import { get_game_data } from './game.js';
+import fs from 'fs';
+import { API_KEYS } from './api_keys.js';
+import { get_ids } from './get_match_ids.js';
 
 async function get_batch(match_ids) {
 	const promises = [];
@@ -29,20 +29,17 @@ async function download_games(rank) {
 		let batch = await get_batch(match_ids.slice(i, i + API_KEYS.length));
 		for (const game of batch) {
 			idx++;
-			fs.mkdirSync(`match_data/${rank}/game_${idx}`);
-			for (let j = 0; j < game.length; j++) {
-				fs.writeFileSync(
-					`match_data/${rank}/game_${idx}/${j}.json`,
-					JSON.stringify(game[j]),
-				);
-			}
+			fs.writeFileSync(
+				`match_data/${rank}/game_${idx}.json`,
+				JSON.stringify(game)
+			);
 		}
 		console.log(`Processed ${idx} matches`);
 	}
 }
 
 async function main() {
-	const ranks = ["PLATINUM", "EMERALD", "DIAMOND"];
+	const ranks = ['PLATINUM', 'EMERALD', 'DIAMOND'];
 
 	fs.mkdirSync(`match_data`);
 	for (const rank of ranks) {
