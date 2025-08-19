@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "download": "node data/index.js",
-    "test": "vitest run"
+    "test": "python3 tests/gen_fixtures.py && vitest run"
   },
   "dependencies": {
     "axios": "^1.11.0",
