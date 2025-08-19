@@ -32,3 +32,4 @@ api_keys.js
 match_data
 *.pth
 fixtures.json
+integration.json
