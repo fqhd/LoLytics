@@ -4,7 +4,7 @@ import json
 import pandas as pd
 
 class DNN(nn.Module):
-    def __init__(self):
+    def __init__(self, stats, champion_to_index, embeddings):
         super().__init__()
         self.champion_indices = torch.tensor([0, 12, 24, 36, 48, 101, 113, 125, 137, 149])
 
@@ -32,7 +32,7 @@ class DNN(nn.Module):
         self.x_indices = torch.tensor([9, 20, 31, 42, 53, 105, 116, 127, 138, 149])
         self.y_indices = torch.tensor([10, 21, 32, 43, 54, 106, 117, 128, 139, 150])
 
-        with open('stats.json') as f:
+        with open(stats) as f:
             self.stats = json.load(f)
 
         self.register_buffer("kills_mean", torch.tensor(self.stats['kills']['mean']))
@@ -50,13 +50,13 @@ class DNN(nn.Module):
         self.register_buffer("creepscore_mean", torch.tensor(self.stats['creepscore']['mean']))
         self.register_buffer("creepscore_std", torch.tensor(self.stats['creepscore']['std']))
 
-        self.load_embeddings()
+        self.load_embeddings(champion_to_index, embeddings)
 
-    def load_embeddings(self):
-        with open('champion_to_index.json') as f:
+    def load_embeddings(self, champ_path, embeddings):
+        with open(champ_path) as f:
             champion_to_index = json.load(f)
 
-        df = pd.read_csv('data.csv')
+        df = pd.read_csv(embeddings)
         numeric_data = df.drop(columns=['championName'])
 
         means = numeric_data.mean()
