@@ -2,9 +2,9 @@ import torch
 from dnn import DNN
 from dataset import Dataset
 
-def load_network():
-    net = DNN('stats.json', 'champion_to_index.json', 'data.csv')
-    net.load_state_dict(torch.load('dnn.pth', weights_only=True))
+def load_network(stats='stats.json', champ_to_idx='champion_to_index.json', embeddings='data.csv', weights='dnn.pth'):
+    net = DNN(stats, champ_to_idx, embeddings)
+    net.load_state_dict(torch.load(weights, weights_only=True))
     net.eval()
     return net
 
