@@ -140,7 +140,7 @@ function App() {
                                     const mapHeight = 15000;
                                     const xPercent = (champ.x / mapWidth) * 100;
                                     const yPercent = (1 - champ.y / mapHeight) * 100;
-                                    const deathTimer = parseInt(champ.deathTimer);
+                                    const deathTimer = Math.ceil(champ.deathTimer);
 
                                     return (
                                         <img

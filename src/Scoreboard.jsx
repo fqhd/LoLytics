@@ -19,7 +19,7 @@ export default function Scoreboard({ data }) {
                                 className="champion-icon dead"
                                 style={{ backgroundImage: `url(/images/icons/${champion.champion}.jpg)` }}
                             >
-                                <span className="death-timer">{Math.floor(champion.deathTimer)}</span>
+                                <span className="death-timer">{Math.ceil(champion.deathTimer)}</span>
                             </div>
                         ) : (
                             <div
@@ -50,9 +50,24 @@ export default function Scoreboard({ data }) {
             <div className="team right-team">
                 {data.slice(5, 10).map((champion, index) => (
                     <div className="champion-row" key={index}>
-                        <img src={'/images/icons/' + champion.champion + '.jpg'} alt={champion.champion} className="champion-icon" />
+                        {champion.deathTimer > 0 ? (
+                            <div
+                                className="champion-icon dead"
+                                style={{ backgroundImage: `url(/images/icons/${champion.champion}.jpg)` }}
+                            >
+                                <span className="death-timer">{Math.ceil(champion.deathTimer)}</span>
+                            </div>
+                        ) : (
+                            <div
+                                className="champion-icon"
+                                style={{ backgroundImage: `url(/images/icons/${champion.champion}.jpg)` }}
+                            />
+                        )}
+
                         <span className="champion-cs">{champion.creepscore} CS</span>
-                        <span className="champion-kda">{champion.kills}/{champion.deaths}/{champion.assists}</span>
+                        <span className="champion-kda">
+                            {champion.kills}/{champion.deaths}/{champion.assists}
+                        </span>
                     </div>
                 ))}
             </div>
