@@ -31,8 +31,33 @@
 .champion-icon {
   width: 1.8rem;
   height: 1.8rem;
+  background-size: cover;
+  background-position: center;
   object-fit: cover;
+  position: relative;
   border-radius: 4px;
+}
+
+.champion-icon.dead::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-image: inherit;
+  filter: grayscale(100%) brightness(50%);
+  z-index: 0;
+}
+
+.death-timer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: red;
+  font-weight: bold;
+  font-size: 18px;
+  z-index: 1;
 }
 
 .role-column {

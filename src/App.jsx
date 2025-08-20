@@ -99,23 +99,6 @@ function App() {
         return () => document.removeEventListener('keydown', handleKeyPress);
     }, [selectedMatch]);
 
-    const data = frames && frames[frameIndex] ? {
-        blue: [
-            { name: frames[frameIndex][0].champion, cs: frames[frameIndex][0].creepscore, kills: frames[frameIndex][0].kills, deaths: frames[frameIndex][0].deaths, assists: frames[frameIndex][0].assists },
-            { name: frames[frameIndex][1].champion, cs: frames[frameIndex][1].creepscore, kills: frames[frameIndex][1].kills, deaths: frames[frameIndex][1].deaths, assists: frames[frameIndex][1].assists },
-            { name: frames[frameIndex][2].champion, cs: frames[frameIndex][2].creepscore, kills: frames[frameIndex][2].kills, deaths: frames[frameIndex][2].deaths, assists: frames[frameIndex][2].assists },
-            { name: frames[frameIndex][3].champion, cs: frames[frameIndex][3].creepscore, kills: frames[frameIndex][3].kills, deaths: frames[frameIndex][3].deaths, assists: frames[frameIndex][3].assists },
-            { name: frames[frameIndex][4].champion, cs: frames[frameIndex][4].creepscore, kills: frames[frameIndex][4].kills, deaths: frames[frameIndex][4].deaths, assists: frames[frameIndex][4].assists },
-        ],
-        red: [
-            { name: frames[frameIndex][5].champion, cs: frames[frameIndex][5].creepscore, kills: frames[frameIndex][5].kills, deaths: frames[frameIndex][5].deaths, assists: frames[frameIndex][5].assists },
-            { name: frames[frameIndex][6].champion, cs: frames[frameIndex][6].creepscore, kills: frames[frameIndex][6].kills, deaths: frames[frameIndex][6].deaths, assists: frames[frameIndex][6].assists },
-            { name: frames[frameIndex][7].champion, cs: frames[frameIndex][7].creepscore, kills: frames[frameIndex][7].kills, deaths: frames[frameIndex][7].deaths, assists: frames[frameIndex][7].assists },
-            { name: frames[frameIndex][8].champion, cs: frames[frameIndex][8].creepscore, kills: frames[frameIndex][8].kills, deaths: frames[frameIndex][8].deaths, assists: frames[frameIndex][8].assists },
-            { name: frames[frameIndex][9].champion, cs: frames[frameIndex][9].creepscore, kills: frames[frameIndex][9].kills, deaths: frames[frameIndex][9].deaths, assists: frames[frameIndex][9].assists },
-        ]
-    } : null;
-
     return (
         <div className="container">
             <div className={`title ${searched ? 'title-shrink' : ''}`}>LoLytics</div>
@@ -179,7 +162,7 @@ function App() {
                             <div className='items'>
                                 <PurchasePath iconPaths={items} />
                             </div>
-                            {data && <Scoreboard data={data} />}
+                            {frames && frames[frameIndex] && <Scoreboard data={frames[frameIndex]} />}
                             {runes && <Runes data={runes} />}
                         </div>
                     </div>
