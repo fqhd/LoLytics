@@ -69,8 +69,7 @@ describe("update_inhib_timers", () => {
         };
 
         for (const team_id of [0, 1]) {
-            globalThis.team_id = team_id; // Simulate global variable if needed
-            update_inhib_timers(state);
+            update_inhib_timers(state, team_id);
         }
 
         expect(state.teams[0].inhibs).toEqual([2, 0, 0]);
@@ -98,8 +97,7 @@ describe("update_nexus_tower_timers", () => {
         };
 
         for (const team_id of [0, 1]) {
-            globalThis.team_id = team_id; // Simulate global variable
-            update_nexus_tower_timers(state);
+            update_nexus_tower_timers(state, team_id);
         }
 
         expect(state.teams[0].towers[9]).toBe(1);
