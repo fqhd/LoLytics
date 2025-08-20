@@ -147,37 +147,41 @@ function App() {
             {selectedMatch !== null && (
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
                     <div className="data">
-                        <div className="timeline">
-                            <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
-                        </div>
-                        <div className='minimap'>
-                            {frames && frames[frameIndex] && frames[frameIndex].map((champ, i) => {
-                                const mapWidth = 15000;
-                                const mapHeight = 15000;
-                                const xPercent = (champ.x / mapWidth) * 100;
-                                const yPercent = (1 - champ.y / mapHeight) * 100;
-                                const deathTimer = parseInt(champ.deathTimer);
+                        <div className="top-row">
+                            <div className="timeline">
+                                <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
+                            </div>
+                            <div className='minimap'>
+                                {frames && frames[frameIndex] && frames[frameIndex].map((champ, i) => {
+                                    const mapWidth = 15000;
+                                    const mapHeight = 15000;
+                                    const xPercent = (champ.x / mapWidth) * 100;
+                                    const yPercent = (1 - champ.y / mapHeight) * 100;
+                                    const deathTimer = parseInt(champ.deathTimer);
 
-                                return (
-                                    <img
-                                        key={i}
-                                        src={`/images/icons/${champ.champion}.jpg`}
-                                        alt={champ.champion}
-                                        className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''} ${i < 5 ? 'blue-icon' : 'red-icon'}`}
-                                        style={{
-                                            left: `${xPercent}%`,
-                                            top: `${yPercent}%`,
-                                            transform: 'translate(-50%, -50%)'
-                                        }}
-                                    />
-                                );
-                            })}
+                                    return (
+                                        <img
+                                            key={i}
+                                            src={`/images/icons/${champ.champion}.jpg`}
+                                            alt={champ.champion}
+                                            className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''} ${i < 5 ? 'blue-icon' : 'red-icon'}`}
+                                            style={{
+                                                left: `${xPercent}%`,
+                                                top: `${yPercent}%`,
+                                                transform: 'translate(-50%, -50%)'
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
                         </div>
-                        <div className='items'>
-                            <PurchasePath iconPaths={items} />
+                        <div className="bottom-row">
+                            <div className='items'>
+                                <PurchasePath iconPaths={items} />
+                            </div>
+                            {data && <Scoreboard data={data} />}
+                            {runes && <Runes data={runes} />}
                         </div>
-                        {data && <Scoreboard data={data} />}
-                        {runes && <Runes data={runes} />}
                     </div>
                     <button className="back-button" onClick={handleBack}><span className="back-button-text">Back</span></button>
                 </div>
