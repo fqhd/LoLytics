@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import MatchCard from './MatchCard';
+import LineChart from './LineChart';
+import Scoreboard from './Scoreboard';
+import PurchasePath from './PurchasePath';
+import Runes from './Runes';
 
 function App() {
     const [searched, setSearched] = useState(false);
@@ -10,10 +14,15 @@ function App() {
     const [matchImages, setMatchImages] = useState([]);
     const [name, setName] = useState('');
     const [tag, setTag] = useState('');
+    const [lineData, setLineData] = useState([]);
+    const [runes, setRunes] = useState(null);
+    const [items, setItems] = useState([]);
+    const [frames, setFrames] = useState(null);
+    const [frameIndex, setFrameIndex] = useState(0);
 
     const handleSearch = async () => {
         setSearched(true);
-        
+
         let history = await fetch(`http://localhost:3000/match_history?name=${name}&tag=${tag}`);
         history = await history.json();
 
@@ -24,12 +33,16 @@ function App() {
         matchDetails = await Promise.all(matchDetails);
 
         const imagePaths = [];
-        for (const detail of matchDetails) {
+        for (let i = 0; i < matchDetails.length; i++) {
+            const detail = matchDetails[i];
             const match = await detail.json();
             imagePaths.push({
-                left: `/images/${match.player_champion}.jpg`,
-                right: `/images/${match.opponent_champion}.jpg`,
-                win: match.win
+                left: `/images/splash/${match.player_champion}.jpg`,
+                right: `/images/splash/${match.opponent_champion}.jpg`,
+                win: match.win,
+                id: history.match_ids[i],
+                team: match.team,
+                puuid: history.puuid,
             });
         }
         setMatchImages(imagePaths);
@@ -39,9 +52,25 @@ function App() {
         }, 1000);
     };
 
-    const handleMatchClick = (i) => {
-        setSelectedMatch(i);
+    const handleMatchClick = async (i) => {
+        setSelectedMatch(matchImages[i]);
+        let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}`);
+        response = await response.json();
+
+        setFrames(response.frames);
+
+        setItems(response.items.map(itemId => `/images/items/${itemId}.jpg`));
+
+        const relativeProbabilities = response.probabilities.map((p, _) => {
+            if (matchImages[i].team == 200) {
+                return 1 - p;
+            }
+            return p;
+        });
+
         setTimeout(() => {
+            setRunes(response.runes);
+            setLineData(relativeProbabilities);
             setShowMatchDetails(true);
         }, 50);
     };
@@ -50,6 +79,7 @@ function App() {
         setShowMatchDetails(false);
         setTimeout(() => {
             setSelectedMatch(null);
+            setFrameIndex(0);
         }, 400);
     };
 
@@ -99,8 +129,44 @@ function App() {
 
             {selectedMatch !== null && (
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
-                    <h2>Match {selectedMatch + 1} Details</h2>
-                    <button className="back-button" onClick={handleBack}>Back</button>
+                    <div className="data">
+                        <div className="top-row">
+                            <div className="timeline">
+                                <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
+                            </div>
+                            <div className='minimap'>
+                                {frames && frames[frameIndex] && frames[frameIndex].map((champ, i) => {
+                                    const mapWidth = 15000;
+                                    const mapHeight = 15000;
+                                    const xPercent = (champ.x / mapWidth) * 100;
+                                    const yPercent = (1 - champ.y / mapHeight) * 100;
+                                    const deathTimer = Math.ceil(champ.deathTimer);
+
+                                    return (
+                                        <img
+                                            key={i}
+                                            src={`/images/icons/${champ.champion}.jpg`}
+                                            alt={champ.champion}
+                                            className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''} ${i < 5 ? 'blue-icon' : 'red-icon'}`}
+                                            style={{
+                                                left: `${xPercent}%`,
+                                                top: `${yPercent}%`,
+                                                transform: 'translate(-50%, -50%)'
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+                        <div className="bottom-row">
+                            <div className='items'>
+                                <PurchasePath iconPaths={items} />
+                            </div>
+                            {frames && frames[frameIndex] && <Scoreboard data={frames[frameIndex]} />}
+                            {runes && <Runes data={runes} />}
+                        </div>
+                    </div>
+                    <button className="back-button" onClick={handleBack}><span className="back-button-text">Back</span></button>
                 </div>
             )}
         </div>

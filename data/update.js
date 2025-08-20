@@ -3,7 +3,8 @@ import { process_building_kill } from './buildings.js';
 import { process_monster_kill } from './monsters.js';
 
 export function update_with_frame(state, frame) {
-    update_general_stats(state, frame);
+    assign_participant_stats_to_players(state, frame);
+    update_general_stats(state);
     for (const event of frame.events) {
         update_with_event(state, event);
     }
@@ -38,7 +39,7 @@ export function update_player_timers(team) {
     }
 }
 
-export function update_inhib_timers(state) {
+export function update_inhib_timers(state, team_id) {
     for (let i = 0; i < 3; i++) {
         state.teams[team_id].inhibs[i] -= 1;
         state.teams[team_id].inhibs[i] = Math.max(
@@ -48,7 +49,7 @@ export function update_inhib_timers(state) {
     }
 }
 
-export function update_nexus_tower_timers(state) {
+export function update_nexus_tower_timers(state, team_id) {
     for (const tower_id of [9, 10]) {
         state.teams[team_id].towers[tower_id] -= 1;
         state.teams[team_id].towers[tower_id] = Math.max(
@@ -58,12 +59,12 @@ export function update_nexus_tower_timers(state) {
     }
 }
 
-export function update_general_stats(state, frame) {
+export function update_general_stats(state) {
     state.time += 1;
     for (let team_id = 0; team_id < 2; team_id++) {
         update_player_timers(state.teams[team_id]);
-        update_inhib_timers(state);
-        update_nexus_tower_timers(state);
+        update_inhib_timers(state, team_id);
+        update_nexus_tower_timers(state, team_id);
     }
 }
 

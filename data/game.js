@@ -1,4 +1,4 @@
-import { api_call, deep_copy } from "./utils.js";
+import { api_call } from "./utils.js";
 import { update_with_frame } from './update.js';
 import { create_initial_state } from './init.js';
 
@@ -9,11 +9,9 @@ export async function get_game_data(MATCH_ID, key) {
 
 	const state = create_initial_state(game);
 
-	const states = [];
-	for (const frame of timeline.info.frames) {
+	for (const frame of timeline.info.frames.slice(0, Math.floor(Math.random() * timeline.info.frames.length + 1))) {
 		update_with_frame(state, frame);
-		const parsed_state = deep_copy(state);
-		states.push(parsed_state);
 	}
-	return states;
+
+	return state;
 }

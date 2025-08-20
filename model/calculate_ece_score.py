@@ -1,18 +1,7 @@
 import torch
 import numpy as np
 from tqdm import tqdm
-from dnn import DNN
-from dataset import Dataset
-
-def load_network():
-    net = DNN()
-    net.load_state_dict(torch.load('dnn.pth', weights_only=True))
-    net.eval()
-    return net
-
-def load_dataset():
-    dataset = Dataset('test.lmdb')
-    return dataset
+from evaluate import load_network, load_dataset
 
 def compute_ece_binary(probs, labels, n_bins=10):
     bin_boundaries = np.linspace(0.0, 1.0, n_bins + 1)

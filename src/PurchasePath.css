@@ -1,0 +1,19 @@
+.purchase-path {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.item-icon {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    border: 2px solid white;
+    border-radius: 4px;
+}
+
+.arrow {
+    font-size: 24px;
+    color: white;
+}

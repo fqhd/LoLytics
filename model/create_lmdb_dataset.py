@@ -6,7 +6,7 @@ from tqdm import tqdm
 import os
 import random
 
-def convert_json_sample_to_numpy(sample, champ_to_idx):
+def convert_json_sample_to_list(sample, champ_to_idx):
     arr = []
 
     dragon_names = ['WATER_DRAGON', 'AIR_DRAGON', 'CHEMTECH_DRAGON', 'FIRE_DRAGON', 'HEXTECH_DRAGON', 'EARTH_DRAGON']
@@ -39,7 +39,7 @@ def convert_json_sample_to_numpy(sample, champ_to_idx):
     arr.append(sample['time'])
     arr.append(sample['win'])
 
-    return np.array(arr, dtype='int32')
+    return arr
 
 def get_game_paths(data_dir):
     paths = []
@@ -68,7 +68,8 @@ def save_lmdb(paths, lmdb_path):
             file = random.choice(game_snapshot_files)
             with open(os.path.join(path, file)) as f:
                 obj = json.load(f)
-                data = convert_json_sample_to_numpy(obj, champ_to_idx)
+                arr = convert_json_sample_to_list(obj, champ_to_idx)
+                data = np.array(arr, dtype='int32')
             key = str(idx).encode()
             value = pickle.dumps(data)
             txn.put(key, value)

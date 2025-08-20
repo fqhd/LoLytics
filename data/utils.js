@@ -63,10 +63,7 @@ export async function fetch_with_retries(url, timeout = 3000) {
 	for (let attempt = 1; attempt <= 3; attempt++) {
 		try {
 			const response = await api_call(url);
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-			return await response.json(); // or `return response` if you want the raw response
+			return response;
 		} catch (error) {
 			if (attempt < 3) {
 				console.warn(

@@ -1,9 +1,9 @@
-import { api_call, fetch_with_retries, shuffle } from "./utils.js";
-import { API_KEYS } from "./api_keys.js";
+import { api_call, fetch_with_retries, shuffle } from './utils.js';
+import { API_KEYS } from './api_keys.js';
 
 async function get_summoner_ids(rank, tier, page, key) {
 	const summoner_ids = [];
-	if (rank == "CHALLENGER") {
+	if (rank == 'CHALLENGER') {
 		let response = await fetch_with_retries(
 			`https://euw1.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=${key}`,
 		);
@@ -14,7 +14,7 @@ async function get_summoner_ids(rank, tier, page, key) {
 		for (const summoner of response.entries) {
 			summoner_ids.push(summoner.puuid);
 		}
-	} else if (rank == "GRANDMASTER") {
+	} else if (rank == 'GRANDMASTER') {
 		let response = await fetch_with_retries(
 			`https://euw1.api.riotgames.com/lol/league/v4/grandmasterleagues/by-queue/RANKED_SOLO_5x5?api_key=${key}`,
 		);
@@ -25,7 +25,7 @@ async function get_summoner_ids(rank, tier, page, key) {
 		for (const summoner of response.entries) {
 			summoner_ids.push(summoner.puuid);
 		}
-	} else if (rank == "MASTER") {
+	} else if (rank == 'MASTER') {
 		let response = await fetch_with_retries(
 			`https://euw1.api.riotgames.com/lol/league/v4/masterleagues/by-queue/RANKED_SOLO_5x5?api_key=${key}`,
 		);
@@ -60,7 +60,6 @@ async function get_summoner_match_ids(summoner_id, key) {
 	let match_history = await api_call(
 		`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${summoner_id}/ids?startTime=${start}&queue=420&start=0&count=50&api_key=${key}`,
 	);
-	match_history = await match_history.json();
 
 	return match_history;
 }
@@ -90,7 +89,7 @@ export async function get_ids(rank) {
 	let match_ids = [];
 	let promises = [];
 
-	for (const tier of ["I", "II", "III", "IV"]) {
+	for (const tier of ['I', 'II', 'III', 'IV']) {
 		for (const page of [1, 2]) {
 			promises.push(
 				get_match_id_batch(rank, tier, page, API_KEYS[promises.length]),
