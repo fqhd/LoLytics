@@ -66,7 +66,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         display: true,
                         text: 'Win Probability Graph',
                         color: '#fff',
-                        font: { size: 20, weight: 'bold' },
+                        font: { size: 14, weight: 'bold' },
                     },
                 },
                 onHover: (event) => {

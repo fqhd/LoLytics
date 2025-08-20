@@ -175,7 +175,7 @@ input:hover {
     border-radius: 20px;
     opacity: 0;
     padding: 40px;
-    padding-bottom: 25px;
+    padding-bottom: 20px;
     text-align: center;
     transition: opacity 0.4s ease, transform 0.4s ease;
     pointer-events: none;
@@ -195,7 +195,7 @@ input:hover {
 .top-row {
     display: flex;
     flex-flow: row nowrap;
-    height: 48%;
+    height: 50%;
     gap: 10px;
 }
 
@@ -203,7 +203,7 @@ input:hover {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
-    height: 45%;
+    height: 40%;
     gap: 10px;
 }
 

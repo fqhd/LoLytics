@@ -6,8 +6,8 @@
 }
 
 .item-icon {
-    width: 36px;
-    height: 36px;
+    width: 2rem;
+    height: 2rem;
     object-fit: contain;
     border: 2px solid white;
     border-radius: 4px;
