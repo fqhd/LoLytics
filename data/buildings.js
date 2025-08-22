@@ -14,14 +14,20 @@ export function process_inhibitor_kill(state, event) {
 		lane = 2;
 	}
 	const team_id = parseInt(event.teamId / 100) - 1;
-	state.teams[team_id].inhibs[lane] = 5;
+	const time = event.timestamp / 1000 / 60;
+	const death_timer = 60 * 5;
+	const next_whole_minte = (Math.ceil(time) - time) * 60;
+	state.teams[team_id].inhibs[lane] = Math.max(death_timer - next_whole_minte, 0);
 }
 
 export function process_tower_kill(state, event) {
 	const tower_id = get_tower_id(state, event);
 	const team_id = parseInt(event.teamId / 100) - 1;
 	if (tower_id == 9 || tower_id == 10) {
-		state.teams[team_id].towers[tower_id] = 3;
+		const time = event.timestamp / 1000 / 60;
+		const death_timer = 60 * 3;
+		const next_whole_minte = (Math.ceil(time) - time) * 60;
+		state.teams[team_id].towers[tower_id] = Math.max(death_timer - next_whole_minte, 0);
 	} else {
 		state.teams[team_id].towers[tower_id] = 0;
 	}

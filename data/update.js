@@ -41,7 +41,7 @@ export function update_player_timers(team) {
 
 export function update_inhib_timers(state, team_id) {
     for (let i = 0; i < 3; i++) {
-        state.teams[team_id].inhibs[i] -= 1;
+        state.teams[team_id].inhibs[i] -= 60;
         state.teams[team_id].inhibs[i] = Math.max(
             state.teams[team_id].inhibs[i],
             0,
@@ -51,7 +51,7 @@ export function update_inhib_timers(state, team_id) {
 
 export function update_nexus_tower_timers(state, team_id) {
     for (const tower_id of [9, 10]) {
-        state.teams[team_id].towers[tower_id] -= 1;
+        state.teams[team_id].towers[tower_id] -= 60;
         state.teams[team_id].towers[tower_id] = Math.max(
             state.teams[team_id].towers[tower_id],
             0,
@@ -70,13 +70,13 @@ export function update_general_stats(state) {
 
 export function update_with_event(state, event) {
     switch (event.type) {
-        case "CHAMPION_KILL":
+        case 'CHAMPION_KILL':
             process_champion_kill(state, event);
             break;
-        case "BUILDING_KILL":
+        case 'BUILDING_KILL':
             process_building_kill(state, event);
             break;
-        case "ELITE_MONSTER_KILL":
+        case 'ELITE_MONSTER_KILL':
             process_monster_kill(state, event);
             break;
     }
