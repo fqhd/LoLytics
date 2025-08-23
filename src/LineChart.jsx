@@ -155,16 +155,48 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
         chartRef.current.data.labels = data.map((_, i) => `${i}m`);
         chartRef.current.data.datasets[0].data = data;
 
-        chartRef.current.data.datasets[0].pointBackgroundColor = data.map((_, i) =>
-            i === frameIndex ? '#50ff50ff' : '#60dfffff'
+        const pointRadius = [];
+        const pointBackgroundColor = [];
+        const pointBorderColor = [];
+
+        for (let i = 0; i < data.length; i++) {
+            pointRadius[i] = 0;
+            pointBackgroundColor[i] = '#60dfffff';
+            pointBorderColor[i] = '#60dfffff';
+
+            if (i > 0) {
+                const change = data[i] - data[i - 1];
+                const isSharp = Math.abs(change) > EPSILON;
+                const dir = Math.sign(change);
+
+                if (isSharp) {
+                    let nextChange = 0, nextIsSharp = false, nextDir = 0;
+                    if (i + 1 < data.length) {
+                        nextChange = data[i + 1] - data[i];
+                        nextIsSharp = Math.abs(nextChange) > EPSILON;
+                        nextDir = Math.sign(nextChange);
+                    }
+
+                    pointBackgroundColor[i] = dir > 0 ? 'lime' : 'red';
+                    pointBorderColor[i] = dir > 0 ? 'lime' : 'red';
+
+                    const shouldDraw = !nextIsSharp || (nextIsSharp && nextDir !== dir);
+
+                    if (shouldDraw) {
+                        pointRadius[i] = 5;
+                    }
+                }
+            }
+        }
+
+        chartRef.current.data.datasets[0].pointBackgroundColor = pointBackgroundColor;
+
+        chartRef.current.data.datasets[0].pointBorderColor = pointBorderColor.map((c, i) =>
+            i === frameIndex ? 'white' : c
         );
 
-        chartRef.current.data.datasets[0].pointBorderColor = data.map((_, i) =>
-            i === frameIndex ? '#50ff50ff' : '#60dfffff'
-        );
-
-        chartRef.current.data.datasets[0].pointRadius = data.map((_, i) =>
-            i === frameIndex ? 5 : 0
+        chartRef.current.data.datasets[0].pointRadius = pointRadius.map((r, i) =>
+            i === frameIndex ? 5 : r
         );
 
         chartRef.current.update();
