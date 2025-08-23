@@ -35,20 +35,20 @@ class DNN(nn.Module):
         with open(stats) as f:
             self.stats = json.load(f)
 
-        self.register_buffer("kills_mean", torch.tensor(self.stats['kills']['mean']))
-        self.register_buffer("kills_std", torch.tensor(self.stats['kills']['std']))
+        self.register_buffer('kills_mean', torch.tensor(self.stats['kills']['mean']))
+        self.register_buffer('kills_std', torch.tensor(self.stats['kills']['std']))
 
-        self.register_buffer("deaths_mean", torch.tensor(self.stats['deaths']['mean']))
-        self.register_buffer("deaths_std", torch.tensor(self.stats['deaths']['std']))
+        self.register_buffer('deaths_mean', torch.tensor(self.stats['deaths']['mean']))
+        self.register_buffer('deaths_std', torch.tensor(self.stats['deaths']['std']))
 
-        self.register_buffer("assists_mean", torch.tensor(self.stats['assists']['mean']))
-        self.register_buffer("assists_std", torch.tensor(self.stats['assists']['std']))
+        self.register_buffer('assists_mean', torch.tensor(self.stats['assists']['mean']))
+        self.register_buffer('assists_std', torch.tensor(self.stats['assists']['std']))
 
-        self.register_buffer("gold_mean", torch.tensor(self.stats['gold']['mean']))
-        self.register_buffer("gold_std", torch.tensor(self.stats['gold']['std']))
+        self.register_buffer('gold_mean', torch.tensor(self.stats['gold']['mean']))
+        self.register_buffer('gold_std', torch.tensor(self.stats['gold']['std']))
 
-        self.register_buffer("creepscore_mean", torch.tensor(self.stats['creepscore']['mean']))
-        self.register_buffer("creepscore_std", torch.tensor(self.stats['creepscore']['std']))
+        self.register_buffer('creepscore_mean', torch.tensor(self.stats['creepscore']['mean']))
+        self.register_buffer('creepscore_std', torch.tensor(self.stats['creepscore']['std']))
 
         self.load_embeddings(champion_to_index, embeddings)
 
@@ -71,7 +71,7 @@ class DNN(nn.Module):
             values = normalized_data.loc[_].values.astype('float32')
             self.embeddings[index] = torch.tensor(values)
 
-        print("Embeddings loaded and normalized")
+        print('Embeddings loaded and normalized')
 
     def normalize(self, x):
         x[:, self.kill_indices] = (x[:, self.kill_indices] - self.kills_mean) / self.kills_std
@@ -87,6 +87,22 @@ class DNN(nn.Module):
         x[:, self.x_indices] /= 14500
         x[:, self.y_indices] /= 14500
         x[:, -1] /= 30
+
+        x[:, 177] /= 3
+        x[:, 81] /= 3
+
+        x[:, 93] /= 5 * 60
+        x[:, 94] /= 5 * 60
+        x[:, 95] /= 5 * 60
+
+        x[:, 189] /= 5 * 60
+        x[:, 190] /= 5 * 60
+        x[:, 191] /= 5 * 60
+
+        x[:, 92] /= 3 * 60
+        x[:, 91] /= 3 * 60
+        x[:, 188] /= 3 * 60
+        x[:, 187] /= 3 * 60
 
     def forward(self, x):
         B = x.size(0)
