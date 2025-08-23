@@ -55,21 +55,21 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         tension: 0.3,
                         segment: {
                             borderColor: ctx => {
-                                const i = ctx.p1DataIndex; // segment ends at index i
+                                const i = ctx.p1DataIndex;
                                 const dataset = ctx.chart.data.datasets[0].data;
                                 const change = dataset[i] - dataset[i - 1];
 
                                 if (Math.abs(change) > EPSILON) {
-                                    return change > 0 ? 'lime' : 'red'; // highlight this segment
+                                    return change > 0 ? 'lime' : 'red';
                                 }
-                                return '#60dfffff'; // default color
+                                return '#60dfffff';
                             },
                             borderWidth: ctx => {
                                 const i = ctx.p1DataIndex;
                                 const dataset = ctx.chart.data.datasets[0].data;
                                 const change = dataset[i] - dataset[i - 1];
 
-                                return Math.abs(change) > EPSILON ? 4 : 3; // thicker for sharp changes
+                                return Math.abs(change) > EPSILON ? 4 : 3;
                             }
                         },
                         pointRadius: 0,
@@ -95,7 +95,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         display: true,
                         text: 'Win Probability Graph',
                         color: '#fff',
-                        font: { size: 14, weight: 'bold' },
+                        font: { size: 16, weight: 'bold' },
                     },
                 },
                 onHover: (event) => {
