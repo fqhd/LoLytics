@@ -41,7 +41,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
         chartRef.current = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.map((_, i) => `${i + 1}m`),
+                labels: data.map((_, i) => `${i}m`),
                 datasets: [
                     {
                         label: 'Win Probability',
@@ -131,7 +131,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
     useEffect(() => {
         if (!chartRef.current) return;
 
-        chartRef.current.data.labels = data.map((_, i) => `${i + 1}m`);
+        chartRef.current.data.labels = data.map((_, i) => `${i}m`);
         chartRef.current.data.datasets[0].data = data;
 
         chartRef.current.data.datasets[0].pointBackgroundColor = data.map((_, i) =>
