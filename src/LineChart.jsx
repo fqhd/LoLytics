@@ -10,6 +10,8 @@ import {
     Tooltip
 } from 'chart.js';
 
+const EPSILON = 0.05;
+
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip);
 
 export default function LineChart({ data, frameIndex, setFrameIndex }) {
@@ -51,6 +53,25 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         borderWidth: 3,
                         pointBackgroundColor: data.map(() => '#60dfffff'),
                         tension: 0.3,
+                        segment: {
+                            borderColor: ctx => {
+                                const i = ctx.p1DataIndex; // segment ends at index i
+                                const dataset = ctx.chart.data.datasets[0].data;
+                                const change = dataset[i] - dataset[i - 1];
+
+                                if (Math.abs(change) > EPSILON) {
+                                    return change > 0 ? 'lime' : 'red'; // highlight this segment
+                                }
+                                return '#60dfffff'; // default color
+                            },
+                            borderWidth: ctx => {
+                                const i = ctx.p1DataIndex;
+                                const dataset = ctx.chart.data.datasets[0].data;
+                                const change = dataset[i] - dataset[i - 1];
+
+                                return Math.abs(change) > EPSILON ? 4 : 3; // thicker for sharp changes
+                            }
+                        },
                         pointRadius: 0,
                         pointHoverRadius: 5,
                         pointHitRadius: 10,
@@ -61,7 +82,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             options: {
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    tooltip: { 
+                    tooltip: {
                         enabled: true,
                         callbacks: {
                             label: function (context) {
