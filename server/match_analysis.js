@@ -9,8 +9,15 @@ import { find_participant_with_puuid } from './utils.js';
 
 const rune_data = JSON.parse(await readFile('./server/runes.json', 'utf-8'));
 
+const cache = new Map();
+
 export default async function match_analysis(req, res) {
     const { id, puuid } = req.query;
+    const cache_key = `${id}:${puuid}`;
+
+    if (cache.has(cache_key)) {
+        return res.json(cache.get(cache_key));
+    }
 
     try {
         const game = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
@@ -56,7 +63,11 @@ export default async function match_analysis(req, res) {
 
         const frames = parse_condensed_frames(states);
 
-        res.json({ probabilities, runes, items, frames });
+        const response_data = { probabilities, runes, items, frames };
+
+        cache.set(cache_key, response_data);
+
+        res.json(response_data);
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {
