@@ -8,6 +8,7 @@ import Runes from './Runes';
 
 function App() {
     const [searched, setSearched] = useState(false);
+    const [error, setError] = useState(false);
     const [showMatches, setShowMatches] = useState(false);
     const [selectedMatch, setSelectedMatch] = useState(null);
     const [showMatchDetails, setShowMatchDetails] = useState(false);
@@ -23,33 +24,43 @@ function App() {
     const handleSearch = async () => {
         setSearched(true);
 
-        let history = await fetch(`http://localhost:3000/match_history?name=${name}&tag=${tag}`);
-        history = await history.json();
+        try {
+            const start = Date.now();
 
-        let matchDetails = [];
-        for (const match_id of history.match_ids.slice(0, 5)) {
-            matchDetails.push(fetch(`http://localhost:3000/match_details?id=${match_id}&puuid=${history.puuid}`));
+            let history = await fetch(`http://localhost:3000/match_history?name=${name}&tag=${tag}`);
+            history = await history.json();
+
+            let matchDetails = [];
+            for (const match_id of history.match_ids.slice(0, 5)) {
+                matchDetails.push(fetch(`http://localhost:3000/match_details?id=${match_id}&puuid=${history.puuid}`));
+            }
+            matchDetails = await Promise.all(matchDetails);
+
+            const imagePaths = [];
+            for (let i = 0; i < matchDetails.length; i++) {
+                const detail = matchDetails[i];
+                const match = await detail.json();
+                imagePaths.push({
+                    left: `/images/splash/${match.player_champion}.jpg`,
+                    right: `/images/splash/${match.opponent_champion}.jpg`,
+                    win: match.win,
+                    id: history.match_ids[i],
+                    team: match.team,
+                    puuid: history.puuid,
+                });
+            }
+            setMatchImages(imagePaths);
+
+            const end = Date.now();
+
+            setTimeout(() => {
+                setError(false);
+                setShowMatches(true);
+            }, Math.max(1000 - end + start, 0));
+        } catch (e) {
+            setSearched(false);
+            setError(true);
         }
-        matchDetails = await Promise.all(matchDetails);
-
-        const imagePaths = [];
-        for (let i = 0; i < matchDetails.length; i++) {
-            const detail = matchDetails[i];
-            const match = await detail.json();
-            imagePaths.push({
-                left: `/images/splash/${match.player_champion}.jpg`,
-                right: `/images/splash/${match.opponent_champion}.jpg`,
-                win: match.win,
-                id: history.match_ids[i],
-                team: match.team,
-                puuid: history.puuid,
-            });
-        }
-        setMatchImages(imagePaths);
-
-        setTimeout(() => {
-            setShowMatches(true);
-        }, 1000);
     };
 
     const handleMatchClick = async (i) => {
@@ -104,6 +115,7 @@ function App() {
             <div className={`title ${searched ? 'title-shrink' : ''}`}>LoLytics</div>
 
             <div className={`input-group-wrapper ${searched ? 'fade-out' : ''}`}>
+                <div className={`error-message ${error ? 'error-message-show' : ''}`}>Summoner Not Found</div>
                 <div className="input-group">
                     <input className="input-left" placeholder="Name" onChange={(e) => setName(e.target.value)} />
                     <input className="input-right" placeholder="Tag" onChange={(e) => setTag(e.target.value)} />

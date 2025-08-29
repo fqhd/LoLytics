@@ -92,6 +92,16 @@ input:hover {
     transition: all 0.6s ease;
 }
 
+.error-message {
+    margin-bottom: 1em;
+    color: rgb(215, 33, 33);
+    display: none;
+}
+
+.error-message-show {
+    display: block;
+}
+
 .title-shrink {
     font-size: 32px;
     top: 1em;
