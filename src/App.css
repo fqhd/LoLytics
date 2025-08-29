@@ -31,7 +31,6 @@ input:hover {
 
 .title {
     font-size: 128px;
-    margin-bottom: 40px;
 }
 
 .input-group {
@@ -87,17 +86,15 @@ input:hover {
 }
 
 .title {
-    top: 1.5em;
+    top: calc(15vh);
     position: absolute;
     font-size: 128px;
-    margin-bottom: 40px;
     transition: all 0.6s ease;
 }
 
 .title-shrink {
     font-size: 32px;
     top: 1em;
-    margin-bottom: 0;
 }
 
 .input-group-wrapper {
