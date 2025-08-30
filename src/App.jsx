@@ -147,7 +147,7 @@ function App() {
                                 <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
                             </div>
                             <div className='minimap'>
-                                {frames && frames[frameIndex] && frames[frameIndex].map((champ, i) => {
+                                {frames && frames[frameIndex] && frames[frameIndex].teams[0].players.map((champ, i) => {
                                     const mapWidth = 15000;
                                     const mapHeight = 15000;
                                     const xPercent = (champ.x / mapWidth) * 100;
@@ -159,7 +159,28 @@ function App() {
                                             key={i}
                                             src={`/images/icons/${champ.champion}.jpg`}
                                             alt={champ.champion}
-                                            className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''} ${i < 5 ? 'blue-icon' : 'red-icon'}`}
+                                            className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''} blue-icon`}
+                                            style={{
+                                                left: `${xPercent}%`,
+                                                top: `${yPercent}%`,
+                                                transform: 'translate(-50%, -50%)'
+                                            }}
+                                        />
+                                    );
+                                })}
+                                {frames && frames[frameIndex] && frames[frameIndex].teams[1].players.map((champ, i) => {
+                                    const mapWidth = 15000;
+                                    const mapHeight = 15000;
+                                    const xPercent = (champ.x / mapWidth) * 100;
+                                    const yPercent = (1 - champ.y / mapHeight) * 100;
+                                    const deathTimer = Math.ceil(champ.deathTimer);
+
+                                    return (
+                                        <img
+                                            key={i}
+                                            src={`/images/icons/${champ.champion}.jpg`}
+                                            alt={champ.champion}
+                                            className={`minimap-icon ${deathTimer > 0 ? 'dead' : ''} red-icon`}
                                             style={{
                                                 left: `${xPercent}%`,
                                                 top: `${yPercent}%`,

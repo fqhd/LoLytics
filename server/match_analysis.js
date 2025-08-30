@@ -61,9 +61,7 @@ export default async function match_analysis(req, res) {
 
         const items = get_participant_item_purchases(timeline.data.info.frames, player.participantId);
 
-        const frames = parse_condensed_frames(states);
-
-        const response_data = { probabilities, runes, items, frames };
+        const response_data = { probabilities, runes, items, frames: states };
 
         cache.set(cache_key, response_data);
 
@@ -121,19 +119,4 @@ function get_participant_item_purchases(frames, participant_id) {
         }
     }
     return items;
-}
-
-function parse_condensed_frames(states) {
-    const frames = [];
-    for (const state of states) {
-        const frame = [];
-        for (const team of state.teams) {
-            for (const player of team.players) {
-                const { champion, kills, deaths, assists, creepscore, deathTimer, x, y } = player;
-                frame.push({ champion, kills, deaths, assists, creepscore, deathTimer, x, y });
-            }
-        }
-        frames.push(frame);
-    }
-    return frames;
 }
