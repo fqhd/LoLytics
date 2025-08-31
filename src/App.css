@@ -122,14 +122,16 @@ input:hover {
 
 .match-history-container {
     padding: 20px;
+    padding-top: 0;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -45%);
+    transform: translate(-50%, -52%);
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
+    justify-content: flex-end;
 
     width: 0;
     height: 0;
@@ -145,14 +147,14 @@ input:hover {
 
 .match-history-container.show {
     width: 820px;
-    height: 730px;
+    height: 100vh;
     opacity: 1;
     pointer-events: auto;
 }
 
 .match-card {
     width: 800px;
-    height: 150px;
+    height: 15%;
     background-color: #2a2a2a;
     border-radius: 16px;
     opacity: 0;
