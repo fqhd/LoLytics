@@ -33,6 +33,21 @@ input:hover {
     font-size: 128px;
 }
 
+.username {
+    font-size: 48px;
+    top: -0.5em;
+    right: 1em;
+
+    position: absolute;
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.username-show {
+    transform: translateY(1em);
+    opacity: 1;
+}
+
 .input-group {
     display: flex;
     width: 600px;

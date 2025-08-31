@@ -113,6 +113,7 @@ function App() {
     return (
         <div className="container">
             <div className={`title ${searched ? 'title-shrink' : ''}`}>LoLytics</div>
+            <div className={`username ${searched ? 'username-show' : ''}`}>{name.toUpperCase()}#{tag.toUpperCase()}</div>
 
             <div className={`input-group-wrapper ${searched ? 'fade-out' : ''}`}>
                 <div className={`error-message ${error ? 'error-message-show' : ''}`}>Summoner Not Found</div>
