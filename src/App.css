@@ -21,6 +21,11 @@ input:hover {
     transform: scale(1.02);
 }
 
+.input-dropdown:hover {
+    background-color: #3b3b3b;
+    transform: scale(1.02);
+}
+
 .container {
     display: flex;
     flex-direction: column;
