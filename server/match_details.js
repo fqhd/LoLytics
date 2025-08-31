@@ -4,7 +4,7 @@ import { find_participant_with_puuid, find_opponent } from './utils.js';
 const cache = new Map();
 
 export default async function match_details(req, res) {
-    const { id, puuid } = req.query;
+    const { id, puuid, region } = req.query;
     const cache_key = `${id}:${puuid}`;
 
     if (cache.has(cache_key)) {
@@ -12,7 +12,7 @@ export default async function match_details(req, res) {
     }
 
     try {
-        const game = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
+        const game = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
 
         const player = find_participant_with_puuid(game.data.info.participants, puuid);
         const opponent = find_opponent(game.data.info.participants, player);

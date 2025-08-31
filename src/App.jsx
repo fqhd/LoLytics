@@ -28,12 +28,12 @@ function App() {
         try {
             const start = Date.now();
 
-            let history = await fetch(`http://localhost:3000/match_history?name=${name}&tag=${tag}`);
+            let history = await fetch(`http://localhost:3000/match_history?name=${name}&tag=${tag}&region=${region}`);
             history = await history.json();
 
             let matchDetails = [];
             for (const match_id of history.match_ids.slice(0, 5)) {
-                matchDetails.push(fetch(`http://localhost:3000/match_details?id=${match_id}&puuid=${history.puuid}`));
+                matchDetails.push(fetch(`http://localhost:3000/match_details?id=${match_id}&puuid=${history.puuid}&region=${region}`));
             }
             matchDetails = await Promise.all(matchDetails);
 
@@ -66,7 +66,7 @@ function App() {
 
     const handleMatchClick = async (i) => {
         setSelectedMatch(matchImages[i]);
-        let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}`);
+        let response = await fetch(`http://localhost:3000/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
         response = await response.json();
 
         setFrames(response.frames);

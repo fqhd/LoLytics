@@ -12,7 +12,7 @@ const rune_data = JSON.parse(await readFile('./server/runes.json', 'utf-8'));
 const cache = new Map();
 
 export default async function match_analysis(req, res) {
-    const { id, puuid } = req.query;
+    const { id, puuid, region } = req.query;
     const cache_key = `${id}:${puuid}`;
 
     if (cache.has(cache_key)) {
@@ -20,8 +20,8 @@ export default async function match_analysis(req, res) {
     }
 
     try {
-        const game = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
-        const timeline = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}/timeline?api_key=${process.env.RIOT_KEY}`);
+        const game = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
+        const timeline = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/${id}/timeline?api_key=${process.env.RIOT_KEY}`);
 
         const state = create_initial_state(game.data);
 
