@@ -280,6 +280,18 @@ input:hover {
     border-color: #329cff;
 }
 
+.building {
+    position: absolute;
+}
+
+.red-building {
+    filter: brightness(50%) saturate(100%) sepia(100%) hue-rotate(330deg) saturate(1000%);
+}
+
+.blue-building {
+    filter: brightness(50%) saturate(100%) sepia(100%) hue-rotate(160deg) saturate(1000%);
+}
+
 .items {
     flex: 2;
     padding: 10px 20px 20px 20px;
