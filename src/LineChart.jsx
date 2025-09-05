@@ -124,9 +124,8 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
 
                             const dataIndex = tooltipModel.dataPoints[0].dataIndex;
                             const value = tooltipModel.dataPoints[0].raw;
-
-                            // Build tooltip JSX-like string
-                            let innerHtml = `<div><strong>Minute ${dataIndex}</strong>: ${value}%</div>`;
+                            
+                            let innerHtml = `<div><strong>Minute ${dataIndex}</strong>: ${Math.round(value * 1000) / 10}%</div>`;
 
                             if (events[dataIndex]) {
                                 events[dataIndex].forEach((e) => {
@@ -155,7 +154,6 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
 
                             tooltipEl.innerHTML = innerHtml;
 
-                            // Position
                             const { offsetLeft: positionX, offsetTop: positionY } =
                                 context.chart.canvas;
                             tooltipEl.style.opacity = 1;
@@ -221,7 +219,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
         return () => {
             chartRef.current.destroy()
             if (tooltipRef.current) {
-                tooltipRef.current.remove(); // remove from DOM
+                tooltipRef.current.remove();
                 tooltipRef.current = null;
             }
         };
