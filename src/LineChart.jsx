@@ -14,21 +14,11 @@ const EPSILON = 0.05;
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip);
 
-export default function LineChart({ data, frameIndex, setFrameIndex }) {
+export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
     const hoverIndexRef = useRef(null);
     const tooltipRef = useRef(null);
-
-    const events = {
-        1: [
-            { killer: "/images/icons/Yasuo.jpg", killee: "/images/icons/Lux.jpg", delta: 0.05 },
-            { killer: "/images/icons/Ahri.jpg", killee: "/images/icons/Riven.jpg", delta: 0.02 },
-        ],
-        3: [
-            { killer: "/images/icons/Zed.jpg", killee: "/images/tower.png", delta: -0.07 },
-        ],
-    };
 
     const verticalLinePlugin = {
         id: 'verticalLine',
@@ -132,7 +122,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                                     const swordClass = e.delta > 0 ? "green" : "red";
                                     innerHtml += `
                 <div style="display:flex;align-items:center;margin-top:6px">
-                  <img src="${e.killer}" style="width:30px;height:30px;border-radius:4px"/>
+                  <img src="${e.left}" style="width:30px;height:30px;border-radius:4px"/>
                   <div style="
   display:flex;
   justify-content:center;
@@ -145,7 +135,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
 ">
   <img src="/images/sword.png" style="width:22px;height:22px"/>
 </div>
-                  <img src="${e.killee}" style="width:30px;height:30px;border-radius:4px"/>
+                  <img src="${e.right}" style="width:30px;height:30px;border-radius:4px"/>
                   <span style="margin-left:6px">(${e.delta > 0 ? "+" : ""}${e.delta}%)</span>
                 </div>
               `;

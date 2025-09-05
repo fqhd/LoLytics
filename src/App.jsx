@@ -16,6 +16,7 @@ function App() {
     const [name, setName] = useState('');
     const [tag, setTag] = useState('');
     const [lineData, setLineData] = useState([]);
+    const [events, setEvents] = useState({});
     const [runes, setRunes] = useState(null);
     const [items, setItems] = useState([]);
     const [frames, setFrames] = useState(null);
@@ -83,6 +84,7 @@ function App() {
         setTimeout(() => {
             setRunes(response.runes);
             setLineData(relativeProbabilities);
+            setEvents(response.events);
             setShowMatchDetails(true);
         }, 50);
     };
@@ -149,7 +151,7 @@ function App() {
                     <div className="data">
                         <div className="top-row">
                             <div className="timeline">
-                                <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
+                                <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} events={events} />
                             </div>
                             <div className='minimap'>
                                 <img src='images/nexus.png' className="blue-building building" style={{
