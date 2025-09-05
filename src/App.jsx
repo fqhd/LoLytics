@@ -98,9 +98,7 @@ function App() {
     useEffect(() => {
         const handleKeyPress = e => {
             if (e.key === 'Escape') {
-                if (selectedMatch !== null) {
-                    handleBack();
-                } else {
+                if (selectedMatch === null) {
                     setSearched(false);
                     setShowMatches(false);
                 }

@@ -18,6 +18,17 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
     const hoverIndexRef = useRef(null);
+    const tooltipRef = useRef(null);
+
+    const events = {
+        1: [
+            { killer: "/images/icons/Yasuo.jpg", killee: "/images/icons/Lux.jpg", delta: 0.05 },
+            { killer: "/images/icons/Ahri.jpg", killee: "/images/icons/Riven.jpg", delta: 0.02 },
+        ],
+        3: [
+            { killer: "/images/icons/Zed.jpg", killee: "/images/tower.png", delta: -0.07 },
+        ],
+    };
 
     const verticalLinePlugin = {
         id: 'verticalLine',
@@ -39,6 +50,23 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
     };
 
     useEffect(() => {
+        if (!tooltipRef.current) {
+            const el = document.createElement("div");
+            el.id = "chartjs-tooltip";
+            el.style.position = "absolute";
+            el.style.pointerEvents = "none";
+            el.style.background = "rgba(20,20,20,0.9)";
+            el.style.color = "white";
+            el.style.borderRadius = "8px";
+            el.style.padding = "10px";
+            el.style.fontFamily = "sans-serif";
+            el.style.fontSize = "14px";
+            el.style.zIndex = 1000;
+            el.style.opacity = 0;
+            document.body.appendChild(el);
+            tooltipRef.current = el;
+        }
+
         const ctx = canvasRef.current.getContext('2d');
         chartRef.current = new Chart(ctx, {
             type: 'line',
@@ -83,13 +111,57 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
                     tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function (context) {
-                                let value = context.raw;
-                                return 'Win Probability: ' + Math.round(value * 1000) / 10 + '%';
+                        enabled: false,
+                        external: (context) => {
+                            const tooltipModel = context.tooltip;
+                            const tooltipEl = tooltipRef.current;
+                            if (!tooltipEl) return;
+
+                            if (tooltipModel.opacity === 0) {
+                                tooltipEl.style.opacity = 0;
+                                return;
                             }
-                        }
+
+                            const dataIndex = tooltipModel.dataPoints[0].dataIndex;
+                            const value = tooltipModel.dataPoints[0].raw;
+
+                            // Build tooltip JSX-like string
+                            let innerHtml = `<div><strong>Minute ${dataIndex}</strong>: ${value}%</div>`;
+
+                            if (events[dataIndex]) {
+                                events[dataIndex].forEach((e) => {
+                                    const swordClass = e.delta > 0 ? "green" : "red";
+                                    innerHtml += `
+                <div style="display:flex;align-items:center;margin-top:6px">
+                  <img src="${e.killer}" style="width:30px;height:30px;border-radius:4px"/>
+                  <div style="
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:26px;
+  height:26px;
+  margin:0 6px;
+  border-radius:4px;
+  background:${swordClass};
+">
+  <img src="/images/sword.png" style="width:22px;height:22px"/>
+</div>
+                  <img src="${e.killee}" style="width:30px;height:30px;border-radius:4px"/>
+                  <span style="margin-left:6px">(${e.delta > 0 ? "+" : ""}${e.delta}%)</span>
+                </div>
+              `;
+                                });
+                            }
+
+                            tooltipEl.innerHTML = innerHtml;
+
+                            // Position
+                            const { offsetLeft: positionX, offsetTop: positionY } =
+                                context.chart.canvas;
+                            tooltipEl.style.opacity = 1;
+                            tooltipEl.style.left = positionX + tooltipModel.caretX + 20 + "px";
+                            tooltipEl.style.top = positionY + tooltipModel.caretY + "px";
+                        },
                     },
                     title: {
                         display: true,
@@ -146,7 +218,13 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             plugins: [verticalLinePlugin],
         });
 
-        return () => chartRef.current.destroy();
+        return () => {
+            chartRef.current.destroy()
+            if (tooltipRef.current) {
+                tooltipRef.current.remove(); // remove from DOM
+                tooltipRef.current = null;
+            }
+        };
     }, []);
 
     useEffect(() => {

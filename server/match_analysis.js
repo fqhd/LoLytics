@@ -6,6 +6,7 @@ import { deep_copy } from '../data/utils.js';
 import { readFile } from 'fs/promises';
 import send_server_error from './network.js';
 import { find_participant_with_puuid } from './utils.js';
+import { get_frame_events_win_probability_deltas } from './events.js';
 
 const rune_data = JSON.parse(await readFile('./server/runes.json', 'utf-8'));
 
@@ -32,11 +33,19 @@ export default async function match_analysis(req, res) {
             states.push(parsed_state);
         }
 
-        let probabilities = [];
+        const probabilities = [];
         for (const state of states) {
             const vectorized = convert_sample_to_array(state);
             const prediction = await predict(vectorized);
             probabilities.push(prediction);
+        }
+
+        const events = {};
+        for (let i = 1; i < states.length; i++) {
+            const state = states[i];
+            const frame = timeline.data.info.frames[i-1];
+            const deltas = get_frame_events_win_probability_deltas(state, frame.events);
+            events[i.toString()] = deltas;
         }
 
         const player = find_participant_with_puuid(game.data.info.participants, puuid);
@@ -61,7 +70,7 @@ export default async function match_analysis(req, res) {
 
         const items = get_participant_item_purchases(timeline.data.info.frames, player.participantId);
 
-        const response_data = { probabilities, runes, items, frames: states };
+        const response_data = { probabilities, runes, items, frames: states, events };
 
         cache.set(cache_key, response_data);
 
