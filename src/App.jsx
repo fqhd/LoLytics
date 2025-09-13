@@ -81,6 +81,19 @@ function App() {
                         count: 1
                     }
                 ]
+            },
+            {
+                time: 12,
+                items: [
+                    {
+                        id: 1026,
+                        count: 1
+                    },
+                    {
+                        id: 1027,
+                        count: 2
+                    }
+                ]
             }
         ]);
 
