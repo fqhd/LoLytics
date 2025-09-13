@@ -74,7 +74,7 @@ function App() {
 
         setItems([
             {
-                time: 5,
+                time: 9,
                 items: [
                     {
                         id: 1001,
