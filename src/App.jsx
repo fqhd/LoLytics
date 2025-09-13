@@ -81,6 +81,15 @@ function App() {
             return p;
         });
 
+
+        for (const k in response.events) {
+            if (matchImages[i].team == 200) {
+                response.events[k].forEach(event => {
+                    event.delta = -event.delta;
+                });
+            }
+        }
+
         setTimeout(() => {
             setRunes(response.runes);
             setLineData(relativeProbabilities);

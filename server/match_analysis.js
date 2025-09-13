@@ -42,9 +42,9 @@ export default async function match_analysis(req, res) {
 
         const events = {};
         for (let i = 1; i < states.length; i++) {
-            const state = states[i];
-            const frame = timeline.data.info.frames[i-1];
-            const deltas = get_frame_events_win_probability_deltas(state, frame.events);
+            const state = states[i-1];
+            const frame = timeline.data.info.frames[i];
+            const deltas = await get_frame_events_win_probability_deltas(state, frame.events, probabilities[i-1]);
             events[i.toString()] = deltas;
         }
 

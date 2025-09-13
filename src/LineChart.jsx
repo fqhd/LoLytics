@@ -213,7 +213,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
                 tooltipRef.current = null;
             }
         };
-    }, []);
+    }, [events]);
 
     useEffect(() => {
         if (!chartRef.current) return;
