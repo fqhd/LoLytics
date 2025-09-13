@@ -4,19 +4,31 @@ import './PurchasePath.css';
 export default function PurchasePath({ items }) {
     return (
         <div className="purchase-path">
-            {items.map((block, i) => {
-                return <div className='item-group' key={i}>
-                    {
-                        block.items.map((item, j) => (
+            {items.map((block, i) => (
+                <React.Fragment key={i}>
+                    <div className="item-group">
+                        {block.items.map((item, j) => (
                             <React.Fragment key={j}>
-                                <img className='item-icon' src={`/images/items/${item.id}.jpg`} />
-                                {item.count > 1 && <p className='item-count'>{item.count}</p>}
+                                <img
+                                    className="item-icon"
+                                    src={`/images/items/${item.id}.jpg`}
+                                    alt=""
+                                />
+                                {item.count > 1 && <p className="item-count">{item.count}</p>}
                             </React.Fragment>
-                        ))
-                    }
-                    <p className='item-time'>{block.time}:00</p>
-                </div>
-            })}
+                        ))}
+                        <p className="item-time">{block.time}:00</p>
+                    </div>
+
+                    {i < items.length - 1 && (
+                        <img
+                            className="purchase-arrow"
+                            src="/images/arrow.png"
+                            alt="arrow"
+                        />
+                    )}
+                </React.Fragment>
+            ))}
         </div>
     );
 }

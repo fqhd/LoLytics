@@ -2,7 +2,6 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
 }
 
 .item-group {
@@ -49,4 +48,12 @@
 .arrow {
     font-size: 24px;
     color: white;
+}
+
+.purchase-arrow {
+    width: 1rem;
+    border: 2px solid white;
+    padding: 5px;
+    border-left: none;
+    border-right: none;
 }
