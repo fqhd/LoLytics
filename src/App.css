@@ -302,7 +302,7 @@ input:hover {
 .items {
     flex: 2;
     padding: 10px 20px 20px 20px;
-    background-color: #1e1e1e;
+    background-color: #111;
     border: 3px solid white;
     border-radius: 20px;
 }
