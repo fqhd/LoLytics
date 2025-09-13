@@ -17,7 +17,7 @@ Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Ca
 export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
-    const hoverIndexRef = useRef(null);
+    const hoverIndexRef = useRef(0);
     const tooltipRef = useRef(null);
 
     const verticalLinePlugin = {
@@ -114,7 +114,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
 
                             const dataIndex = tooltipModel.dataPoints[0].dataIndex;
                             const value = tooltipModel.dataPoints[0].raw;
-                            
+
                             let innerHtml = `<div><strong>Minute ${dataIndex}</strong>: ${Math.round(value * 1000) / 10}%</div>`;
 
                             if (events[dataIndex]) {
@@ -267,6 +267,20 @@ export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
 
         chartRef.current.update();
     }, [data, frameIndex]);
+
+    useEffect(() => {
+        const canvas = chartRef.current.canvas;
+
+        const handleLeave = () => {
+            hoverIndexRef.current = frameIndex;
+            chartRef.current.draw();
+        };
+
+        canvas.addEventListener("mouseleave", handleLeave);
+        return () => {
+            canvas.removeEventListener("mouseleave", handleLeave);
+        };
+    }, [frameIndex]);
 
     return <canvas ref={canvasRef} />;
 }
