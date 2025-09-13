@@ -53,6 +53,9 @@ export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
             el.style.fontSize = "14px";
             el.style.zIndex = 1000;
             el.style.opacity = 0;
+            el.style.left = '0px';
+            el.style.top = '0px';
+
             document.body.appendChild(el);
             tooltipRef.current = el;
         }
