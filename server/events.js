@@ -48,10 +48,13 @@ export async function get_frame_events_win_probability_deltas(state, events, win
             left: killerIcon,
             right: victimIcon,
             delta,
+            time: event.timestamp
         });
     }
+    
     return deltas
         .filter(e => Math.abs(e.delta) >= 1)
         .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
-        .slice(0, Math.min(deltas.length, 5));
+        .slice(0, Math.min(deltas.length, 5))
+        .sort((a, b) => a.time - b.time);
 }
