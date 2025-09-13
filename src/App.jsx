@@ -72,32 +72,7 @@ function App() {
 
         setFrames(response.frames);
 
-        setItems([
-            {
-                time: 9,
-                items: [
-                    {
-                        id: 1001,
-                        count: 1
-                    }
-                ]
-            },
-            {
-                time: 12,
-                items: [
-                    {
-                        id: 1026,
-                        count: 1
-                    },
-                    {
-                        id: 1027,
-                        count: 2
-                    }
-                ]
-            }
-        ]);
-
-        // setItems(response.items.map(itemId => `/images/items/${itemId}.jpg`));
+        setItems(response.items);
 
         const relativeProbabilities = response.probabilities.map((p, _) => {
             if (matchImages[i].team == 200) {

@@ -119,13 +119,33 @@ function find_rune_with_id(id) {
 }
 
 function get_participant_item_purchases(frames, participant_id) {
-    const items = [];
+    const grouped = {};
+
     for (const frame of frames) {
         for (const event of frame.events) {
             if (event.type === 'ITEM_PURCHASED' && event.participantId == participant_id) {
-                items.push(event.itemId);
+                const minute = Math.floor(event.timestamp / 1000 / 60);
+                if (!grouped[minute]) {
+                    grouped[minute] = {};
+                }
+                if (!grouped[minute][event.itemId]) {
+                    grouped[minute][event.itemId] = 0;
+                }
+                grouped[minute][event.itemId] += 1;
             }
         }
     }
-    return items;
+
+    const result = Object.entries(grouped).map(([time, items]) => ({
+        time: Number(time),
+        items: Object.entries(items).map(([id, count]) => ({
+            id: Number(id),
+            count
+        }))
+    }));
+
+    result.sort((a, b) => a.time - b.time);
+
+    return result;
 }
+
