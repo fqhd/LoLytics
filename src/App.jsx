@@ -367,7 +367,7 @@ function App() {
                         </div>
                         <div className="bottom-row">
                             <div className='items'>
-                                <PurchasePath items={items} />
+                                <PurchasePath items={items} frameIndex={frameIndex} />
                             </div>
                             {frames && frames[frameIndex] && <Scoreboard data={frames[frameIndex]} />}
                             {runes && <Runes data={runes} />}
