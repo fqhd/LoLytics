@@ -1,14 +1,16 @@
 import React from 'react';
 import './PurchasePath.css';
 
-export default function PurchasePath({ iconPaths }) {
+export default function PurchasePath({ items }) {
     return (
         <div className="purchase-path">
-            {iconPaths.map((path, index) => (
-                <React.Fragment key={index}>
-                    <img className="item-icon" src={path} alt={`Item ${index + 1}`} />
-                </React.Fragment>
-            ))}
+            {items.map((block, i) => {
+                return <div className='item-group' key={i}>
+                    {
+                        block.items.map((item, j) => (<img key={j} className='item-icon' src={`/images/items/${item.id}.jpg`} />))
+                    } 
+                </div>
+            })}
         </div>
     );
 }

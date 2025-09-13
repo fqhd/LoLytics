@@ -5,12 +5,17 @@
     gap: 0.5rem;
 }
 
-.item-icon {
-    width: 2rem;
-    height: 2rem;
-    object-fit: contain;
+.item-group {
+    display: flex;
+    flex-flow: row nowrap;
     border: 2px solid white;
     border-radius: 4px;
+}
+
+.item-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: contain;
 }
 
 .arrow {

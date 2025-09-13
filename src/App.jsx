@@ -72,7 +72,19 @@ function App() {
 
         setFrames(response.frames);
 
-        setItems(response.items.map(itemId => `/images/items/${itemId}.jpg`));
+        setItems([
+            {
+                time: 5,
+                items: [
+                    {
+                        id: 1001,
+                        count: 1
+                    }
+                ]
+            }
+        ]);
+
+        // setItems(response.items.map(itemId => `/images/items/${itemId}.jpg`));
 
         const relativeProbabilities = response.probabilities.map((p, _) => {
             if (matchImages[i].team == 200) {
@@ -367,7 +379,7 @@ function App() {
                         </div>
                         <div className="bottom-row">
                             <div className='items'>
-                                <PurchasePath iconPaths={items} />
+                                <PurchasePath items={items} />
                             </div>
                             {frames && frames[frameIndex] && <Scoreboard data={frames[frameIndex]} />}
                             {runes && <Runes data={runes} />}
