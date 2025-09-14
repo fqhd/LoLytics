@@ -1,15 +1,20 @@
 import torch
 from torch import nn
 import json
-import pandas as pd
 
 class DNN(nn.Module):
-    def __init__(self, stats, champion_to_index, embeddings):
+    def __init__(self, stats, num_champions=171, embedding_dim=8):
         super().__init__()
         self.champion_indices = torch.tensor([0, 12, 24, 36, 48, 101, 113, 125, 137, 149])
 
+        # Trainable embedding layer
+        self.embedding = nn.Embedding(num_champions, embedding_dim)
+
+        # Input size is original features (without champion IDs) + embedding features
+        input_dim = 203 - len(self.champion_indices) + len(self.champion_indices) * embedding_dim
+
         self.fc = nn.Sequential(
-            nn.Linear(373, 256),
+            nn.Linear(input_dim, 256),
             nn.ReLU(),
             nn.Linear(256, 256),
             nn.ReLU(),
@@ -20,6 +25,7 @@ class DNN(nn.Module):
             nn.Linear(128, 1)
         )
 
+        # Stat indices
         self.kill_indices = torch.tensor([0, 11, 22, 33, 44, 96, 107, 118, 129, 140])
         self.death_indices = torch.tensor([1, 12, 23, 34, 45, 97, 108, 119, 130, 141])
         self.assist_indices = torch.tensor([2, 13, 24, 35, 46, 98, 109, 120, 131, 142])
@@ -32,6 +38,7 @@ class DNN(nn.Module):
         self.x_indices = torch.tensor([9, 20, 31, 42, 53, 105, 116, 127, 138, 149])
         self.y_indices = torch.tensor([10, 21, 32, 43, 54, 106, 117, 128, 139, 150])
 
+        # Load stats for normalization
         with open(stats) as f:
             self.stats = json.load(f)
 
@@ -49,29 +56,6 @@ class DNN(nn.Module):
 
         self.register_buffer('creepscore_mean', torch.tensor(self.stats['creepscore']['mean']))
         self.register_buffer('creepscore_std', torch.tensor(self.stats['creepscore']['std']))
-
-        self.load_embeddings(champion_to_index, embeddings)
-
-    def load_embeddings(self, champ_path, embeddings):
-        with open(champ_path) as f:
-            champion_to_index = json.load(f)
-
-        df = pd.read_csv(embeddings)
-        numeric_data = df.drop(columns=['championName'])
-
-        means = numeric_data.mean()
-        stds = numeric_data.std()
-        normalized_data = (numeric_data - means) / stds
-
-        self.embeddings = torch.empty(size=(171, len(numeric_data.columns)))
-
-        for _, row in df.iterrows():
-            name = row['championName']
-            index = champion_to_index[name]
-            values = normalized_data.loc[_].values.astype('float32')
-            self.embeddings[index] = torch.tensor(values)
-
-        print('Embeddings loaded and normalized')
 
     def normalize(self, x):
         x[:, self.kill_indices] = (x[:, self.kill_indices] - self.kills_mean) / self.kills_std
@@ -107,16 +91,19 @@ class DNN(nn.Module):
     def forward(self, x):
         B = x.size(0)
 
+        # Champion IDs -> embeddings
         champion_ids = x[:, self.champion_indices].long()
-        embedded = self.embeddings[champion_ids]
+        embedded = self.embedding(champion_ids)  # (B, num_champs, embedding_dim)
         embedded_flat = embedded.view(B, -1)
 
+        # Remove champion ID columns from x
         mask = torch.ones(x.size(1), dtype=torch.bool, device=x.device)
         mask[self.champion_indices] = False
         x_non_cat = x[:, mask].float()
 
         self.normalize(x_non_cat)
 
+        # Concatenate normalized stats + embeddings
         x_final = torch.cat([x_non_cat, embedded_flat], dim=1)
 
         return self.fc(x_final)
