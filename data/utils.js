@@ -72,6 +72,7 @@ export async function fetch_with_retries(url, timeout = 3000) {
 				await new Promise((resolve) => setTimeout(resolve, timeout));
 			} else {
 				console.error(`Attempt ${attempt} failed. Returning null.`);
+				console.log(url);
 				return null;
 			}
 		}
