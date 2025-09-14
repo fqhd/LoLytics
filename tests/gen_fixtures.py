@@ -45,7 +45,7 @@ def generate_model_integrity_fixtures():
         inp = convert_json_sample_to_list(data, champ_to_idx)[:-1]
         inp_t = torch.tensor(inp, dtype=torch.int32).view(1, -1)
         with torch.no_grad():
-            output = net(inp_t).item()
+            output = torch.sigmoid(net(inp_t)).item()
         
         fixture.append({
             'input': inp,
