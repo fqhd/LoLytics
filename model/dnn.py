@@ -96,10 +96,16 @@ class DNN(nn.Module):
         embedded = self.embedding(champion_ids)  # (B, num_champs, embedding_dim)
         embedded_flat = embedded.view(B, -1)
 
-        # Remove champion ID columns from x
+        # Boolean mask as before
         mask = torch.ones(x.size(1), dtype=torch.bool, device=x.device)
         mask[self.champion_indices] = False
-        x_non_cat = x[:, mask].float()
+
+        # Convert mask to integer indices
+        indices = torch.nonzero(mask, as_tuple=False).squeeze(1)
+
+        # Use those indices for indexing
+        x_non_cat = x[:, indices].float()
+
 
         self.normalize(x_non_cat)
 

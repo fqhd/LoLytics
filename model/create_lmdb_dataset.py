@@ -74,10 +74,10 @@ def save_lmdb(paths, lmdb_path):
             idx += 1
 
 def main():
-    paths = get_game_paths('../match_data_1')
+    paths = get_game_paths('../match_data')
     random.shuffle(paths)
 
-    split = 0.8
+    split = 0.9
 
     num_train_samples = int(len(paths) * split)
     train_paths = paths[:num_train_samples]

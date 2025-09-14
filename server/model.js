@@ -66,5 +66,5 @@ export async function predict(data) {
     const feeds = { input: input_tensor };
     const results = await session.run(feeds);
     const outputs = results['output'];
-    return sigmoid(outputs.cpuData[0] / 1.0233);
+    return sigmoid(outputs.cpuData[0]);
 }

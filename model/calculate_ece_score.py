@@ -45,8 +45,8 @@ def main():
             inputs = torch.tensor(inputs).view(1, -1).float()
 
             logits = model(inputs)
-            scaled_logits = logits / temperature
-            prob = torch.sigmoid(scaled_logits).item()
+            scaled_logits = torch.sigmoid(logits / temperature)
+            prob = scaled_logits.item()
 
             all_probs.append(prob)
             all_labels.append(label)
