@@ -46,7 +46,7 @@ def main():
     all_labels = np.array(all_labels)
 
     ece_score = compute_ece_binary(all_probs, all_labels, n_bins=10)
-    print(f"ECE score (10 bins): {ece_score:.4f}")
+    print(f"ECE score (10 bins): {ece_score * 100:.2f}%")
 
 if __name__ == "__main__":
     main()
