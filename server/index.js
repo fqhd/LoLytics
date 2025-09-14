@@ -1,6 +1,5 @@
 import express from 'express';
 import { config } from 'dotenv';
-import cors from 'cors';
 import match_history from './match_history.js';
 import match_details from './match_details.js';
 import match_analysis from './match_analysis.js';
@@ -9,8 +8,6 @@ config();
 
 const app = express();
 const PORT = 3000;
-
-app.use(cors());
 
 app.get('/match_history/', match_history);
 app.get('/match_details/', match_details);
