@@ -7,15 +7,15 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-net = DNN()
+net = DNN(stats='stats.json')
 
 train_ds = Dataset('train.lmdb')
 test_ds = Dataset('test.lmdb')
 train_dl = DataLoader(train_ds, batch_size=1024, shuffle=True)
 test_dl = DataLoader(test_ds, batch_size=512, shuffle=True)
 
-optimizer = optim.SGD(net.parameters(), lr=2e-4, momentum=0.99)
-loss_fn = nn.MSELoss()
+optimizer = optim.Adam(net.parameters(), lr=1e-4)
+loss_fn = nn.BCEWithLogitsLoss()
 
 def train_epoch(model, optimizer, criterion, dataloader):
     model.train()
@@ -57,7 +57,7 @@ print(f'Initial Test Loss: {initial_loss}')
 
 train_losses = []
 test_losses = []
-for epoch in range(50):
+for epoch in range(5):
     train_loss = train_epoch(net, optimizer, loss_fn, train_dl)
     test_loss = test(net, optimizer, loss_fn, test_dl)
     train_losses.append(train_loss)
