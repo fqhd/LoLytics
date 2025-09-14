@@ -12,7 +12,7 @@ export default function Scoreboard({ data }) {
     return (
         <div className="scoreboard">
             <div className="team left-team">
-                {data.slice(0, 5).map((champion, index) => (
+                {data.teams[0].players.map((champion, index) => (
                     <div className="champion-row" key={index}>
                         {champion.deathTimer > 0 ? (
                             <div
@@ -48,7 +48,7 @@ export default function Scoreboard({ data }) {
             </div>
 
             <div className="team right-team">
-                {data.slice(5, 10).map((champion, index) => (
+                {data.teams[1].players.map((champion, index) => (
                     <div className="champion-row" key={index}>
                         {champion.deathTimer > 0 ? (
                             <div

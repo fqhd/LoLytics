@@ -7,15 +7,15 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-net = DNN()
+net = DNN(stats='stats.json')
 
 train_ds = Dataset('train.lmdb')
 test_ds = Dataset('test.lmdb')
-train_dl = DataLoader(train_ds, batch_size=1024, shuffle=True)
-test_dl = DataLoader(test_ds, batch_size=512, shuffle=True)
+train_dl = DataLoader(train_ds, batch_size=64, shuffle=True)
+test_dl = DataLoader(test_ds, batch_size=512, shuffle=False)
 
-optimizer = optim.SGD(net.parameters(), lr=2e-4, momentum=0.99)
-loss_fn = nn.MSELoss()
+optimizer = optim.Adam(net.parameters())
+loss_fn = nn.BCEWithLogitsLoss()
 
 def train_epoch(model, optimizer, criterion, dataloader):
     model.train()
@@ -55,11 +55,16 @@ def test(model, optimizer, criterion, dataloader):
 initial_loss = test(net, optimizer, loss_fn, test_dl)
 print(f'Initial Test Loss: {initial_loss}')
 
+lowest_loss = 100
+
 train_losses = []
 test_losses = []
 for epoch in range(50):
     train_loss = train_epoch(net, optimizer, loss_fn, train_dl)
     test_loss = test(net, optimizer, loss_fn, test_dl)
+    if test_loss < lowest_loss:
+        lowest_loss = test_loss
+        torch.save(net.state_dict(), 'dnn.pth')
     train_losses.append(train_loss)
     test_losses.append(test_loss)
     print(f'Epoch {epoch+1}) Train loss: {train_loss} Test loss: {test_loss}')
@@ -70,5 +75,3 @@ plt.plot(train_losses, label='Train')
 plt.plot(test_losses, label='Test')
 plt.legend()
 plt.show()
-
-torch.save(net.state_dict(), 'dnn.pth')

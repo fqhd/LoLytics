@@ -21,6 +21,11 @@ input:hover {
     transform: scale(1.02);
 }
 
+.input-dropdown:hover {
+    background-color: #3b3b3b;
+    transform: scale(1.02);
+}
+
 .container {
     display: flex;
     flex-direction: column;
@@ -31,7 +36,21 @@ input:hover {
 
 .title {
     font-size: 128px;
-    margin-bottom: 40px;
+}
+
+.username {
+    font-size: 48px;
+    top: -0.5em;
+    right: 1em;
+
+    position: absolute;
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.username-show {
+    transform: translateY(1em);
+    opacity: 1;
 }
 
 .input-group {
@@ -43,12 +62,14 @@ input:hover {
 }
 
 .input-left,
-.input-right {
+.input-right,
+.input-dropdown {
     border: none;
     padding: 20px;
     font-size: 16px;
     color: white;
     background-color: transparent;
+    outline: none;
 }
 
 .input-left {
@@ -87,17 +108,25 @@ input:hover {
 }
 
 .title {
-    top: 1.5em;
+    top: calc(15vh);
     position: absolute;
     font-size: 128px;
-    margin-bottom: 40px;
     transition: all 0.6s ease;
+}
+
+.error-message {
+    margin-bottom: 1em;
+    color: rgb(215, 33, 33);
+    display: none;
+}
+
+.error-message-show {
+    display: block;
 }
 
 .title-shrink {
     font-size: 32px;
     top: 1em;
-    margin-bottom: 0;
 }
 
 .input-group-wrapper {
@@ -115,14 +144,16 @@ input:hover {
 
 .match-history-container {
     padding: 20px;
+    padding-top: 0;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -45%);
+    transform: translate(-50%, -52%);
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
+    justify-content: flex-end;
 
     width: 0;
     height: 0;
@@ -138,14 +169,14 @@ input:hover {
 
 .match-history-container.show {
     width: 820px;
-    height: 730px;
+    height: 100vh;
     opacity: 1;
     pointer-events: auto;
 }
 
 .match-card {
     width: 800px;
-    height: 150px;
+    height: 15%;
     background-color: #2a2a2a;
     border-radius: 16px;
     opacity: 0;
@@ -256,10 +287,22 @@ input:hover {
     border-color: #329cff;
 }
 
+.building {
+    position: absolute;
+}
+
+.red-building {
+    filter: brightness(50%) saturate(100%) sepia(100%) hue-rotate(330deg) saturate(1000%);
+}
+
+.blue-building {
+    filter: brightness(50%) saturate(100%) sepia(100%) hue-rotate(160deg) saturate(1000%);
+}
+
 .items {
     flex: 2;
     padding: 10px 20px 20px 20px;
-    background-color: #1e1e1e;
+    background-color: #111;
     border: 3px solid white;
     border-radius: 20px;
 }

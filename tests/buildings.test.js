@@ -12,11 +12,12 @@ describe('process_inhibitor_kill', () => {
 
 		const event = {
 			laneType: 'TOP_LANE',
-			teamId: 100
+			teamId: 100,
+			timestamp: 1200000
 		};
 
 		process_inhibitor_kill(state, event);
-		expect(state.teams[0].inhibs).toEqual([5, 0, 0]);
+		expect(state.teams[0].inhibs).toEqual([60*5, 0, 0]);
 	});
 
 	it('should set red bot inhibitor to 5', () => {
@@ -29,11 +30,12 @@ describe('process_inhibitor_kill', () => {
 
 		const event = {
 			laneType: 'BOT_LANE',
-			teamId: 200
+			teamId: 200,
+			timestamp: 1200000
 		};
 
 		process_inhibitor_kill(state, event);
-		expect(state.teams[1].inhibs).toEqual([0, 0, 5]);
+		expect(state.teams[1].inhibs).toEqual([0, 0, 60*5]);
 	});
 });
 
@@ -48,11 +50,12 @@ describe('process_tower_kill', () => {
 
 		const event = {
 			teamId: 100,
-            towerType: 'NEXUS_TURRET'
+            towerType: 'NEXUS_TURRET',
+			timestamp: 1200000
 		};
 
 		process_tower_kill(state, event);
-		expect(state.teams[0].towers[9]).toBe(3);
+		expect(state.teams[0].towers[9]).toBe(60*3);
 	});
 
 	it('should set mid inner tower to 0', () => {

@@ -6,15 +6,23 @@ import { deep_copy } from '../data/utils.js';
 import { readFile } from 'fs/promises';
 import send_server_error from './network.js';
 import { find_participant_with_puuid } from './utils.js';
+import { get_frame_events_win_probability_deltas } from './events.js';
 
 const rune_data = JSON.parse(await readFile('./server/runes.json', 'utf-8'));
 
+const cache = new Map();
+
 export default async function match_analysis(req, res) {
-    const { id, puuid } = req.query;
+    const { id, puuid, region } = req.query;
+    const cache_key = `${id}:${puuid}`;
+
+    if (cache.has(cache_key)) {
+        return res.json(cache.get(cache_key));
+    }
 
     try {
-        const game = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
-        const timeline = await axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${id}/timeline?api_key=${process.env.RIOT_KEY}`);
+        const game = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
+        const timeline = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/${id}/timeline?api_key=${process.env.RIOT_KEY}`);
 
         const state = create_initial_state(game.data);
 
@@ -25,11 +33,19 @@ export default async function match_analysis(req, res) {
             states.push(parsed_state);
         }
 
-        let probabilities = [];
+        const probabilities = [];
         for (const state of states) {
             const vectorized = convert_sample_to_array(state);
             const prediction = await predict(vectorized);
             probabilities.push(prediction);
+        }
+
+        const events = {};
+        for (let i = 1; i < states.length; i++) {
+            const state = states[i-1];
+            const frame = timeline.data.info.frames[i];
+            const deltas = await get_frame_events_win_probability_deltas(state, frame.events, probabilities[i-1]);
+            events[i.toString()] = deltas;
         }
 
         const player = find_participant_with_puuid(game.data.info.participants, puuid);
@@ -54,9 +70,11 @@ export default async function match_analysis(req, res) {
 
         const items = get_participant_item_purchases(timeline.data.info.frames, player.participantId);
 
-        const frames = parse_condensed_frames(states);
+        const response_data = { probabilities, runes, items, frames: states, events };
 
-        res.json({ probabilities, runes, items, frames });
+        cache.set(cache_key, response_data);
+
+        res.json(response_data);
     } catch (error) {
         if (error.response) {
             if (error.response.status === 404) {
@@ -101,28 +119,33 @@ function find_rune_with_id(id) {
 }
 
 function get_participant_item_purchases(frames, participant_id) {
-    const items = [];
+    const grouped = {};
+
     for (const frame of frames) {
         for (const event of frame.events) {
             if (event.type === 'ITEM_PURCHASED' && event.participantId == participant_id) {
-                items.push(event.itemId);
+                const minute = Math.floor(event.timestamp / 1000 / 60);
+                if (!grouped[minute]) {
+                    grouped[minute] = {};
+                }
+                if (!grouped[minute][event.itemId]) {
+                    grouped[minute][event.itemId] = 0;
+                }
+                grouped[minute][event.itemId] += 1;
             }
         }
     }
-    return items;
+
+    const result = Object.entries(grouped).map(([time, items]) => ({
+        time: Number(time),
+        items: Object.entries(items).map(([id, count]) => ({
+            id: Number(id),
+            count
+        }))
+    }));
+
+    result.sort((a, b) => a.time - b.time);
+
+    return result;
 }
 
-function parse_condensed_frames(states) {
-    const frames = [];
-    for (const state of states) {
-        const frame = [];
-        for (const team of state.teams) {
-            for (const player of team.players) {
-                const { champion, kills, deaths, assists, creepscore, deathTimer, x, y } = player;
-                frame.push({ champion, kills, deaths, assists, creepscore, deathTimer, x, y });
-            }
-        }
-        frames.push(frame);
-    }
-    return frames;
-}

@@ -1,12 +1,35 @@
 import React from 'react';
 import './PurchasePath.css';
 
-export default function PurchasePath({ iconPaths }) {
+export default function PurchasePath({ items, frameIndex }) {
+    // Filter items based on frameIndex
+    const visibleItems = items.filter(block => block.time < frameIndex);
+
     return (
         <div className="purchase-path">
-            {iconPaths.map((path, index) => (
-                <React.Fragment key={index}>
-                    <img className="item-icon" src={path} alt={`Item ${index + 1}`} />
+            {visibleItems.map((block, i) => (
+                <React.Fragment key={i}>
+                    <div className="item-group">
+                        {block.items.map((item, j) => (
+                            <React.Fragment key={j}>
+                                <img
+                                    className="item-icon"
+                                    src={`/images/items/${item.id}.jpg`}
+                                    alt=""
+                                />
+                                {item.count > 1 && <p className="item-count">{item.count}</p>}
+                            </React.Fragment>
+                        ))}
+                        <p className="item-time">{block.time}:00</p>
+                    </div>
+
+                    {i < visibleItems.length - 1 && (
+                        <img
+                            className="purchase-arrow"
+                            src="/images/arrow.png"
+                            alt="arrow"
+                        />
+                    )}
                 </React.Fragment>
             ))}
         </div>

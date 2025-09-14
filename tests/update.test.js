@@ -63,8 +63,8 @@ describe("update_inhib_timers", () => {
     it("should decrement inhib timers by 1 and clamp at 0", () => {
         const state = {
             teams: [
-                { inhibs: [3, 1, 0] },
-                { inhibs: [0, 2, 1] },
+                { inhibs: [300, 1, 0] },
+                { inhibs: [0, 200, 1] },
             ],
         };
 
@@ -72,8 +72,8 @@ describe("update_inhib_timers", () => {
             update_inhib_timers(state, team_id);
         }
 
-        expect(state.teams[0].inhibs).toEqual([2, 0, 0]);
-        expect(state.teams[1].inhibs).toEqual([0, 1, 0]);
+        expect(state.teams[0].inhibs).toEqual([240, 0, 0]);
+        expect(state.teams[1].inhibs).toEqual([0, 140, 0]);
     });
 });
 
@@ -83,14 +83,14 @@ describe("update_nexus_tower_timers", () => {
             teams: [
                 {
                     towers: {
-                        9: 2,
+                        9: 200,
                         10: 0,
                     },
                 },
                 {
                     towers: {
                         9: 1,
-                        10: 5,
+                        10: 90,
                     },
                 },
             ],
@@ -100,9 +100,9 @@ describe("update_nexus_tower_timers", () => {
             update_nexus_tower_timers(state, team_id);
         }
 
-        expect(state.teams[0].towers[9]).toBe(1);
+        expect(state.teams[0].towers[9]).toBe(140);
         expect(state.teams[0].towers[10]).toBe(0);
         expect(state.teams[1].towers[9]).toBe(0);
-        expect(state.teams[1].towers[10]).toBe(4);
+        expect(state.teams[1].towers[10]).toBe(30);
     });
 });

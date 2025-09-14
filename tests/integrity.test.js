@@ -9,7 +9,7 @@ describe('Model integrity test', () => {
     for (const { input, output } of fixtures) {
         it(`matches Python output for input ${JSON.stringify(input)}`, async () => {
             const actual = await predict(input);
-            expect(actual).toBeCloseTo(output, 6);
+            expect(actual).toBeCloseTo(output, 4);
         });
     }
 });

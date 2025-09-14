@@ -64,9 +64,7 @@ def save_lmdb(paths, lmdb_path):
     idx = 0
     with env.begin(write=True) as txn:
         for path in tqdm(paths):
-            game_snapshot_files = [d for d in os.listdir(path) if d != '.DS_Store']
-            file = random.choice(game_snapshot_files)
-            with open(os.path.join(path, file)) as f:
+            with open(path) as f:
                 obj = json.load(f)
                 arr = convert_json_sample_to_list(obj, champ_to_idx)
                 data = np.array(arr, dtype='int32')
@@ -79,7 +77,7 @@ def main():
     paths = get_game_paths('../match_data')
     random.shuffle(paths)
 
-    split = 0.8
+    split = 0.9
 
     num_train_samples = int(len(paths) * split)
     train_paths = paths[:num_train_samples]

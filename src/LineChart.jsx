@@ -10,12 +10,15 @@ import {
     Tooltip
 } from 'chart.js';
 
+const EPSILON = 0.05;
+
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip);
 
-export default function LineChart({ data, frameIndex, setFrameIndex }) {
+export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
-    const hoverIndexRef = useRef(null);
+    const hoverIndexRef = useRef(0);
+    const tooltipRef = useRef(null);
 
     const verticalLinePlugin = {
         id: 'verticalLine',
@@ -37,11 +40,31 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
     };
 
     useEffect(() => {
+        if (!tooltipRef.current) {
+            const el = document.createElement("div");
+            el.id = "chartjs-tooltip";
+            el.style.position = "absolute";
+            el.style.pointerEvents = "none";
+            el.style.background = "rgba(20,20,20,0.9)";
+            el.style.color = "white";
+            el.style.borderRadius = "8px";
+            el.style.padding = "10px";
+            el.style.fontFamily = "sans-serif";
+            el.style.fontSize = "14px";
+            el.style.zIndex = 1000;
+            el.style.opacity = 0;
+            el.style.left = '0px';
+            el.style.top = '0px';
+
+            document.body.appendChild(el);
+            tooltipRef.current = el;
+        }
+
         const ctx = canvasRef.current.getContext('2d');
         chartRef.current = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.map((_, i) => `${i + 1}m`),
+                labels: data.map((_, i) => `${i}m`),
                 datasets: [
                     {
                         label: 'Win Probability',
@@ -51,6 +74,25 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         borderWidth: 3,
                         pointBackgroundColor: data.map(() => '#60dfffff'),
                         tension: 0.3,
+                        segment: {
+                            borderColor: ctx => {
+                                const i = ctx.p1DataIndex;
+                                const dataset = ctx.chart.data.datasets[0].data;
+                                const change = dataset[i] - dataset[i - 1];
+
+                                if (Math.abs(change) > EPSILON) {
+                                    return change > 0 ? 'lime' : 'red';
+                                }
+                                return '#60dfffff';
+                            },
+                            borderWidth: ctx => {
+                                const i = ctx.p1DataIndex;
+                                const dataset = ctx.chart.data.datasets[0].data;
+                                const change = dataset[i] - dataset[i - 1];
+
+                                return Math.abs(change) > EPSILON ? 4 : 3;
+                            }
+                        },
                         pointRadius: 0,
                         pointHoverRadius: 5,
                         pointHitRadius: 10,
@@ -61,20 +103,62 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             options: {
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    tooltip: { 
-                        enabled: true,
-                        callbacks: {
-                            label: function (context) {
-                                let value = context.raw;
-                                return 'Win Probability: ' + Math.round(value * 1000) / 10 + '%';
+                    tooltip: {
+                        enabled: false,
+                        external: (context) => {
+                            const tooltipModel = context.tooltip;
+                            const tooltipEl = tooltipRef.current;
+                            if (!tooltipEl) return;
+
+                            if (tooltipModel.opacity === 0) {
+                                tooltipEl.style.opacity = 0;
+                                return;
                             }
-                        }
+
+                            const dataIndex = tooltipModel.dataPoints[0].dataIndex;
+                            const value = tooltipModel.dataPoints[0].raw;
+
+                            let innerHtml = `<div><strong>Minute ${dataIndex}</strong>: ${Math.round(value * 1000) / 10}%</div>`;
+
+                            if (events[dataIndex]) {
+                                events[dataIndex].forEach((e) => {
+                                    const swordClass = e.delta > 0 ? "green" : "red";
+                                    innerHtml += `
+                <div style="display:flex;align-items:center;margin-top:6px">
+                  <img src="${e.left}" style="width:30px;height:30px;border-radius:4px"/>
+                  <div style="
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:26px;
+  height:26px;
+  margin:0 6px;
+  border-radius:4px;
+  background:${swordClass};
+">
+  <img src="/images/sword.png" style="width:22px;height:22px"/>
+</div>
+                  <img src="${e.right}" style="width:30px;height:30px;border-radius:4px"/>
+                  <span style="margin-left:6px">(${e.delta > 0 ? "+" : ""}${e.delta}%)</span>
+                </div>
+              `;
+                                });
+                            }
+
+                            tooltipEl.innerHTML = innerHtml;
+
+                            const { offsetLeft: positionX, offsetTop: positionY } =
+                                context.chart.canvas;
+                            tooltipEl.style.opacity = 1;
+                            tooltipEl.style.left = positionX + tooltipModel.caretX + 20 + "px";
+                            tooltipEl.style.top = positionY + tooltipModel.caretY + "px";
+                        },
                     },
                     title: {
                         display: true,
                         text: 'Win Probability Graph',
                         color: '#fff',
-                        font: { size: 14, weight: 'bold' },
+                        font: { size: 16, weight: 'bold' },
                     },
                 },
                 onHover: (event) => {
@@ -125,29 +209,81 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             plugins: [verticalLinePlugin],
         });
 
-        return () => chartRef.current.destroy();
-    }, []);
+        return () => {
+            chartRef.current.destroy()
+            if (tooltipRef.current) {
+                tooltipRef.current.remove();
+                tooltipRef.current = null;
+            }
+        };
+    }, [events]);
 
     useEffect(() => {
         if (!chartRef.current) return;
 
-        chartRef.current.data.labels = data.map((_, i) => `${i + 1}m`);
+        chartRef.current.data.labels = data.map((_, i) => `${i}m`);
         chartRef.current.data.datasets[0].data = data;
 
-        chartRef.current.data.datasets[0].pointBackgroundColor = data.map((_, i) =>
-            i === frameIndex ? '#50ff50ff' : '#60dfffff'
+        const pointRadius = [];
+        const pointBackgroundColor = [];
+        const pointBorderColor = [];
+
+        for (let i = 0; i < data.length; i++) {
+            pointRadius[i] = 0;
+            pointBackgroundColor[i] = '#60dfffff';
+            pointBorderColor[i] = '#60dfffff';
+
+            if (i > 0) {
+                const change = data[i] - data[i - 1];
+                const isSharp = Math.abs(change) > EPSILON;
+                const dir = Math.sign(change);
+
+                if (isSharp) {
+                    let nextChange = 0, nextIsSharp = false, nextDir = 0;
+                    if (i + 1 < data.length) {
+                        nextChange = data[i + 1] - data[i];
+                        nextIsSharp = Math.abs(nextChange) > EPSILON;
+                        nextDir = Math.sign(nextChange);
+                    }
+
+                    pointBackgroundColor[i] = dir > 0 ? 'lime' : 'red';
+                    pointBorderColor[i] = dir > 0 ? 'lime' : 'red';
+
+                    const shouldDraw = !nextIsSharp || (nextIsSharp && nextDir !== dir);
+
+                    if (shouldDraw) {
+                        pointRadius[i] = 5;
+                    }
+                }
+            }
+        }
+
+        chartRef.current.data.datasets[0].pointBackgroundColor = pointBackgroundColor;
+
+        chartRef.current.data.datasets[0].pointBorderColor = pointBorderColor.map((c, i) =>
+            i === frameIndex ? 'white' : c
         );
 
-        chartRef.current.data.datasets[0].pointBorderColor = data.map((_, i) =>
-            i === frameIndex ? '#50ff50ff' : '#60dfffff'
-        );
-
-        chartRef.current.data.datasets[0].pointRadius = data.map((_, i) =>
-            i === frameIndex ? 5 : 0
+        chartRef.current.data.datasets[0].pointRadius = pointRadius.map((r, i) =>
+            i === frameIndex ? 5 : r
         );
 
         chartRef.current.update();
     }, [data, frameIndex]);
+
+    useEffect(() => {
+        const canvas = chartRef.current.canvas;
+
+        const handleLeave = () => {
+            hoverIndexRef.current = frameIndex;
+            chartRef.current.draw();
+        };
+
+        canvas.addEventListener("mouseleave", handleLeave);
+        return () => {
+            canvas.removeEventListener("mouseleave", handleLeave);
+        };
+    }, [frameIndex]);
 
     return <canvas ref={canvasRef} />;
 }

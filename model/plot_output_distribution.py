@@ -5,16 +5,7 @@ from dnn import DNN
 from dataset import Dataset
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-def load_network():
-    net = DNN()
-    net.load_state_dict(torch.load('dnn.pth', weights_only=True))
-    net.eval()
-    return net
-
-def load_dataset():
-    dataset = Dataset('test.lmdb')
-    return dataset
+from evaluate import load_network, load_dataset
 
 def plot_distribution(arr, bins=30, title="Distribution Plot", xlabel="Values"):
     plt.figure(figsize=(8, 5))

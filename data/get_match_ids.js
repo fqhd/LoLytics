@@ -90,7 +90,7 @@ export async function get_ids(rank) {
 	let promises = [];
 
 	for (const tier of ['I', 'II', 'III', 'IV']) {
-		for (const page of [1, 2]) {
+		for (let page = 11; page <= 30; page++) {
 			promises.push(
 				get_match_id_batch(rank, tier, page, API_KEYS[promises.length]),
 			);
