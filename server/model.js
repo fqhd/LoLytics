@@ -56,11 +56,15 @@ export function convert_sample_to_array(sample) {
     return arr;
 }
 
+function sigmoid(x) {
+    return 1 / (1 + Math.exp(-x));
+}
+
 export async function predict(data) {
     const input_array = new Int32Array(data);
     const input_tensor = new ort.Tensor('int32', input_array, [1, 203])
     const feeds = { input: input_tensor };
     const results = await session.run(feeds);
     const outputs = results['output'];
-    return outputs.cpuData[0];
+    return sigmoid(outputs.cpuData[0] / 1.0233);
 }
