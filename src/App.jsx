@@ -376,6 +376,13 @@ function App() {
                     <button className="back-button" onClick={handleBack}><span className="back-button-text">Back</span></button>
                 </div>
             )}
+            <footer className="copyright">© 2025 LoLytics — Open Source (MIT License) · <a
+                href="https://github.com/fqhd/LoLytics"
+                target="_blank"
+                className="github"
+            >
+                View on GitHub
+            </a></footer>
         </div>
     );
 }
