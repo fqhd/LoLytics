@@ -115,12 +115,18 @@ input:hover {
 }
 
 .copyright {
+    font-size: 14px;
     position: absolute;
-    bottom: 20px;
+    bottom: 5px;
     width: 100%;
     padding: 0;
     margin: 0;
     text-align: center;
+    color: gray;
+}
+
+.github {
+    font-size: 14px;
     color: gray;
 }
 
