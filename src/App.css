@@ -114,6 +114,16 @@ input:hover {
     transition: all 0.6s ease;
 }
 
+.copyright {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    color: gray;
+}
+
 .error-message {
     margin-bottom: 1em;
     color: rgb(215, 33, 33);
