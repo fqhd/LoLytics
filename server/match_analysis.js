@@ -99,7 +99,7 @@ function find_rune_with_id(id) {
         return '/images/stats/statmodsattackspeedicon.png';
     } else if (id == 5007) {
         return '/images/stats/statmodscdrscalingicon.png';
-    } else if (id == 5001) {
+    } else if (id == 5011) {
         return '/images/stats/statsmodshealthscalingicon.png';
     } else if (id == 5013) {
         return '/images/stats/statsmodstenacityicon.png';
