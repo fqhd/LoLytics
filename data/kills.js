@@ -15,9 +15,9 @@ export function process_champion_kill(state, event, add_gold=false) {
 	victim.deaths += 1;
 	victim.baronTimer = 0;
 	victim.elderTimer = 0;
-	const deathTimer = calc_death_timer(victim.level, time);
-	const nextWholeMinute = (Math.ceil(time) - time) * 60;
-	victim.deathTimer = Math.max(deathTimer - nextWholeMinute, 0);
+	const death_timer = calc_death_timer(victim.level, time);
+	const next_whole_minute = (Math.ceil(time) - time) * 60;
+	victim.deathTimer = Math.max(death_timer - next_whole_minute, 0);
 	if (event.assistingParticipantIds) {
 		const num_assists = event.assistingParticipantIds.length;
 		const assist_split = [0.75, 0.5, 0.38, 0.31][num_assists-1];
