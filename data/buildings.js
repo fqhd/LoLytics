@@ -1,6 +1,6 @@
-export function process_building_kill(state, event) {
+export function process_building_kill(state, event, add_gold=false) {
 	if (event.buildingType == "TOWER_BUILDING") {
-		process_tower_kill(state, event);
+		process_tower_kill(state, event, add_gold);
 	} else if (event.buildingType == "INHIBITOR_BUILDING") {
 		process_inhibitor_kill(state, event);
 	}
@@ -20,9 +20,17 @@ export function process_inhibitor_kill(state, event) {
 	state.teams[team_id].inhibs[lane] = Math.max(death_timer - next_whole_minte, 0);
 }
 
-export function process_tower_kill(state, event) {
+export function process_tower_kill(state, event, add_gold=false) {
 	const tower_id = get_tower_id(state, event);
 	const team_id = parseInt(event.teamId / 100) - 1;
+	if (add_gold) {
+		if (event.killerId != 0) {
+			state.teams[team_id].players[(event.killerId - 1) % 5].gold += 250;
+		}
+		for (const player of state.teams[team_id].players) {
+			player.gold += 50;
+		}
+	}
 	if (tower_id == 9 || tower_id == 10) {
 		const time = event.timestamp / 1000 / 60;
 		const death_timer = 60 * 3;

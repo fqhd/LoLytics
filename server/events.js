@@ -40,7 +40,7 @@ export async function get_frame_events_win_probability_deltas(state, events, win
                 victimIcon += 'inhibitor.png';
             }
         }
-        update_with_event(state_copy, event);
+        update_with_event(state_copy, event, true);
         const vectorized = convert_sample_to_array(state_copy);
         const prediction = await predict(vectorized);
         const delta = Math.round((prediction - win_probability) * 10000) / 100;
