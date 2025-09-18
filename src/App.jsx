@@ -5,6 +5,7 @@ import LineChart from './LineChart';
 import Scoreboard from './Scoreboard';
 import PurchasePath from './PurchasePath';
 import Runes from './Runes';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function App() {
     const [searched, setSearched] = useState(false);
@@ -29,12 +30,12 @@ function App() {
         try {
             const start = Date.now();
 
-            let history = await fetch(`https://lolytics.org/match_history?name=${name}&tag=${tag}&region=${region}`);
+            let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag}&region=${region}`);
             history = await history.json();
 
             let matchDetails = [];
             for (const match_id of history.match_ids.slice(0, 5)) {
-                matchDetails.push(fetch(`https://lolytics.org/match_details?id=${match_id}&puuid=${history.puuid}&region=${region}`));
+                matchDetails.push(fetch(`${apiUrl}/match_details?id=${match_id}&puuid=${history.puuid}&region=${region}`));
             }
             matchDetails = await Promise.all(matchDetails);
 
@@ -67,7 +68,7 @@ function App() {
 
     const handleMatchClick = async (i) => {
         setSelectedMatch(matchImages[i]);
-        let response = await fetch(`https://lolytics.org/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
+        let response = await fetch(`${apiUrl}/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
         response = await response.json();
 
         setFrames(response.frames);
