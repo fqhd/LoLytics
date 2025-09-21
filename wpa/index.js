@@ -7,7 +7,7 @@ const ranks = ['PLATINUM', 'EMERALD', 'DIAMOND'];
 
 let wpe = 0;
 let wr = 0;
-let total = 0;
+let n_samples = 0;
 
 for (const rank of ranks) {
     const files = fs.readdirSync(`./match_data/${rank}`);
@@ -19,7 +19,7 @@ for (const rank of ranks) {
 
         const state = create_initial_state(data[0]);
 
-        const [event_occured, team_id] = update_until_event(state, data[1].info.frames);
+        const [event_occured, team_id] = update_until_event(state, data[1].info.frames, event => event.type == 'ELITE_MONSTER_KILL' && event.monsterType == 'RIFTHERALD', 1);
 
         if (event_occured) {
             const vectorized = convert_sample_to_array(state);
@@ -34,25 +34,40 @@ for (const rank of ranks) {
             }
 
             wpe += prediction;
-            total += 1;
-            if (total % 100 == 0) {
-                console.log(total);
+            n_samples += 1;
+            if (n_samples % 100 == 0) {
+                console.log(n_samples);
             }
         }
     }
 }
 
-console.log(wpe / total);
-console.log(wr / total);
+function round(x) {
+    return Math.round(x * 10000) / 100;
+}
 
-function update_until_event(state, frames) {
+wpe /= n_samples;
+wr /= n_samples;
+
+wpe = round(wpe);
+wr = round(wr);
+
+wpa = wr - wpe
+
+console.log(`${wpa}% (${wr} - ${wpe}) - ${n_samples} samples`);
+
+function update_until_event(state, frames, callback, n) {
+    let count = 0;
     for (const frame of frames) {
         assign_participant_stats_to_players(state, frame);
         update_general_stats(state);
         for (const event of frame.events) {
-            if (event.type == 'ELITE_MONSTER_KILL' && event.monsterType == 'RIFTHERALD') {
-	            const team_id = parseInt((event.killerId - 1) / 5);
-                return [true, team_id];
+            if (callback(event)) {
+                count++;
+                if (count == n) {
+                    const team_id = parseInt((event.killerId - 1) / 5);
+                    return [true, team_id];
+                }
             }
             update_with_event(state, event, true);
         }
