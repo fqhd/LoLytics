@@ -1,4 +1,4 @@
-import { api_call } from "./utils.js";
+import { api_call } from './utils.js';
 import { update_with_frame } from './update.js';
 import { create_initial_state } from './init.js';
 

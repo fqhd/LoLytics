@@ -22,7 +22,7 @@ export function api_call(url) {
 }
 
 export function deep_copy(obj) {
-	if (obj === null || typeof obj !== "object") {
+	if (obj === null || typeof obj !== 'object') {
 		return obj;
 	}
 

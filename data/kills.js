@@ -1,4 +1,4 @@
-import { calc_death_timer } from "./death.js";
+import { calc_death_timer } from './death.js';
 
 export function process_champion_kill(state, event, add_gold=false) {
 	const time = event.timestamp / 1000 / 60;
