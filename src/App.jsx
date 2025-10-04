@@ -143,7 +143,7 @@ function App() {
             </div>
 
             <div className={`match-history-container ${showMatches && selectedMatch === null ? 'show' : ''}`}>
-                {[...Array(5)].map((_, i) => (
+                {[...Array(matchImages.length)].map((_, i) => (
                     <MatchCard
                         key={i}
                         visible={showMatches && selectedMatch === null}
