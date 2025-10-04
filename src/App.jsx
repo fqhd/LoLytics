@@ -137,9 +137,21 @@ function App() {
                     <input className="input-left" placeholder="Name" onChange={(e) => setName(e.target.value)} />
                     <input className="input-right" placeholder="Tag" onChange={(e) => setTag(e.target.value)} />
                     <select className="input-dropdown" defaultValue='europe' onChange={(e) => setRegion(e.target.value)}>
-                        <option value="americas">America</option>
-                        <option value="asia">Asia</option>
-                        <option value="europe">Europe</option>
+                        <option value="americas">NA</option>
+                        <option value="europe">EUW</option>
+                        <option value="europe">ME</option>
+                        <option value="europe">EUNE</option>
+                        <option value="sea">OCE</option>
+                        <option value="asia">KR</option>
+                        <option value="asia">JP</option>
+                        <option value="americas">BR</option>
+                        <option value="americas">LAS</option>
+                        <option value="americas">LAN</option>
+                        <option value="europe">RU</option>
+                        <option value="europe">TR</option>
+                        <option value="sea">SEA</option>
+                        <option value="sea">TW</option>
+                        <option value="sea">VN</option>
                     </select>
                 </div>
                 <button className="search-button" onClick={handleSearch}>

@@ -5,7 +5,7 @@ export default async function match_history(req, res) {
     const { name, tag, region } = req.query;
 
     try {
-        const user = await axios.get(`https://${region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${name}/${tag}?api_key=${process.env.RIOT_KEY}`);
+        const user = await axios.get(`https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${name}/${tag}?api_key=${process.env.RIOT_KEY}`);
         const { puuid } = user.data;
         const history = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=420&start=0&count=20&api_key=${process.env.RIOT_KEY}`);
         const match_ids = history.data;
