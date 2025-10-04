@@ -114,7 +114,7 @@ function App() {
     useEffect(() => {
         const handleKeyPress = e => {
             if (e.key === 'Escape') {
-                if (selectedMatch === null) {
+                if (selectedMatch === null && showMatches) {
                     setSearched(false);
                     setShowMatches(false);
                 }
@@ -123,7 +123,7 @@ function App() {
 
         document.addEventListener('keydown', handleKeyPress);
         return () => document.removeEventListener('keydown', handleKeyPress);
-    }, [selectedMatch]);
+    }, [showMatches]);
 
     return (
         <div className="container">
