@@ -9,7 +9,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 function App() {
     const [searched, setSearched] = useState(false);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState('');
     const [showMatches, setShowMatches] = useState(false);
     const [selectedMatch, setSelectedMatch] = useState(null);
     const [showMatchDetails, setShowMatchDetails] = useState(false);
@@ -31,6 +31,10 @@ function App() {
             const start = Date.now();
 
             let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag}&region=${region}`);
+            if (history.status != 200) {
+                history = await history.json();
+                throw new Error(history.error);
+            }
             history = await history.json();
 
             let matchDetails = [];
@@ -57,12 +61,12 @@ function App() {
             const end = Date.now();
 
             setTimeout(() => {
-                setError(false);
+                setError('');
                 setShowMatches(true);
             }, Math.max(1000 - end + start, 0));
         } catch (e) {
             setSearched(false);
-            setError(true);
+            setError(e.message);
         }
     };
 
@@ -127,7 +131,7 @@ function App() {
             <div className={`username ${searched ? 'username-show' : ''}`}>{name.toUpperCase()}#{tag.toUpperCase()}</div>
 
             <div className={`input-group-wrapper ${searched ? 'fade-out' : ''}`}>
-                <div className={`error-message ${error ? 'error-message-show' : ''}`}>Summoner Not Found</div>
+                <div className={`error-message ${error != '' ? 'error-message-show' : ''}`}>{error}</div>
                 <div className="input-group">
                     <input className="input-left" placeholder="Name" onChange={(e) => setName(e.target.value)} />
                     <input className="input-right" placeholder="Tag" onChange={(e) => setTag(e.target.value)} />
