@@ -12,9 +12,16 @@
     border-radius: 4px;
 }
 
+.item {
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
 .item-icon {
     width: 2.5rem;
     height: 2.5rem;
+    display: block;
     object-fit: contain;
 }
 

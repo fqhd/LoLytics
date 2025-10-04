@@ -2,7 +2,6 @@ import React from 'react';
 import './PurchasePath.css';
 
 export default function PurchasePath({ items, frameIndex }) {
-    // Filter items based on frameIndex
     const visibleItems = items.filter(block => block.time < frameIndex);
 
     return (
@@ -11,14 +10,14 @@ export default function PurchasePath({ items, frameIndex }) {
                 <React.Fragment key={i}>
                     <div className="item-group">
                         {block.items.map((item, j) => (
-                            <React.Fragment key={j}>
+                            <div className="item">
                                 <img
-                                    className="item-icon"
-                                    src={`/images/items/${item.id}.jpg`}
-                                    alt=""
-                                />
+                                        className="item-icon"
+                                        src={`/images/items/${item.id}.jpg`}
+                                        alt=""
+                                    />
                                 {item.count > 1 && <p className="item-count">{item.count}</p>}
-                            </React.Fragment>
+                            </div>
                         ))}
                         <p className="item-time">{block.time}:00</p>
                     </div>
