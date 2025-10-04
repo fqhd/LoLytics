@@ -30,7 +30,7 @@ function App() {
         try {
             const start = Date.now();
 
-            let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag}&region=${region}`);
+            let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}`);
             if (history.status != 200) {
                 history = await history.json();
                 throw new Error(history.error);
@@ -72,6 +72,7 @@ function App() {
 
     const handleMatchClick = async (i) => {
         setSelectedMatch(matchImages[i]);
+        
         let response = await fetch(`${apiUrl}/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
         response = await response.json();
 
