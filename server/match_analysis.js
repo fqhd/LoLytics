@@ -24,6 +24,8 @@ export default async function match_analysis(req, res) {
         const game = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/${id}?api_key=${process.env.RIOT_KEY}`);
         const timeline = await axios.get(`https://${region}.api.riotgames.com/lol/match/v5/matches/${id}/timeline?api_key=${process.env.RIOT_KEY}`);
 
+        const atakhan_location = determine_atakhan_spawn_location(timeline.data.info.frames);
+
         const state = create_initial_state(game.data);
 
         const states = [];
@@ -42,9 +44,9 @@ export default async function match_analysis(req, res) {
 
         const events = {};
         for (let i = 1; i < states.length; i++) {
-            const state = states[i-1];
+            const state = states[i - 1];
             const frame = timeline.data.info.frames[i];
-            const deltas = await get_frame_events_win_probability_deltas(state, frame.events, probabilities[i-1]);
+            const deltas = await get_frame_events_win_probability_deltas(state, frame.events, probabilities[i - 1]);
             events[i.toString()] = deltas;
         }
 
@@ -70,7 +72,7 @@ export default async function match_analysis(req, res) {
 
         const items = get_participant_item_purchases(timeline.data.info.frames, player.participantId);
 
-        const response_data = { probabilities, runes, items, frames: states, events };
+        const response_data = { probabilities, runes, items, frames: states, events, atakhan_location };
 
         cache.set(cache_key, response_data);
 
@@ -166,4 +168,17 @@ function get_participant_item_purchases(frames, participant_id) {
     return result;
 }
 
-
+function determine_atakhan_spawn_location(frames) {
+    for (const frame of frames) {
+        for (const event of frame.events) {
+            if (event.type == 'ELITE_MONSTER_KILL' && event.monsterType == 'ATAKHAN') {
+                if (event.position.x > event.position.y) {
+                    return 'TOP';
+                } else {
+                    return 'BOTTOM';
+                }
+            }
+        }
+    }
+    return 'NONE';
+}
