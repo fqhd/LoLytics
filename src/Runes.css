@@ -15,6 +15,7 @@
     align-items: center;
     justify-content: center;
 
+
 }
 
 .right-column {
@@ -26,8 +27,8 @@
 }
 
 .keystone-icon {
-    width: 30%;
-    height: 30%;
+    width: 38%;
+    height: 38%;
     background-color: #1e1e1e;
     border: 1px solid white;
     border-radius: 100%;
@@ -42,15 +43,15 @@
 }
 
 .sub-keystone-icon {
-    width: 30%;
-    height: 30%;
+    width: 38%;
+    height: 38%;
     border: 1px solid white;
     border-radius: 100%;
 }
 
 .stat-icon {
-    width: 40%;
-    height: 40%;
+    width: 50%;
+    height: 50%;
     background-color: #1e1e1e;
     border-radius: 100%;
     border: 1px solid white;
