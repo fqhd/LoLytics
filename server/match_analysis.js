@@ -140,8 +140,6 @@ function get_participant_item_purchases(frames, participant_id) {
                 const minute = Math.floor(event.timestamp / 1000 / 60);
                 for (let m = minute; m >= 0; m--) {
                     if (grouped[m] && grouped[m][event.beforeId]) {
-                        console.log(event.beforeId);
-                        console.log(grouped[m][event.beforeId]);
                         grouped[m][event.beforeId] -= 1;
                         if (grouped[m][event.beforeId] <= 0) {
                             delete grouped[m][event.beforeId];
