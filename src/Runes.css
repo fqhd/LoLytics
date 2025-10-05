@@ -50,10 +50,10 @@
 }
 
 .tab-bar {
+    position: relative;
     display: flex;
     border-bottom: 2px solid #333;
     margin-bottom: 10px;
-    width: 100%;
 }
 
 .tab {
@@ -63,6 +63,9 @@
     cursor: pointer;
     font-weight: 500;
     color: #aaa;
+    transition: color 0.2s;
+    position: relative;
+    z-index: 1;
     flex: 1;
 }
 
@@ -72,7 +75,14 @@
 
 .tab.active {
     color: white;
-    border-bottom: 2px solid white;
+}
+
+.tab-indicator {
+    position: absolute;
+    bottom: -2px;
+    height: 2px;
+    background: white;
+    transition: all 0.25s ease;
 }
 
 .tab-content {

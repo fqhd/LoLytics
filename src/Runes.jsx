@@ -1,30 +1,44 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './Runes.css';
 
 function Runes({ data = {} }) {
-    const [activeTab, setActiveTab] = useState('runes'); // 'runes' | 'other'
+    const [activeTab, setActiveTab] = useState('runes');
+    const [indicatorStyle, setIndicatorStyle] = useState({});
+    const tabRefs = useRef({});
 
     const { primaryTree = {}, secondaryTree = {}, statPerks = [] } = data;
 
+    useEffect(() => {
+        const activeEl = tabRefs.current[activeTab];
+        if (activeEl) {
+            setIndicatorStyle({
+                left: activeEl.offsetLeft + 'px',
+                width: activeEl.offsetWidth + 'px',
+            });
+        }
+    }, [activeTab]);
+
     return (
         <div className="runes">
-            {/* === Tabs === */}
             <div className="tab-bar">
                 <button
+                    ref={(el) => (tabRefs.current['runes'] = el)}
                     className={`tab ${activeTab === 'runes' ? 'active' : ''}`}
                     onClick={() => setActiveTab('runes')}
                 >
                     Runes
                 </button>
                 <button
+                    ref={(el) => (tabRefs.current['other'] = el)}
                     className={`tab ${activeTab === 'other' ? 'active' : ''}`}
                     onClick={() => setActiveTab('other')}
                 >
                     Events
                 </button>
+
+                <div className="tab-indicator" style={indicatorStyle}></div>
             </div>
 
-            {/* === Content === */}
             <div className="tab-content">
                 {activeTab === 'runes' && (
                     <>
@@ -76,7 +90,6 @@ function Runes({ data = {} }) {
 
                 {activeTab === 'other' && (
                     <div className="other-tab">
-                        {/* You can populate this section later */}
                         <p>This section is empty for now.</p>
                     </div>
                 )}
