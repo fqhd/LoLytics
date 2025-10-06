@@ -9,6 +9,7 @@ export async function get_frame_events_win_probability_deltas(state, events, win
         const state_copy = deep_copy(state);
         let killerIcon;
         let victimIcon;
+        let assistIcons = [];
         const event = priority_events[i];
         if (event.killerId == 0) {
             killerIcon = '/images/icons/minion.png';
@@ -40,6 +41,15 @@ export async function get_frame_events_win_probability_deltas(state, events, win
                 victimIcon += 'inhibitor.png';
             }
         }
+        if (event.assistingParticipantIds) {
+            for (const id of event.assistingParticipantIds) {
+                const team_id = parseInt((id - 1) / 5);
+                const champion = state_copy.teams[team_id].players[(id - 1) % 5].champion;
+                const assisterIcon = '/images/icons/' + champion + '.jpg';
+                assistIcons.push(assisterIcon);
+            }
+        }
+
         update_with_event(state_copy, event, true);
         const vectorized = convert_sample_to_array(state_copy);
         const prediction = await predict(vectorized);
@@ -48,6 +58,7 @@ export async function get_frame_events_win_probability_deltas(state, events, win
             left: killerIcon,
             right: victimIcon,
             delta,
+            assists: assistIcons,
             time: event.timestamp
         });
     }

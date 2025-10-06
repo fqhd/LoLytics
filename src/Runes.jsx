@@ -98,7 +98,14 @@ function Runes({ data, events }) {
                             {events.map((e, i) => (
                                 <div className={"game-event" + (e.delta > 0 ? ' good' : ' bad')}>
                                     <div className="top-half">
-                                        <img className="champ-icon" src={e.left} alt="" />
+                                        <div>
+                                            <img className="champ-icon" src={e.left} alt="" />
+                                            {e.assists && <React.Fragment>
+                                                {e.assists.map((a, i) => (
+                                                    <img className="champ-icon-small" src={a} alt="" />
+                                                ))}
+                                            </React.Fragment>}
+                                        </div>
                                         <img className="sword-icon" src='/images/sword.png' alt="" />
                                         <img className="champ-icon" src={e.right} alt="" />
                                     </div>
