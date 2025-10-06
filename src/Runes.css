@@ -27,8 +27,8 @@
 }
 
 .keystone-icon {
-    width: 38%;
-    height: 38%;
+    width: 60px;
+    height: 60px;
     background-color: #1e1e1e;
     border: 1px solid white;
     border-radius: 100%;
@@ -43,15 +43,15 @@
 }
 
 .sub-keystone-icon {
-    width: 38%;
-    height: 38%;
+    width: 30px;
+    height: 30px;
     border: 1px solid white;
     border-radius: 100%;
 }
 
 .stat-icon {
-    width: 50%;
-    height: 50%;
+    width: 20px;
+    height: 20px;
     background-color: #1e1e1e;
     border-radius: 100%;
     border: 1px solid white;
