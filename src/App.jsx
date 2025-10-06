@@ -72,7 +72,7 @@ function App() {
 
     const handleMatchClick = async (i) => {
         setSelectedMatch(matchImages[i]);
-        
+
         let response = await fetch(`${apiUrl}/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
         response = await response.json();
 
@@ -104,27 +104,28 @@ function App() {
         }, 50);
     };
 
-    const handleBack = () => {
-        setShowMatchDetails(false);
-        setTimeout(() => {
-            setSelectedMatch(null);
-            setFrameIndex(0);
-        }, 400);
-    };
-
     useEffect(() => {
-        const handleKeyPress = e => {
+        const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
-                if (selectedMatch === null && showMatches) {
-                    setSearched(false);
+                if (showMatchDetails) {
+                    // Remove the "show" class first (triggers fade-out)
+                    setShowMatchDetails(false);
+
+                    // Wait for CSS transition to finish (0.4s based on your CSS)
+                    setTimeout(() => {
+                        setSelectedMatch(null);
+                    }, 400); // match your CSS transition duration
+                } else if (showMatches) {
                     setShowMatches(false);
+                    setSearched(false);
+                    setSelectedMatch(null);
                 }
             }
         };
 
         document.addEventListener('keydown', handleKeyPress);
         return () => document.removeEventListener('keydown', handleKeyPress);
-    }, [showMatches]);
+    }, [showMatches, showMatchDetails]);
 
     return (
         <div className="container">

@@ -96,22 +96,34 @@ function Runes({ data, events }) {
                     <div className="other-tab">
                         <React.Fragment>
                             {events.map((e, i) => (
-                                <div className={"game-event" + (e.delta > 0 ? ' good' : ' bad')}>
+                                <div
+                                    key={i}
+                                    className={"game-event" + (e.delta > 0 ? ' good' : ' bad')}
+                                >
                                     <div className="top-half">
                                         <div>
                                             <img className="champ-icon" src={e.left} alt="" />
-                                            {e.assists && <React.Fragment>
-                                                {e.assists.map((a, i) => (
-                                                    <img className="champ-icon-small" src={a} alt="" />
-                                                ))}
-                                            </React.Fragment>}
+                                            {e.assists && (
+                                                <React.Fragment>
+                                                    {e.assists.map((a, j) => (
+                                                        <img
+                                                            key={j}
+                                                            className="champ-icon-small"
+                                                            src={a}
+                                                            alt=""
+                                                        />
+                                                    ))}
+                                                </React.Fragment>
+                                            )}
                                         </div>
-                                        <img className="sword-icon" src='/images/sword.png' alt="" />
+                                        <img className="sword-icon" src="/images/sword.png" alt="" />
                                         <img className="champ-icon" src={e.right} alt="" />
                                     </div>
                                     <div className="bottom-half">
                                         <span>{formatTime(e.time)}</span>
-                                        <span className="event-delta">{(e.delta > 0 ? '+' : '') + e.delta}</span>
+                                        <span className="event-delta">
+                                            {(e.delta > 0 ? '+' : '') + e.delta}
+                                        </span>
                                     </div>
                                 </div>
                             ))}
