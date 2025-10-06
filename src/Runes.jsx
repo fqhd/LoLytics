@@ -116,8 +116,10 @@ function Runes({ data, events }) {
                                                 </React.Fragment>
                                             )}
                                         </div>
-                                        <img className="sword-icon" src="/images/sword.png" alt="" />
-                                        <img className="champ-icon" src={e.right} alt="" />
+                                        <div className="the-fucked">
+                                            <img className="sword-icon" src="/images/sword.png" alt="" />
+                                            <img className="champ-icon" src={e.right} alt="" />
+                                        </div>
                                     </div>
                                     <div className="bottom-half">
                                         <span>{formatTime(e.time)}</span>
