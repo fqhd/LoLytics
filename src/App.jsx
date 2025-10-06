@@ -178,7 +178,7 @@ function App() {
                     <div className="data">
                         <div className="top-row">
                             <div className="timeline">
-                                <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} events={events} />
+                                <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
                             </div>
                             <div className='minimap'>
                                 <img src='images/nexus.png' className="blue-building building" style={{
@@ -388,10 +388,9 @@ function App() {
                                 <PurchasePath items={items} frameIndex={frameIndex} />
                             </div>
                             {frames && frames[frameIndex] && <Scoreboard data={frames[frameIndex]} />}
-                            {runes && <Runes data={runes} />}
+                            {runes && <Runes data={runes} events={events[frameIndex]} />}
                         </div>
                     </div>
-                    <button className="back-button" onClick={handleBack}><span className="back-button-text">Back</span></button>
                 </div>
             )}
             <footer className="copyright">© 2025 LoLytics — Open Source (MIT License) · <a

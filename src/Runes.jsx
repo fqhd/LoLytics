@@ -1,10 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Runes.css';
 
-function Runes({ data = {} }) {
+function Runes({ data, events }) {
     const [activeTab, setActiveTab] = useState('runes');
     const [indicatorStyle, setIndicatorStyle] = useState({});
     const tabRefs = useRef({});
+
+    const formatTime = ms =>
+        `${String(Math.floor(ms / 60000)).padStart(2, '0')}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
+
 
     const { primaryTree = {}, secondaryTree = {}, statPerks = [] } = data;
 
@@ -88,9 +92,23 @@ function Runes({ data = {} }) {
                     </>
                 )}
 
-                {activeTab === 'other' && (
+                {activeTab === 'other' && events && (
                     <div className="other-tab">
-                        <p>This section is empty for now.</p>
+                        <React.Fragment>
+                            {events.map((e, i) => (
+                                <div className={"game-event" + (e.delta > 0 ? ' good' : ' bad')}>
+                                    <div className="top-half">
+                                        <img className="champ-icon" src={e.left} alt="" />
+                                        <img className="sword-icon" src='/images/sword.png' alt="" />
+                                        <img className="champ-icon" src={e.right} alt="" />
+                                    </div>
+                                    <div className="bottom-half">
+                                        <span>{formatTime(e.time)}</span>
+                                        <span className="event-delta">{(e.delta > 0 ? '+' : '') + e.delta}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </React.Fragment>
                     </div>
                 )}
             </div>
