@@ -213,7 +213,6 @@ input:hover {
 }
 
 .match-details {
-    border: 3px solid white;
     position: absolute;
     top: 100px;
     left: 50%;

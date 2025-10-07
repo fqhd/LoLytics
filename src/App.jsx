@@ -175,7 +175,9 @@ function App() {
             </div>
 
             {selectedMatch !== null && (
-                <div className={`match-details ${showMatchDetails ? 'show' : ''}`}>
+                <div className={`match-details ${showMatchDetails ? 'show' : ''}`} style={{
+                    border: `3px solid ${selectedMatch.win ? '#42cdff' : '#fc4747'}`
+                }}>
                     <div className="data">
                         <div className="top-row">
                             <div className="timeline">
