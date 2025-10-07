@@ -8,7 +8,7 @@ import Runes from './Runes';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function App() {
-    const [active, setActive] = useState(null);
+    const [active, setActive] = useState('soloq');
     const [searched, setSearched] = useState(false);
     const [error, setError] = useState('');
     const [showMatches, setShowMatches] = useState(false);
