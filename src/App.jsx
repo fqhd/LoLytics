@@ -8,6 +8,7 @@ import Runes from './Runes';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function App() {
+    const [active, setActive] = useState(null);
     const [searched, setSearched] = useState(false);
     const [error, setError] = useState('');
     const [showMatches, setShowMatches] = useState(false);
@@ -24,13 +25,17 @@ function App() {
     const [frameIndex, setFrameIndex] = useState(0);
     const [region, setRegion] = useState('europe');
 
+    const handleChange = (name) => {
+        setActive((prev) => (prev === name ? null : name));
+    };
+
     const handleSearch = async () => {
         setSearched(true);
 
         try {
             const start = Date.now();
 
-            let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}`);
+            let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}&queue=${active}`);
             if (history.status != 200) {
                 history = await history.json();
                 throw new Error(history.error);
@@ -108,13 +113,11 @@ function App() {
         const handleKeyPress = (e) => {
             if (e.key === 'Escape') {
                 if (showMatchDetails) {
-                    // Remove the "show" class first (triggers fade-out)
                     setShowMatchDetails(false);
 
-                    // Wait for CSS transition to finish (0.4s based on your CSS)
                     setTimeout(() => {
                         setSelectedMatch(null);
-                    }, 400); // match your CSS transition duration
+                    }, 400);
                 } else if (showMatches) {
                     setShowMatches(false);
                     setSearched(false);
@@ -155,6 +158,44 @@ function App() {
                         <option value="sea">VN</option>
                     </select>
                 </div>
+                <div className="search-options">
+                    <label className="modern-radio">
+                        <input
+                            type="radio"
+                            name="queue"
+                            value="soloq"
+                            checked={active === "soloq"}
+                            onChange={() => handleChange("soloq")}
+                        />
+                        <span className="checkmark"></span>
+                        Ranked Solo/Duo
+                    </label>
+
+                    <label className="modern-radio">
+                        <input
+                            type="radio"
+                            name="queue"
+                            value="draft"
+                            checked={active === "draft"}
+                            onChange={() => handleChange("draft")}
+                        />
+                        <span className="checkmark"></span>
+                        Normal Draft
+                    </label>
+
+                    <label className="modern-radio">
+                        <input
+                            type="radio"
+                            name="queue"
+                            value="flex"
+                            checked={active === "flex"}
+                            onChange={() => handleChange("flex")}
+                        />
+                        <span className="checkmark"></span>
+                        Ranked Flex
+                    </label>
+                </div>
+
                 <button className="search-button" onClick={handleSearch}>
                     <span className="search-button-text">Search</span>
                 </button>
