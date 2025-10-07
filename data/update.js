@@ -68,16 +68,16 @@ export function update_general_stats(state) {
     }
 }
 
-export function update_with_event(state, event) {
+export function update_with_event(state, event, add_gold=false) {
     switch (event.type) {
         case 'CHAMPION_KILL':
-            process_champion_kill(state, event);
+            process_champion_kill(state, event, add_gold);
             break;
         case 'BUILDING_KILL':
-            process_building_kill(state, event);
+            process_building_kill(state, event, add_gold);
             break;
         case 'ELITE_MONSTER_KILL':
-            process_monster_kill(state, event);
+            process_monster_kill(state, event, add_gold);
             break;
     }
 }

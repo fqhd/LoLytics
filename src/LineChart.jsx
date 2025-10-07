@@ -14,11 +14,10 @@ const EPSILON = 0.05;
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip);
 
-export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
+export default function LineChart({ data, frameIndex, setFrameIndex }) {
     const canvasRef = useRef(null);
     const chartRef = useRef(null);
     const hoverIndexRef = useRef(0);
-    const tooltipRef = useRef(null);
 
     const verticalLinePlugin = {
         id: 'verticalLine',
@@ -40,26 +39,6 @@ export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
     };
 
     useEffect(() => {
-        if (!tooltipRef.current) {
-            const el = document.createElement("div");
-            el.id = "chartjs-tooltip";
-            el.style.position = "absolute";
-            el.style.pointerEvents = "none";
-            el.style.background = "rgba(20,20,20,0.9)";
-            el.style.color = "white";
-            el.style.borderRadius = "8px";
-            el.style.padding = "10px";
-            el.style.fontFamily = "sans-serif";
-            el.style.fontSize = "14px";
-            el.style.zIndex = 1000;
-            el.style.opacity = 0;
-            el.style.left = '0px';
-            el.style.top = '0px';
-
-            document.body.appendChild(el);
-            tooltipRef.current = el;
-        }
-
         const ctx = canvasRef.current.getContext('2d');
         chartRef.current = new Chart(ctx, {
             type: 'line',
@@ -104,55 +83,13 @@ export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
                     tooltip: {
-                        enabled: false,
-                        external: (context) => {
-                            const tooltipModel = context.tooltip;
-                            const tooltipEl = tooltipRef.current;
-                            if (!tooltipEl) return;
-
-                            if (tooltipModel.opacity === 0) {
-                                tooltipEl.style.opacity = 0;
-                                return;
+                        callbacks: {
+                            label: function (context) {
+                                const value = context.parsed.y;
+                                const percentage = 'Win Probability: ' + (value * 100).toFixed(1) + '%';
+                                return percentage;
                             }
-
-                            const dataIndex = tooltipModel.dataPoints[0].dataIndex;
-                            const value = tooltipModel.dataPoints[0].raw;
-
-                            let innerHtml = `<div><strong>Minute ${dataIndex}</strong>: ${Math.round(value * 1000) / 10}%</div>`;
-
-                            if (events[dataIndex]) {
-                                events[dataIndex].forEach((e) => {
-                                    const swordClass = e.delta > 0 ? "green" : "red";
-                                    innerHtml += `
-                <div style="display:flex;align-items:center;margin-top:6px">
-                  <img src="${e.left}" style="width:30px;height:30px;border-radius:4px"/>
-                  <div style="
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  width:26px;
-  height:26px;
-  margin:0 6px;
-  border-radius:4px;
-  background:${swordClass};
-">
-  <img src="/images/sword.png" style="width:22px;height:22px"/>
-</div>
-                  <img src="${e.right}" style="width:30px;height:30px;border-radius:4px"/>
-                  <span style="margin-left:6px">(${e.delta > 0 ? "+" : ""}${e.delta}%)</span>
-                </div>
-              `;
-                                });
-                            }
-
-                            tooltipEl.innerHTML = innerHtml;
-
-                            const { offsetLeft: positionX, offsetTop: positionY } =
-                                context.chart.canvas;
-                            tooltipEl.style.opacity = 1;
-                            tooltipEl.style.left = positionX + tooltipModel.caretX + 20 + "px";
-                            tooltipEl.style.top = positionY + tooltipModel.caretY + "px";
-                        },
+                        }
                     },
                     title: {
                         display: true,
@@ -211,12 +148,8 @@ export default function LineChart({ data, frameIndex, setFrameIndex, events }) {
 
         return () => {
             chartRef.current.destroy()
-            if (tooltipRef.current) {
-                tooltipRef.current.remove();
-                tooltipRef.current = null;
-            }
         };
-    }, [events]);
+    }, []);
 
     useEffect(() => {
         if (!chartRef.current) return;

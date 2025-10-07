@@ -1,6 +1,8 @@
 ## LoLytics — League of Legends Analytics Platform
 [![CI](https://github.com/fqhd/LoLytics/actions/workflows/ci.yml/badge.svg)](https://github.com/fqhd/LoLytics/actions/workflows/ci.yml)
 
+**Live Demo:** [lolytics.org](https://lolytics.org)
+
 Win probability and game state analytics for League of Legends, powered by machine learning.
 
 ![lolytics match analysis](./images/match_analysis.png)

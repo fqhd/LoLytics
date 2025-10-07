@@ -31,16 +31,17 @@ input:hover {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: calc(100vh - 80px);
 }
 
 .title {
-    font-size: 128px;
+    font-size: 156px;
+    margin-bottom: 20px;
 }
 
 .username {
     font-size: 48px;
-    top: -0.5em;
+    top: -0.7em;
     right: 1em;
 
     position: absolute;
@@ -70,6 +71,10 @@ input:hover {
     color: white;
     background-color: transparent;
     outline: none;
+}
+
+.input-dropdown {
+    cursor: pointer;
 }
 
 .input-left {
@@ -107,17 +112,10 @@ input:hover {
     background-color: #3fb3f7;
 }
 
-.title {
-    top: calc(25vh);
-    position: absolute;
-    font-size: 156px;
-    transition: all 0.6s ease;
-}
-
 .copyright {
     font-size: 14px;
     position: absolute;
-    bottom: 5px;
+    bottom: 3px;
     width: 100%;
     padding: 0;
     margin: 0;
@@ -140,17 +138,12 @@ input:hover {
     display: block;
 }
 
-.title-shrink {
-    font-size: 32px;
-    top: 1em;
-}
-
 .input-group-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 120px;
     transition: opacity 0.6s ease, transform 0.6s ease;
+    transform: translateY(-20%);
 }
 
 .input-group-wrapper.fade-out {
@@ -158,42 +151,40 @@ input:hover {
     transform: translateY(-50px);
     pointer-events: none;
 }
-
 .match-history-container {
     padding: 20px;
-    padding-top: 0;
     position: absolute;
-    top: 50%;
+    top: 53%;
     left: 50%;
-    transform: translate(-50%, -52%);
+    transform: translate(-50%, -50%) scale(0);
+    transform-origin: center;
+
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
 
-    width: 0;
-    height: 0;
+    width: 820px;
+    height: 83%;
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
 
     transition:
-        width 0.4s ease,
-        height 0.4s ease,
+        transform 0.4s ease,
         opacity 0.4s ease;
 }
 
 .match-history-container.show {
-    width: 820px;
-    height: 100vh;
+    transform: translate(-50%, -50%) scale(1);
     opacity: 1;
     pointer-events: auto;
 }
 
 .match-card {
     width: 800px;
-    height: 15%;
+    height: 18%;
     background-color: #2a2a2a;
     border-radius: 16px;
     opacity: 0;
@@ -213,14 +204,13 @@ input:hover {
 }
 
 .match-details {
-    border: 3px solid white;
     position: absolute;
     top: 100px;
     left: 50%;
     transform: translate(-50%, 20px) scale(0.95);
     transform-origin: bottom center;
     width: 90vw;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 220px);
     background-color: #2a2a2a;
     border-radius: 20px;
     opacity: 0;
@@ -407,4 +397,98 @@ input:hover {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%);
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
+}
+
+.modern-radio {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    color: #fff;
+    font-size: 16px;
+    gap: 6px;
+}
+
+.modern-radio input {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    background-color: #2b2b2b;
+    border-radius: 50%;
+    position: relative;
+    transition: background-color 0.25s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modern-radio:hover .checkmark {
+    background-color: #3a3a3a;
+}
+
+.checkmark::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.modern-radio input:checked+.checkmark {
+    background-color: #15a9ff;
+}
+
+.modern-radio input:checked+.checkmark::after {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.search-options {
+    display: flex;
+    flex-flow: row nowrap;
+    margin-top: 20px;
+    gap: 32px;
+}
+
+.navbar {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background-color: #111111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    z-index: -1;
+}
+
+.page {
+    color: #999;
+    text-decoration: none;
+    margin: 20px;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.page:hover {
+    color: #eee;
+}
+
+.logo {
+    color: #eee;
+    text-decoration: none;
+    background: #3b3b3b;
+    padding: 5px;
+    border-radius: 10px;
+    margin: 20px;
+    font-size: 24px;
+    padding-left: 10px;
+    padding-right: 10px;
 }

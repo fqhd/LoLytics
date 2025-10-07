@@ -99,7 +99,7 @@ function find_rune_with_id(id) {
         return '/images/stats/statmodsattackspeedicon.png';
     } else if (id == 5007) {
         return '/images/stats/statmodscdrscalingicon.png';
-    } else if (id == 5001) {
+    } else if (id == 5011) {
         return '/images/stats/statsmodshealthscalingicon.png';
     } else if (id == 5013) {
         return '/images/stats/statsmodstenacityicon.png';
@@ -123,7 +123,9 @@ function get_participant_item_purchases(frames, participant_id) {
 
     for (const frame of frames) {
         for (const event of frame.events) {
-            if (event.type === 'ITEM_PURCHASED' && event.participantId == participant_id) {
+            if (event.participantId !== participant_id) continue;
+
+            if (event.type === 'ITEM_PURCHASED') {
                 const minute = Math.floor(event.timestamp / 1000 / 60);
                 if (!grouped[minute]) {
                     grouped[minute] = {};
@@ -132,6 +134,19 @@ function get_participant_item_purchases(frames, participant_id) {
                     grouped[minute][event.itemId] = 0;
                 }
                 grouped[minute][event.itemId] += 1;
+            }
+
+            if (event.type === 'ITEM_UNDO' && event.beforeId !== 0) {
+                const minute = Math.floor(event.timestamp / 1000 / 60);
+                for (let m = minute; m >= 0; m--) {
+                    if (grouped[m] && grouped[m][event.beforeId]) {
+                        grouped[m][event.beforeId] -= 1;
+                        if (grouped[m][event.beforeId] <= 0) {
+                            delete grouped[m][event.beforeId];
+                        }
+                        break;
+                    }
+                }
             }
         }
     }
@@ -148,4 +163,5 @@ function get_participant_item_purchases(frames, participant_id) {
 
     return result;
 }
+
 
