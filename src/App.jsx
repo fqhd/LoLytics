@@ -183,159 +183,159 @@ function App() {
                             </div>
                             <div className='minimap'>
                                 <img src='images/nexus.png' className="blue-building building" style={{
-                                    left: '20px',
-                                    bottom: '20px',
-                                    width: '32px',
+                                    left: '6%',
+                                    bottom: '6%',
+                                    width: '9.6%',
                                 }} />
 
                                 <img src='images/nexus.png' className="red-building building" style={{
-                                    top: '20px',
-                                    right: '20px',
-                                    width: '32px',
+                                    top: '6%',
+                                    right: '6%',
+                                    width: '9.6%',
                                 }} />
 
                                 {frames && frames[frameIndex].teams[0].inhibs[1] == 0 && <img src='images/inhibitor.png' className="blue-building building" style={{
-                                    bottom: '50px',
-                                    left: '50px',
-                                    width: '24px',
+                                    bottom: '15%',
+                                    left: '15%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].inhibs[0] == 0 && <img src='images/inhibitor.png' className="blue-building building" style={{
-                                    bottom: '60px',
-                                    left: '15px',
-                                    width: '24px',
+                                    bottom: '18%',
+                                    left: '4.5%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].inhibs[2] == 0 && <img src='images/inhibitor.png' className="blue-building building" style={{
-                                    bottom: '15px',
-                                    left: '60px',
-                                    width: '24px',
+                                    bottom: '4.5%',
+                                    left: '18%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].inhibs[1] == 0 && <img src='images/inhibitor.png' className="red-building building" style={{
-                                    top: '50px',
-                                    right: '50px',
-                                    width: '24px',
+                                    top: '15%',
+                                    right: '15%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].inhibs[0] == 0 && <img src='images/inhibitor.png' className="red-building building" style={{
-                                    top: '60px',
-                                    right: '15px',
-                                    width: '24px',
+                                    top: '18%',
+                                    right: '4.5%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].inhibs[2] == 0 && <img src='images/inhibitor.png' className="red-building building" style={{
-                                    top: '15px',
-                                    right: '60px',
-                                    width: '24px',
+                                    top: '4.5%',
+                                    right: '18%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[0] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '220px',
-                                    left: '10px',
-                                    width: '24px',
+                                    bottom: '66%',
+                                    left: '3%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[1] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '130px',
-                                    left: '20px',
-                                    width: '24px',
+                                    bottom: '39%',
+                                    left: '6%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[2] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '80px',
-                                    left: '15px',
-                                    width: '24px',
+                                    bottom: '24%',
+                                    left: '4.5%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[3] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '125px',
-                                    left: '120px',
-                                    width: '24px',
+                                    bottom: '37.5%',
+                                    left: '36%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[4] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '95px',
-                                    left: '100px',
-                                    width: '24px',
+                                    bottom: '28.5%',
+                                    left: '30%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[5] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '65px',
-                                    left: '65px',
-                                    width: '24px',
+                                    bottom: '19.5%',
+                                    left: '19.5%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[6] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '10px',
-                                    left: '225px',
-                                    width: '24px',
+                                    bottom: '3%',
+                                    left: '67.5%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[7] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '20px',
-                                    left: '140px',
-                                    width: '24px',
+                                    bottom: '6%',
+                                    left: '42%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[0].towers[8] == 1 && <img src='images/tower.png' className="blue-building building" style={{
-                                    bottom: '15px',
-                                    left: '80px',
-                                    width: '24px',
+                                    bottom: '4.5%',
+                                    left: '24%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[0] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '0px',
-                                    right: '225px',
-                                    width: '24px',
+                                    top: '0',
+                                    right: '67.5%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[1] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '15px',
-                                    right: '140px',
-                                    width: '24px',
+                                    top: '4.5%',
+                                    right: '42%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[2] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '10px',
-                                    right: '80px',
-                                    width: '24px',
+                                    top: '3%',
+                                    right: '24%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[3] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '125px',
-                                    right: '120px',
-                                    width: '24px',
+                                    top: '37.5%',
+                                    right: '36%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[4] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '85px',
-                                    right: '100px',
-                                    width: '24px',
+                                    top: '25.5%',
+                                    right: '30%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[5] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '65px',
-                                    right: '65px',
-                                    width: '24px',
+                                    top: '19.5%',
+                                    right: '19.5%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[6] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '220px',
-                                    right: '10px',
-                                    width: '24px',
+                                    top: '66%',
+                                    right: '3%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[7] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '130px',
-                                    right: '20px',
-                                    width: '24px',
+                                    top: '39%',
+                                    right: '6%',
+                                    width: '7.2%',
                                 }} />}
 
                                 {frames && frames[frameIndex].teams[1].towers[8] == 1 && <img src='images/tower.png' className="red-building building" style={{
-                                    top: '80px',
-                                    right: '15px',
-                                    width: '24px',
+                                    top: '24%',
+                                    right: '4.5%',
+                                    width: '7.2%',
                                 }} />}
 
 
