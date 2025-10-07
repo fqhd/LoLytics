@@ -12,7 +12,7 @@ function Runes({ data, events }) {
 
     const { primaryTree = {}, secondaryTree = {}, statPerks = [] } = data;
 
-    useEffect(() => {
+    const updateIndicator = () => {
         const activeEl = tabRefs.current[activeTab];
         if (activeEl) {
             setIndicatorStyle({
@@ -20,7 +20,18 @@ function Runes({ data, events }) {
                 width: activeEl.offsetWidth + 'px',
             });
         }
+    };
+
+    // Update when tab changes
+    useEffect(() => {
+        updateIndicator();
     }, [activeTab]);
+
+    // Update on window resize
+    useEffect(() => {
+        window.addEventListener('resize', updateIndicator);
+        return () => window.removeEventListener('resize', updateIndicator);
+    }, [activeTab]); // reattach listener if tab changes (safeguard)
 
     return (
         <div className="runes">
