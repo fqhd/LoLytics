@@ -70,7 +70,10 @@ export default async function match_analysis(req, res) {
 
         const items = get_participant_item_purchases(timeline.data.info.frames, player.participantId);
 
-        const response_data = { probabilities, runes, items, frames: states, events };
+        const gold_diff = get_team_stat_diff_per_minute(timeline.data.info.frames, 'totalGold');
+        const xp_diff = get_team_stat_diff_per_minute(timeline.data.info.frames, 'xp');
+
+        const response_data = { gold_diff, xp_diff, probabilities, runes, items, frames: states, events };
 
         cache.set(cache_key, response_data);
 
@@ -116,6 +119,30 @@ function find_rune_with_id(id) {
         }
     }
     return null;
+}
+
+function get_team_stat_diff_per_minute(frames, stat_type) {
+    const blue_team = [];
+    const red_team = [];
+    let total;
+
+    for (const frame of frames) {
+        // Blue team
+        total = 0;
+        for (let i = 1; i <= 5; i++) {
+            total += frame.participantFrames[i.toString()][stat_type];
+        }
+        blue_team.push(total);
+
+        // Red team
+        total = 0;
+        for (let i = 6; i <= 10; i++) {
+            total += frame.participantFrames[i.toString()][stat_type];
+        }
+        red_team.push(total);
+    }
+
+    return blue_team.map((v, i) => v - red_team[i]);
 }
 
 function get_participant_item_purchases(frames, participant_id) {
