@@ -133,10 +133,10 @@ function App() {
 
     return (
         <div className="container">
-            <div className={`title ${searched ? 'title-shrink' : ''}`}>LoLytics</div>
             <div className={`username ${searched ? 'username-show' : ''}`}>{name.toUpperCase()}#{tag.toUpperCase()}</div>
 
             <div className={`input-group-wrapper ${searched ? 'fade-out' : ''}`}>
+                <div className="title">LoLytics</div>
                 <div className={`error-message ${error != '' ? 'error-message-show' : ''}`}>{error}</div>
                 <div className="input-group">
                     <input className="input-left" placeholder="Name" onChange={(e) => setName(e.target.value)} />
