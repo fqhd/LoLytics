@@ -151,35 +151,33 @@ input:hover {
     transform: translateY(-50px);
     pointer-events: none;
 }
-
 .match-history-container {
     padding: 20px;
-    padding-top: 20px;
     position: absolute;
-    top: 10%;
+    top: 53%;
     left: 50%;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -50%) scale(0);
+    transform-origin: center;
+
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
     justify-content: flex-start;
 
-    width: 0;
-    height: 0;
+    width: 820px;
+    height: 83%;
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
 
     transition:
-        width 0.4s ease,
-        height 0.4s ease,
+        transform 0.4s ease,
         opacity 0.4s ease;
 }
 
 .match-history-container.show {
-    width: 820px;
-    height: 83%;
+    transform: translate(-50%, -50%) scale(1);
     opacity: 1;
     pointer-events: auto;
 }
