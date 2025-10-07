@@ -76,6 +76,7 @@ function App() {
     };
 
     const handleMatchClick = async (i) => {
+        setFrameIndex(0);
         setSelectedMatch(matchImages[i]);
 
         let response = await fetch(`${apiUrl}/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
