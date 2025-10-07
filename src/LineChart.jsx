@@ -82,6 +82,15 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             options: {
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const value = context.parsed.y;
+                                const percentage = 'Win Probability: ' + (value * 100).toFixed(1) + '%';
+                                return percentage;
+                            }
+                        }
+                    },
                     title: {
                         display: true,
                         text: 'Win Probability Graph',
