@@ -27,7 +27,7 @@ my_dir
 .ipynb_checkpoints
 __pycache__
 *.lmdb
-.env
+.env*
 api_keys.js
 match_data*
 fixtures.json
