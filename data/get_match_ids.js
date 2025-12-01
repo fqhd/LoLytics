@@ -1,41 +1,20 @@
 import { api_call, fetch_with_retries, shuffle } from './utils.js';
-import { API_KEYS } from './api_keys.js';
 
 async function get_summoner_ids(rank, tier, page, key) {
 	const summoner_ids = [];
-	if (rank == 'CHALLENGER') {
-		let response = await fetch_with_retries(
-			`https://euw1.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=${key}`,
-		);
-		response = await response.json();
-		if (response == null) {
-			return [];
-		}
-		for (const summoner of response.entries) {
-			summoner_ids.push(summoner.puuid);
-		}
-	} else if (rank == 'GRANDMASTER') {
-		let response = await fetch_with_retries(
-			`https://euw1.api.riotgames.com/lol/league/v4/grandmasterleagues/by-queue/RANKED_SOLO_5x5?api_key=${key}`,
-		);
-		response = await response.json();
-		if (response == null) {
-			return [];
-		}
-		for (const summoner of response.entries) {
-			summoner_ids.push(summoner.puuid);
-		}
-	} else if (rank == 'MASTER') {
+	if (rank == 'MASTER') {
+		const summoner_ids = [];
 		let response = await fetch_with_retries(
 			`https://euw1.api.riotgames.com/lol/league/v4/masterleagues/by-queue/RANKED_SOLO_5x5?api_key=${key}`,
 		);
-		response = await response.json();
 		if (response == null) {
 			return [];
 		}
 		for (const summoner of response.entries) {
 			summoner_ids.push(summoner.puuid);
 		}
+		shuffle(summoner_ids);
+		return summoner_ids.slice(0, 800);
 	} else {
 		let response = await fetch_with_retries(
 			`https://euw1.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/${rank}/${tier}?page=${page}&api_key=${key}`,
@@ -64,7 +43,7 @@ async function get_summoner_match_ids(summoner_id, key) {
 	return match_history;
 }
 
-async function get_match_id_batch(rank, tier, page, key) {
+export async function get_match_id_batch(rank, tier, page, key) {
 	let match_ids = [];
 
 	const summoner_ids = await get_summoner_ids(rank, tier, page, key);
@@ -85,28 +64,28 @@ async function get_match_id_batch(rank, tier, page, key) {
 	return match_ids.filter((e) => e != null);
 }
 
-export async function get_ids(rank) {
+export async function get_ids(rank, tier, key) {
 	let match_ids = [];
-	let promises = [];
 
-	for (const tier of ['I', 'II', 'III', 'IV']) {
-		for (let page = 11; page <= 30; page++) {
-			promises.push(
-				get_match_id_batch(rank, tier, page, API_KEYS[promises.length]),
-			);
-			if (promises.length >= API_KEYS.length) {
-				const results = await Promise.all(promises);
-				match_ids = match_ids.concat(...results);
-				promises = [];
-			}
-		}
+	let n_pages = 2;
+	if (rank == 'IRON' || rank == 'BRONZE') {
+		n_pages = 4;
 	}
 
-	if (promises.length != 0) {
-		const results = await Promise.all(promises);
-		match_ids = match_ids.concat(...results);
+	for (let page = 1; page <= n_pages; page++) {
+		const results = await get_match_id_batch(rank, tier, page, key);
+		match_ids = match_ids.concat(results);
 	}
 
 	shuffle(match_ids);
-	return match_ids;
+
+	console.log(`Found ${match_ids.length} ids for ${rank} ${tier}`);
+
+	return match_ids.map((v, _) => {
+		return {
+			match_id: v,
+			rank,
+			tier
+		}
+	});
 }

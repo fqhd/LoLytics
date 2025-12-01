@@ -67,7 +67,7 @@ export async function fetch_with_retries(url, timeout = 3000) {
 		} catch (error) {
 			if (attempt < 3) {
 				console.warn(
-					`Attempt ${attempt} failed. Retrying in ${timeout}ms...`,
+					`Attempt ${attempt} failed. Retrying in ${timeout}ms... ${url}`,
 				);
 				await new Promise((resolve) => setTimeout(resolve, timeout));
 			} else {

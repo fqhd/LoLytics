@@ -5,17 +5,12 @@ export function create_players(game, team_id) {
 		const champion = game.info.participants[playerIndex].championName;
 		players.push({
 			champion,
-			kills: 0,
-			deaths: 0,
-			assists: 0,
+			kill_gold: 0,
+			assist_gold: 0,
 			baronTimer: 0,
 			elderTimer: 0,
 			deathTimer: 0,
-			gold: 0,
 			level: 1,
-			creepscore: 0,
-			x: 0,
-			y: 0,
 		});
 	}
 	return players;
