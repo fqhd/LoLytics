@@ -29,6 +29,7 @@ __pycache__
 *.lmdb
 .env*
 api_keys.js
-match_data*
+dataset*
 fixtures.json
 integration.json
+match_ids.csv
