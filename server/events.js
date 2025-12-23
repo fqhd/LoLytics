@@ -1,6 +1,5 @@
 import { deep_copy } from '../data/utils.js';
 import { predict, convert_sample_to_array } from './model.js';
-import { update_with_event } from '../data/update.js';
 
 export async function get_frame_events_win_probability_deltas(state, events, win_probability) {
     const deltas = [];
