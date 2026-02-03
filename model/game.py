@@ -6,6 +6,9 @@ def create_players():
 	for _ in range(5):
 		players.append({
 			'kill_gold': 0,
+			'kills': 0,
+			'deaths': 0,
+			'assists': 0,
 			'baron_timer': 0,
 			'elder_timer': 0,
 			'death_timer': 0,
