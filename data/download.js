@@ -14,7 +14,16 @@ lines.pop();
 
 shuffle(lines);
 
-const TEST_SPLIT = 100_000;
+const TEST_SPLIT = process.argv[2];
+if (TEST_SPLIT > 1) {
+	console.error('Test split must be less than 1');
+	process.exit(-1);
+} else if (TEST_SPLIT < 0) {
+	console.error('Test split must be greater than 0');
+	process.exit(-1);
+}
+const TEST_SIZE = parseInt(lines.length * TEST_SPLIT)
+console.log(`Downloading dataset with ${TEST_SIZE} test samples`)
 
 async function download_games(rows, split) {
 	let promises = [];
@@ -63,5 +72,5 @@ async function download_games(rows, split) {
 
 }
 
-await download_games(lines.slice(0, TEST_SPLIT), 'test');
-await download_games(lines.slice(TEST_SPLIT), 'train');
+await download_games(lines.slice(0, TEST_SIZE), 'test');
+await download_games(lines.slice(TEST_SIZE), 'train');
