@@ -10,6 +10,8 @@ fs.mkdirSync('dataset/test', { recursive: true });
 const match_data = fs.readFileSync('match_ids.csv', 'utf8');
 const lines = match_data.split('\n');
 
+lines.pop();
+
 shuffle(lines);
 
 const TEST_SPLIT = 100_000;

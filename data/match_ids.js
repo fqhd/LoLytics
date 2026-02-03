@@ -32,9 +32,10 @@ async function get_summoner_ids(rank, tier, page, key) {
 
 async function get_summoner_match_ids(summoner_id, key) {
 	const now = new Date();
-	const one_month_ago = new Date(now);
-	one_month_ago.setMonth(now.getMonth() - 1);
-	const start = Math.floor(one_month_ago.getTime() / 1000);
+	const twenty_days_ago = new Date(now);
+	twenty_days_ago.setDate(now.getDate() - 20);
+
+	const start = Math.floor(twenty_days_ago.getTime() / 1000);
 
 	let match_history = await api_call(
 		`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${summoner_id}/ids?startTime=${start}&queue=420&start=0&count=50&api_key=${key}`,
@@ -67,9 +68,9 @@ export async function get_match_id_batch(rank, tier, page, key) {
 export async function get_ids(rank, tier, key) {
 	let match_ids = [];
 
-	let n_pages = 2;
+	let n_pages = 4;
 	if (rank == 'IRON' || rank == 'BRONZE') {
-		n_pages = 4;
+		n_pages = 5;
 	}
 
 	for (let page = 1; page <= n_pages; page++) {

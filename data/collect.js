@@ -1,16 +1,13 @@
 import fs from 'fs';
-import { get_ids, get_match_id_batch } from './get_match_ids.js';
+import { get_ids, get_match_id_batch } from './match_ids.js';
 import { API_KEYS } from './api_keys.js';
-
-const ranks = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND'];
-const tiers = ['I', 'II', 'III', 'IV'];
 
 let all_games = [];
 
 let promises = [];
 
-for (const rank of ranks) {
-	for (const tier of tiers) {
+for (const rank of ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND']) {
+	for (const tier of ['I', 'II', 'III', 'IV']) {
 		promises.push(get_ids(rank, tier, API_KEYS[promises.length]));
 		if (promises.length >= API_KEYS.length) {
 			const results = await Promise.all(promises);
@@ -37,14 +34,14 @@ for (const id of match_ids) {
 const seen = new Set();
 const deduped = all_games.filter(o => !seen.has(o.match_id) && seen.add(o.match_id));
 
-let csv = "match_id,rank,tier\n";
+let csv = 'match_id,rank,tier\n';
 
 for (const obj of deduped) {
 	const match_id = obj.match_id;
 	const rank = obj.rank;
-	const tier = obj.tier ?? "";
+	const tier = obj.tier ?? '';
 
 	csv += `${match_id},${rank},${tier}\n`;
 }
 
-fs.writeFileSync('match_ids.csv', csv, "utf8");
+fs.writeFileSync('match_ids.csv', csv, 'utf8');
