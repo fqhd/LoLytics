@@ -22,8 +22,8 @@ if (TEST_SPLIT > 1) {
 	console.error('Test split must be greater than 0');
 	process.exit(-1);
 }
-const TEST_SIZE = parseInt(lines.length * TEST_SPLIT)
-console.log(`Downloading dataset with ${TEST_SIZE} test samples`)
+const TEST_SIZE = parseInt(lines.length * TEST_SPLIT);
+console.log(`Downloading dataset with ${TEST_SIZE} test samples`);
 
 async function download_games(rows, split) {
 	let promises = [];
