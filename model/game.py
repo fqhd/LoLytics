@@ -21,7 +21,6 @@ def create_team():
 		'players': create_players(),
 		'drakes': [],
 		'rifts': 0,
-		'atakhan': 0,
 		'grubs': 0,
 		'towers': [
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0
@@ -65,7 +64,7 @@ def process_champion_kill(state, event):
 
 	victim['baron_timer'] = 0
 	victim['elder_timer'] = 0
-	victim['death_timer'] = round(calculate_death_timer(victim['level'], event['timestamp']) * 1000)
+	victim['death_timer'] = round(calculate_death_timer(min(victim['level'], 18), event['timestamp']) * 1000)
 
 def get_tower_id(state, event):
 	tower_id = 0
@@ -128,8 +127,6 @@ def process_monster_kill(state, event):
 		state['teams'][team_id]['rifts'] += 1
 	elif (event['monsterType'] == 'HORDE'):
 		state['teams'][team_id]['grubs'] += 1
-	elif (event['monsterType'] == 'ATAKHAN'):
-		state['teams'][team_id]['atakhan'] = 1
 	elif (event['monsterType'] == 'BARON_NASHOR'):
 		for player in state['teams'][team_id]['players']:
 			if player['death_timer'] == 0:
