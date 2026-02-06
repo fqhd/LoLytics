@@ -33,3 +33,4 @@ dataset*
 fixtures.json
 integration.json
 match_ids.csv
+*.npy
