@@ -6,6 +6,9 @@ def create_players():
 	for _ in range(5):
 		players.append({
 			'kill_gold': 0,
+			'kills': 0,
+			'deaths': 0,
+			'assists': 0,
 			'baron_timer': 0,
 			'elder_timer': 0,
 			'death_timer': 0,
@@ -55,9 +58,16 @@ def process_champion_kill(state, event):
 	if event['killerId'] > 0:
 		player_id = (event['killerId'] - 1) % 5
 		state['teams'][team_id]['players'][player_id]['kill_gold'] += event['bounty'] + event['shutdownBounty']
+		state['teams'][team_id]['players'][player_id]['kills'] += 1
 	victim_team_id = int((event['victimId'] - 1) / 5)
 	victim_id = (event['victimId'] - 1) % 5
 	victim = state['teams'][victim_team_id]['players'][victim_id]
+
+	if 'assistingParticipantIds' in event:
+		for participant_id in event['assistingParticipantIds']:
+			state['teams'][int((participant_id - 1) / 5)]['players'][(participant_id - 1) % 5]['assists'] += 1
+
+	victim['deaths'] += 1
 	victim['baron_timer'] = 0
 	victim['elder_timer'] = 0
 	victim['death_timer'] = round(calculate_death_timer(min(victim['level'], 18), event['timestamp']) * 1000)
@@ -158,18 +168,18 @@ def sync_timers(state, delta_time):
 			team['inhibs'][i] = max(team['inhibs'][i] - delta_time, 0)
 
 def sample(game, index):
-    state = create_initial_state(game)
+	state = create_initial_state(game)
 
-    for prev_event, event in zip(game['events'][:index], game['events'][1:index+1]):
-        delta = event['timestamp'] - prev_event['timestamp']
-        update_with_event(state, event, delta)
+	for prev_event, event in zip(game['events'][:index], game['events'][1:index+1]):
+		delta = event['timestamp'] - prev_event['timestamp']
+		update_with_event(state, event, delta)
 
-    if index > 0:
-        delta = game['events'][index]['timestamp'] - game['events'][index-1]['timestamp']
-        sync_timers(state, delta)
+	if index > 0:
+		delta = game['events'][index]['timestamp'] - game['events'][index-1]['timestamp']
+		sync_timers(state, delta)
 
-    state['time'] = game['events'][index]['timestamp']
-    return state
+	state['time'] = game['events'][index]['timestamp']
+	return state
 
 def sample_until(game, callback):
 	state = create_initial_state(game)
@@ -189,26 +199,26 @@ def sample_until(game, callback):
 	return False, None
 
 def sample_multi(game, indices):
-    indices = sorted(indices)
+	indices = sorted(indices)
 
-    events = game['events']
-    state = create_initial_state(game)
-    samples = []
+	events = game['events']
+	state = create_initial_state(game)
+	samples = []
 
-    real_i = 2
+	real_i = 2
 
-    for idx in indices:
-        while real_i < idx:
-            prev_ts = events[real_i - 1]['timestamp']
-            curr_ts = events[real_i]['timestamp']
-            update_with_event(state, events[real_i], curr_ts - prev_ts)
-            real_i += 1
+	for idx in indices:
+		while real_i < idx:
+			prev_ts = events[real_i - 1]['timestamp']
+			curr_ts = events[real_i]['timestamp']
+			update_with_event(state, events[real_i], curr_ts - prev_ts)
+			real_i += 1
 
-        delta = events[idx]['timestamp'] - events[idx - 1]['timestamp']
-        sync_timers(state, delta)
+		delta = events[idx]['timestamp'] - events[idx - 1]['timestamp']
+		sync_timers(state, delta)
 
-        state['time'] = events[idx]['timestamp']
+		state['time'] = events[idx]['timestamp']
 
-        samples.append(copy.deepcopy(state))
+		samples.append(copy.deepcopy(state))
 
-    return samples
+	return samples
