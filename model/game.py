@@ -6,9 +6,6 @@ def create_players():
 	for _ in range(5):
 		players.append({
 			'kill_gold': 0,
-			'kills': 0,
-			'deaths': 0,
-			'assists': 0,
 			'baron_timer': 0,
 			'elder_timer': 0,
 			'death_timer': 0,
@@ -61,7 +58,6 @@ def process_champion_kill(state, event):
 	victim_team_id = int((event['victimId'] - 1) / 5)
 	victim_id = (event['victimId'] - 1) % 5
 	victim = state['teams'][victim_team_id]['players'][victim_id]
-
 	victim['baron_timer'] = 0
 	victim['elder_timer'] = 0
 	victim['death_timer'] = round(calculate_death_timer(min(victim['level'], 18), event['timestamp']) * 1000)
