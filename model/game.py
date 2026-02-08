@@ -86,13 +86,10 @@ def get_tower_id(state, event):
 		tower_id += 2
 	elif event['towerType'] == 'NEXUS_TURRET':
 		t1 = state['teams'][team_id]['towers'][9]
-		t2 = state['teams'][team_id]['towers'][10]
-		if t1 > 0 and t2 > 0:
-			tower_id = 9
-		elif t1 > 0:
-			tower_id = 9
-		else:
+		if t1 > 0:
 			tower_id = 10
+		else:
+			tower_id = 9
 	return tower_id
 
 def process_tower_kill(state, event):
