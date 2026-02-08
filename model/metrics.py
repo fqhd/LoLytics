@@ -36,4 +36,9 @@ def compute_model_output_metrics(y_true, y_pred, probs):
 	ece = ece_score(probs, y_true)
 	std = probs[:, 1].std()
 	bce = log_loss(y_true, probs)
-	return accuracy, ece.item(), std.item(), bce
+	return {
+		'acc': accuracy,
+		'ece': ece.item(),
+		'spread': std.item(),
+		'bce': bce
+	}
