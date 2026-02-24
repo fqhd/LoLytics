@@ -123,7 +123,7 @@ def process_monster_kill(state, event):
 		if (event['monsterSubType'] == 'ELDER_DRAGON'):
 			for player in state['teams'][team_id]['players']:
 				if player['death_timer'] == 0:
-					player['elder_timer'] = 180000
+					player['elder_timer'] = 150000
 		else:
 			state['teams'][team_id]['drakes'].append(event['monsterSubType'])
 	elif (event['monsterType'] == 'RIFTHERALD'):
@@ -194,6 +194,24 @@ def sample_until(game, callback):
 		update_with_event(state, event, delta)
 
 	return False, None
+
+def sample_every(game, callback):
+	state = create_initial_state(game)
+	delta = 0
+	state_samples = []
+
+	for prev_event, event in zip(game['events'], game['events'][1:]):
+		event_outcome = callback(state, event)
+		if event_outcome[0]:
+			delta = event['timestamp'] - prev_event['timestamp']
+			state_copy = copy.deepcopy(state)
+			sync_timers(state_copy, delta)
+			state_copy['time'] = event['timestamp']
+			state_samples.append((state_copy, event_outcome[1]))
+		delta = event['timestamp'] - prev_event['timestamp']
+		update_with_event(state, event, delta)
+	
+	return state_samples
 
 def sample_multi(game, indices):
 	indices = sorted(indices)
