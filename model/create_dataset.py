@@ -64,10 +64,11 @@ def create_dataset(root):
 	
 	return (np.array(states, dtype=np.float32), np.array(labels, dtype=np.uint8))
 
-train_x, train_y = create_dataset('../dataset/train')
-np.save('train_x.npy', train_x)
-np.save('train_y.npy', train_y)
+if __name__ == '__main__':
+	train_x, train_y = create_dataset('../dataset/train')
+	np.save('train_x.npy', train_x)
+	np.save('train_y.npy', train_y)
 
-test_x, test_y = create_dataset('../dataset/test')
-np.save('test_x.npy', test_x)
-np.save('test_y.npy', test_y)
+	test_x, test_y = create_dataset('../dataset/test')
+	np.save('test_x.npy', test_x)
+	np.save('test_y.npy', test_y)
