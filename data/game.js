@@ -22,6 +22,8 @@ export async function get_game_data(MATCH_ID, key) {
 					try {
 						delete event.victimDamageDealt;
 						delete event.victimDamageReceived;
+						delete event.victimTeamfightDamageDealt;
+						delete event.victimTeamfightDamageReceived;
 					} catch(e) {}
 				}
 				if (is_strong_event(event)) {
