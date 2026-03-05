@@ -1,7 +1,6 @@
-import os
-import requests
+import os, requests
 from flask import request, jsonify
-from utils import find_participant_with_puuid, find_opponent
+from server.utils import find_participant_with_puuid, find_opponent
 
 # Simple in-memory cache (like JS Map)
 cache = {}

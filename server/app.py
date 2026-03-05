@@ -3,9 +3,9 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 
-from match_history import match_history
-from match_details import match_details
-from match_analysis import match_analysis
+from server.match_history import match_history
+from server.match_details import match_details
+from server.match_analysis import match_analysis
 
 load_dotenv()
 

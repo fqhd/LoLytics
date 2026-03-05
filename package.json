@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:*\"",
     "dev:client": "vite",
-    "dev:server": "cross-env NODE_ENV=development python server/app.py",
+    "dev:server": "cross-env NODE_ENV=development python -m server.app",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

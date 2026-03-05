@@ -1,5 +1,4 @@
-import math
-import copy
+import math, copy
 
 def create_players():
 	players = []
@@ -51,7 +50,7 @@ def calculate_death_timer(level, time):
 	BRW = [6, 6, 8, 8, 10, 12, 16, 21, 26, 32.5, 35, 37.5, 40, 42.5, 45, 47.5, 50, 52.5]
 	current_brw = BRW[level - 1]
 	current_tif = calculate_tif(time / 60000) / 100
-	return current_brw + current_brw * current_tif 
+	return current_brw + current_brw * current_tif
 
 def process_champion_kill(state, event):
 	team_id = int((event['killerId'] - 1) / 5)
@@ -79,7 +78,7 @@ def get_tower_id(state, event):
 		tower_id = 6
 	elif event['laneType'] == 'MID_LANE':
 		tower_id = 3
-	
+
 	if event['towerType'] == 'INNER_TURRET':
 		tower_id += 1
 	elif event['towerType'] == 'BASE_TURRET':
@@ -106,7 +105,7 @@ def process_inhibitor_kill(state, event):
 		lane = 1
 	if event['laneType'] == 'BOT_LANE':
 		lane = 2
-	
+
 	team_id = int(event['teamId'] / 100) - 1
 	state['teams'][team_id]['inhibs'][lane] = 300000
 
@@ -195,6 +194,21 @@ def sample_until(game, callback):
 
 	return False, None
 
+def sample_all(game):
+    state = create_initial_state(game)
+    states = []
+
+    delta = 0
+    for i in range(len(game['events'])):
+        prev_event = game['events'][i - 1] if i > 0 else game['events'][i]
+        event = game['events'][i]
+        delta = event['timestamp'] - prev_event['timestamp']
+        update_with_event(state, event, delta)
+        state['time'] = event['timestamp']
+        states.append(copy.deepcopy(state))
+
+    return states
+
 def sample_every(game, callback):
 	state = create_initial_state(game)
 	delta = 0
@@ -210,7 +224,7 @@ def sample_every(game, callback):
 			state_samples.append((state_copy, event_outcome[1]))
 		delta = event['timestamp'] - prev_event['timestamp']
 		update_with_event(state, event, delta)
-	
+
 	return state_samples
 
 def sample_multi(game, indices):

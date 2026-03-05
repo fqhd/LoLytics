@@ -1,8 +1,6 @@
-import os
+import os, json, random
 import numpy as np
-import json
-from game import sample
-import random
+from model.game import sample
 
 with open('champion_to_index.json') as f:
 	champion_to_index = json.load(f)
@@ -32,7 +30,7 @@ def vectorize_state(state):
 		v.append(team['grubs'])
 		v += team['towers']
 		v += team['inhibs']
-	
+
 	return v
 
 def create_dataset(root):
@@ -61,7 +59,7 @@ def create_dataset(root):
 					labels.append(int(state['win']))
 					if len(labels) % 1000 == 0:
 						print(f'Processed {len(labels)} files')
-	
+
 	return (np.array(states, dtype=np.float32), np.array(labels, dtype=np.uint8))
 
 if __name__ == '__main__':

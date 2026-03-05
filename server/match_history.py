@@ -1,7 +1,6 @@
-import os
-import requests
+import os, requests
 from flask import jsonify, request
-from network import send_server_error
+from server.network import send_server_error
 
 def match_history():
     name = request.args.get('name')

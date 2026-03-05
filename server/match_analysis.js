@@ -163,5 +163,3 @@ function get_participant_item_purchases(frames, participant_id) {
 
     return result;
 }
-
-
