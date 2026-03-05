@@ -130,6 +130,7 @@ def get_states_per_minute(frames, states, champions, probs):
                 'kills': current_state['teams'][0]['players'][int(k)-1]['kills'],
                 'deaths': current_state['teams'][0]['players'][int(k)-1]['deaths'],
                 'assists': current_state['teams'][0]['players'][int(k)-1]['assists'],
+                'creepscore': player['jungleMinionsKilled'] + player['minionsKilled'],
                 'champion': champion_name
             })
 
@@ -147,6 +148,7 @@ def get_states_per_minute(frames, states, champions, probs):
                 'deaths': current_state['teams'][1]['players'][int(k)-6]['deaths'],
                 'assists': current_state['teams'][1]['players'][int(k)-6]['assists'],
                 'deathTimer': current_state['teams'][1]['players'][int(k)-6]['death_timer'] / 1_000,
+                'creepscore': player['jungleMinionsKilled'] + player['minionsKilled'],
                 'champion': champion_name
             })
 
