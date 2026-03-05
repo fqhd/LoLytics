@@ -146,6 +146,7 @@ def get_states_per_minute(frames, states, champions, probs):
                 'kills': current_state['teams'][1]['players'][int(k)-6]['kills'],
                 'deaths': current_state['teams'][1]['players'][int(k)-6]['deaths'],
                 'assists': current_state['teams'][1]['players'][int(k)-6]['assists'],
+                'deathTimer': current_state['teams'][1]['players'][int(k)-6]['death_timer'] / 1_000,
                 'champion': champion_name
             })
 
