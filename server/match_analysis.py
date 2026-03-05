@@ -304,9 +304,6 @@ def match_analysis():
         'events': events,
     }
 
-    with open('response.json', 'w', encoding='utf-8') as f:
-        json.dump(response_data, f)
-
     cache[cache_key] = response_data
 
     return jsonify(response_data)
