@@ -61,7 +61,7 @@ def get_win_probability_widgets(events, probs, champions):
         widgets.append({
             'left': killer_icon,
             'right': victim_icon,
-            'delta': delta,
+            'delta': round(delta * 100, 2),
             'assists': assist_icons,
             'time': event['timestamp']
         })
@@ -261,6 +261,8 @@ def match_analysis():
         minute = int(widget['time'] / 60_000) + 1
         if str(minute) in events:
             events[str(minute)].append(widget)
+        else:
+            events[str(minute)] = [widget]
 
     player = find_participant_with_puuid(
         game_data['info']['participants'],
