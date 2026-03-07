@@ -3,35 +3,36 @@ import numpy as np
 from model.game import sample
 
 with open('champion_to_index.json') as f:
-	champion_to_index = json.load(f)
+    champion_to_index = json.load(f)
 
 def vectorize_state(state):
-	v = []
+    v = []
 
-	champion_array = [0] * len(champion_to_index.keys())
-	for champion in state['champions'][:5]:
-		champion_index = champion_to_index[champion]
-		champion_array[champion_index] = 1
-	for champion in state['champions'][5:]:
-		champion_index = champion_to_index[champion]
-		champion_array[champion_index] = -1
-	v += champion_array
+    champion_array = [0] * len(champion_to_index.keys())
+    for champion in state['champions'][:5]:
+        champion_index = champion_to_index[champion]
+        champion_array[champion_index] = 1
+    for champion in state['champions'][5:]:
+        champion_index = champion_to_index[champion]
+        champion_array[champion_index] = -1
+    v += champion_array
 
-	for team in state['teams']:
-		for player in team['players']:
-			for key in player:
-				v.append(player[key])
+    for team in state['teams']:
+        for player in team['players']:
+            for key in player:
+                v.append(player[key])
 
-		drakes = ['EARTH_DRAGON', 'AIR_DRAGON', 'CHEMTECH_DRAGON', 'HEXTECH_DRAGON', 'FIRE_DRAGON', 'WATER_DRAGON']
-		drakes_oh = [0, 0, 0, 0, 0, 0]
-		for drake in team['drakes']:
-			drakes_oh[drakes.index(drake)] += 1
-		v.append(team['rifts'])
-		v.append(team['grubs'])
-		v += team['towers']
-		v += team['inhibs']
+        drakes = ['EARTH_DRAGON', 'AIR_DRAGON', 'CHEMTECH_DRAGON', 'HEXTECH_DRAGON', 'FIRE_DRAGON', 'WATER_DRAGON']
+        drakes_oh = [0, 0, 0, 0, 0, 0]
+        for drake in team['drakes']:
+            drakes_oh[drakes.index(drake)] += 1
+        v.append(team['rifts'])
+        v.append(team['grubs'])
+        v += team['towers']
+        v += team['inhibs']
+        v += drakes_oh
 
-	return v
+    return v
 
 def create_dataset(root):
 	states = []
