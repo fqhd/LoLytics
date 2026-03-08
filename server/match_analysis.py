@@ -5,7 +5,7 @@ from server.utils import find_participant_with_puuid
 from model.game import sample_all
 from model.create_dataset import vectorize_state
 
-lr_model = joblib.load('model.pkl')
+lr_model = joblib.load('model/model.pkl')
 
 with open('./server/runes.json', encoding='utf-8') as f:
     rune_data = json.load(f)
