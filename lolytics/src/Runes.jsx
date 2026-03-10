@@ -135,7 +135,7 @@ function Runes({ data, events }) {
                                     <div className="bottom-half">
                                         <span>{formatTime(e.time)}</span>
                                         <span className="event-delta">
-                                            {(e.delta > 0 ? '+' : '') + e.delta}
+                                            {(e.delta > 0 ? '+' : '') + e.delta + '%'}
                                         </span>
                                     </div>
                                 </div>
