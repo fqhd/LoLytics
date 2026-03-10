@@ -31,7 +31,8 @@ def create_initial_state(game):
 	return {
 		'champions': game['champions'],
 		'teams': [create_team(), create_team()],
-		'win': game['win']
+		'win': game['win'],
+		'time': 0
 	}
 
 def calculate_tif(time):
@@ -197,6 +198,8 @@ def sample_until(game, callback):
 def sample_all(game):
     state = create_initial_state(game)
     states = []
+
+    states.append(copy.deepcopy(state))
 
     delta = 0
     for i in range(len(game['events'])):

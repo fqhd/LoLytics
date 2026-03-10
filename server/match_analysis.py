@@ -2,7 +2,7 @@ import os, json, requests, math, joblib, copy, numpy as np
 from flask import jsonify, request
 from server.network import send_server_error
 from server.utils import find_participant_with_puuid
-from model.game import sample_all
+from model.game import sample_all, sync_timers
 from model.create_dataset import vectorize_state
 
 lr_model = joblib.load('model/model.pkl')
@@ -56,7 +56,7 @@ def get_win_probability_widgets(events, probs, champions):
                 assister_icon = f"/images/icons/{champion}.jpg"
                 assist_icons.append(assister_icon)
 
-        delta = probs[i] - 0.5 if i == 0 else probs[i] - probs[i - 1]
+        delta = probs[i + 1] - probs[i]
 
         widgets.append({
             'left': killer_icon,
@@ -102,7 +102,11 @@ def get_states_per_minute(frames, states, champions, probs):
         while i < len(states) - 1 and states[i]['time'] < frame['timestamp']:
             i += 1
 
-        current_state = states[i]
+        current_state = states[max(i - 1, 0)]
+        print(frame['timestamp'] - current_state['time'])
+        sync_timers(current_state, frame['timestamp'] - current_state['time'])
+
+        prob = lr_model.predict_proba(np.array([vectorize_state(current_state)]))[0, 1].item()
 
         state = {
             'teams': [
@@ -130,6 +134,7 @@ def get_states_per_minute(frames, states, champions, probs):
                 'kills': current_state['teams'][0]['players'][int(k)-1]['kills'],
                 'deaths': current_state['teams'][0]['players'][int(k)-1]['deaths'],
                 'assists': current_state['teams'][0]['players'][int(k)-1]['assists'],
+                'deathTimer': current_state['teams'][0]['players'][int(k)-6]['death_timer'] / 1_000,
                 'creepscore': player['jungleMinionsKilled'] + player['minionsKilled'],
                 'champion': champion_name
             })
@@ -153,7 +158,7 @@ def get_states_per_minute(frames, states, champions, probs):
             })
 
         client_states.append(state)
-        probabilities.append(probs[i])
+        probabilities.append(prob)
 
     return client_states, probabilities
 
