@@ -23,37 +23,37 @@ def get_win_probability_widgets(events, probs, champions):
         victim_icon = None
         assist_icons = []
 
-        if event["killerId"] == 0:
-            killer_icon = "/images/icons/minion.png"
+        if event['killerId'] == 0:
+            killer_icon = '/images/icons/minion.png'
         else:
             champion = champions[event['killerId'] - 1]
-            killer_icon = f"/images/icons/{champion}.jpg"
-        if event["type"] == "CHAMPION_KILL":
+            killer_icon = f'/images/icons/{champion}.jpg'
+        if event['type'] == 'CHAMPION_KILL':
             victim_champion = champions[event['victimId'] - 1]
-            victim_icon = f"/images/icons/{victim_champion}.jpg"
-        elif event["type"] == "ELITE_MONSTER_KILL":
-            if event["monsterType"] == "DRAGON" and event["monsterSubType"] == "ELDER_DRAGON":
-                victim_icon = "/images/icons/elder.png"
+            victim_icon = f'/images/icons/{victim_champion}.jpg'
+        elif event['type'] == 'ELITE_MONSTER_KILL':
+            if event['monsterType'] == 'DRAGON' and event['monsterSubType'] == 'ELDER_DRAGON':
+                victim_icon = '/images/icons/elder.png'
             else:
-                victim_icon = f"/images/icons/{event['monsterType'].lower()}.png"
+                victim_icon = f'/images/icons/{event['monsterType'].lower()}.png'
 
-        elif event["type"] == "BUILDING_KILL":
-            victim_icon = "/images/icons/"
+        elif event['type'] == 'BUILDING_KILL':
+            victim_icon = '/images/icons/'
 
-            if event["teamId"] == 100:
-                victim_icon += "blue_"
+            if event['teamId'] == 100:
+                victim_icon += 'blue_'
             else:
-                victim_icon += "red_"
+                victim_icon += 'red_'
 
-            if event["buildingType"] == "TOWER_BUILDING":
-                victim_icon += "tower.png"
+            if event['buildingType'] == 'TOWER_BUILDING':
+                victim_icon += 'tower.png'
             else:
-                victim_icon += "inhibitor.png"
+                victim_icon += 'inhibitor.png'
 
-        if event.get("assistingParticipantIds"):
-            for pid in event["assistingParticipantIds"]:
+        if event.get('assistingParticipantIds'):
+            for pid in event['assistingParticipantIds']:
                 champion = champions[pid - 1]
-                assister_icon = f"/images/icons/{champion}.jpg"
+                assister_icon = f'/images/icons/{champion}.jpg'
                 assist_icons.append(assister_icon)
 
         delta = probs[i + 1] - probs[i]
