@@ -103,7 +103,6 @@ def get_states_per_minute(frames, states, champions, probs):
             i += 1
 
         current_state = states[max(i - 1, 0)]
-        print(frame['timestamp'] - current_state['time'])
         sync_timers(current_state, frame['timestamp'] - current_state['time'])
 
         prob = lr_model.predict_proba(np.array([vectorize_state(current_state)]))[0, 1].item()
