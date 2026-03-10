@@ -34,9 +34,7 @@ export default function Home() {
         try {
             const start = Date.now();
 
-            console.log(apiUrl);
-
-            let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}&queue=${active}`);
+            let history = await fetch(`${apiUrl}/match_history/?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}&queue=${active}`);
             if (history.status != 200) {
                 history = await history.json();
                 throw new Error(history.error);
@@ -45,7 +43,7 @@ export default function Home() {
 
             let matchDetails = [];
             for (const match_id of history.match_ids.slice(0, 5)) {
-                matchDetails.push(fetch(`${apiUrl}/match_details?id=${match_id}&puuid=${history.puuid}&region=${region}`));
+                matchDetails.push(fetch(`${apiUrl}/match_details/?id=${match_id}&puuid=${history.puuid}&region=${region}`));
             }
             matchDetails = await Promise.all(matchDetails);
 
@@ -80,7 +78,7 @@ export default function Home() {
         setFrameIndex(0);
         setSelectedMatch(matchImages[i]);
 
-        let response = await fetch(`${apiUrl}/match_analysis?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
+        let response = await fetch(`${apiUrl}/match_analysis/?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`);
         response = await response.json();
 
         setFrames(response.frames);

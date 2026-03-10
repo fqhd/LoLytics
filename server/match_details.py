@@ -9,7 +9,6 @@ cache = {}
 def send_server_error():
     return jsonify({"error": "Internal server error"}), 500
 
-
 def match_details():
     match_id = request.args.get("id")
     puuid = request.args.get("puuid")
