@@ -77,11 +77,11 @@ def find_rune_with_id(id):
     elif id == 5007:
         return '/images/stats/statmodscdrscalingicon.png'
     elif id == 5011:
-        return '/images/stats/statsmodshealthscalingicon.png'
+        return '/images/stats/statmodshealthscalingicon.png'
     elif id == 5013:
-        return '/images/stats/statsmodstenacityicon.png'
+        return '/images/stats/statmodstenacityicon.png'
     elif id == 5010:
-        return '/images/stats/statsmodsmovementspeedicon.png'
+        return '/images/stats/statmodsmovementspeedicon.png'
 
     for branch in rune_data:
         for slot in branch['slots']:
