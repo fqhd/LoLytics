@@ -34,6 +34,8 @@ export default function Home() {
         try {
             const start = Date.now();
 
+            console.log(apiUrl);
+
             let history = await fetch(`${apiUrl}/match_history?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}&queue=${active}`);
             if (history.status != 200) {
                 history = await history.json();
