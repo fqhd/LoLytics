@@ -47,7 +47,7 @@ def calculate_tif(time):
 		return 50
 
 def calculate_death_timer(level, time):
-	BRW = [6, 6, 8, 8, 10, 12, 16, 21, 26, 32.5, 35, 37.5, 40, 42.5, 45, 47.5, 50, 52.5]
+	BRW = [10, 10, 12, 12, 14, 16, 20, 25, 28, 32.5, 35, 37.5, 40, 42.5, 45, 47.5, 50, 52.5]
 	current_brw = BRW[level - 1]
 	current_tif = calculate_tif(time / 60000) / 100
 	return current_brw + current_brw * current_tif
