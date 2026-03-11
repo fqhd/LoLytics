@@ -31,6 +31,7 @@ def vectorize_state(state):
         v += team['towers']
         v += team['inhibs']
         v += drakes_oh
+    v.append(state['time'])
 
     return v
 

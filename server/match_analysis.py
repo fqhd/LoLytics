@@ -11,6 +11,8 @@ with open('./server/runes.json', encoding='utf-8') as f:
     rune_data = json.load(f)
 
 def is_strong_event(event):
+    if event['type'] == 'ELITE_MONSTER_KILL' and event['killerId'] == 0:
+        return False
     return event['type'] in ['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'LEVEL_UP']
 
 def get_win_probability_widgets(events, probs, champions):

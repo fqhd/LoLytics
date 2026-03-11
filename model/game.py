@@ -117,23 +117,26 @@ def process_building_kill(state, event):
 		process_inhibitor_kill(state, event)
 
 def process_monster_kill(state, event):
-	team_id = int((event['killerId'] - 1) / 5)
+    if event['killerId'] == 0:
+        return
 
-	if (event['monsterType'] == 'DRAGON'):
-		if (event['monsterSubType'] == 'ELDER_DRAGON'):
-			for player in state['teams'][team_id]['players']:
-				if player['death_timer'] == 0:
-					player['elder_timer'] = 150000
-		else:
-			state['teams'][team_id]['drakes'].append(event['monsterSubType'])
-	elif (event['monsterType'] == 'RIFTHERALD'):
-		state['teams'][team_id]['rifts'] += 1
-	elif (event['monsterType'] == 'HORDE'):
-		state['teams'][team_id]['grubs'] += 1
-	elif (event['monsterType'] == 'BARON_NASHOR'):
-		for player in state['teams'][team_id]['players']:
-			if player['death_timer'] == 0:
-				player['baron_timer'] = 180000
+    team_id = int((event['killerId'] - 1) / 5)
+
+    if (event['monsterType'] == 'DRAGON'):
+        if (event['monsterSubType'] == 'ELDER_DRAGON'):
+            for player in state['teams'][team_id]['players']:
+                if player['death_timer'] == 0:
+                    player['elder_timer'] = 150000
+        else:
+            state['teams'][team_id]['drakes'].append(event['monsterSubType'])
+    elif (event['monsterType'] == 'RIFTHERALD'):
+        state['teams'][team_id]['rifts'] += 1
+    elif (event['monsterType'] == 'HORDE'):
+        state['teams'][team_id]['grubs'] += 1
+    elif (event['monsterType'] == 'BARON_NASHOR'):
+        for player in state['teams'][team_id]['players']:
+            if player['death_timer'] == 0:
+                player['baron_timer'] = 180000
 
 
 def process_levelup(state, event):
@@ -165,18 +168,20 @@ def sync_timers(state, delta_time):
 			team['inhibs'][i] = max(team['inhibs'][i] - delta_time, 0)
 
 def sample(game, index):
-	state = create_initial_state(game)
+    state = create_initial_state(game)
 
-	for prev_event, event in zip(game['events'][:index], game['events'][1:index+1]):
-		delta = event['timestamp'] - prev_event['timestamp']
-		update_with_event(state, event, delta)
+    for i in range(1, index + 1):
+        prev = game['events'][i-1]
+        curr = game['events'][i]
+        delta = curr['timestamp'] - prev['timestamp']
+        update_with_event(state, curr, delta)
 
-	if index > 0:
-		delta = game['events'][index]['timestamp'] - game['events'][index-1]['timestamp']
-		sync_timers(state, delta)
+    if index > 0:
+        delta = game['events'][index]['timestamp'] - game['events'][index-1]['timestamp']
+        sync_timers(state, delta)
 
-	state['time'] = game['events'][index]['timestamp']
-	return state
+    state['time'] = game['events'][index]['timestamp']
+    return state
 
 def sample_until(game, callback):
 	state = create_initial_state(game)
@@ -237,7 +242,7 @@ def sample_multi(game, indices):
 	state = create_initial_state(game)
 	samples = []
 
-	real_i = 2
+	real_i = 1
 
 	for idx in indices:
 		while real_i < idx:
