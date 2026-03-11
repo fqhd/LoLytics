@@ -65,9 +65,9 @@ def create_dataset(root):
 
 if __name__ == '__main__':
 	train_x, train_y = create_dataset('dataset/train')
-	np.save('model/train_x.npy', train_x)
-	np.save('model/train_y.npy', train_y)
+	np.save('train_x.npy', train_x)
+	np.save('train_y.npy', train_y)
 
 	test_x, test_y = create_dataset('dataset/test')
-	np.save('model/test_x.npy', test_x)
-	np.save('model/test_y.npy', test_y)
+	np.save('test_x.npy', test_x)
+	np.save('test_y.npy', test_y)
