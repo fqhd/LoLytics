@@ -5,30 +5,30 @@ export default function PurchasePath({ items, frameIndex }) {
   const visibleItems = items.filter(block => block.time < frameIndex);
 
   return (
-    <div className="purchase-path">
+    <div className='purchase-path'>
       {visibleItems.map((block, i) => (
         <React.Fragment key={i}>
-          <div className="item-group">
+          <div className='item-group'>
             {block.items.map((item, j) => (
-              <div className="item" key={j}>
+              <div className='item' key={j}>
                 <img
-                  className="item-icon"
+                  className='item-icon'
                   src={`/images/items/${item.id}.jpg`}
-                  alt=""
+                  alt=''
                 />
                 {item.count > 1 && (
-                  <p className="item-count">{item.count}</p>
+                  <p className='item-count'>{item.count}</p>
                 )}
               </div>
             ))}
-            <p className="item-time">{block.time}:00</p>
+            <p className='item-time'>{block.time}:00</p>
           </div>
 
           {i < visibleItems.length - 1 && (
             <img
-              className="purchase-arrow"
-              src="/images/arrow.png"
-              alt="arrow"
+              className='purchase-arrow'
+              src='/images/arrow.png'
+              alt='arrow'
             />
           )}
         </React.Fragment>
