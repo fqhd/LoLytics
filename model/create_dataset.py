@@ -36,39 +36,39 @@ def vectorize_state(state):
     return v
 
 def create_dataset(root):
-	states = []
-	labels = []
+    states = []
+    labels = []
 
-	for rank in os.listdir(root):
-		if rank == 'MASTER':
-			for filename in os.listdir(os.path.join(root, rank)):
-				with open(os.path.join(root, rank, filename)) as f:
-					game = json.load(f)
-				idx = random.randint(0, len(game['events']) - 1)
-				state = sample(game, idx)
-				states.append(vectorize_state(state))
-				labels.append(int(state['win']))
-				if len(labels) % 1000 == 0:
-					print(f'Processed {len(labels)} files')
-		else:
-			for tier in os.listdir(os.path.join(root, rank)):
-				for filename in os.listdir(os.path.join(root, rank, tier)):
-					with open(os.path.join(root, rank, tier, filename)) as f:
-						game = json.load(f)
-					idx = random.randint(0, len(game['events']) - 1)
-					state = sample(game, idx)
-					states.append(vectorize_state(state))
-					labels.append(int(state['win']))
-					if len(labels) % 1000 == 0:
-						print(f'Processed {len(labels)} files')
+    for rank in os.listdir(root):
+        if rank == 'MASTER':
+            for filename in os.listdir(os.path.join(root, rank)):
+                with open(os.path.join(root, rank, filename)) as f:
+                    game = json.load(f)
+                idx = random.randint(0, len(game['events']) - 1)
+                state = sample(game, idx)
+                states.append(vectorize_state(state))
+                labels.append(int(state['win']))
+                if len(labels) % 1000 == 0:
+                    print(f'Processed {len(labels)} files')
+        else:
+            for tier in os.listdir(os.path.join(root, rank)):
+                for filename in os.listdir(os.path.join(root, rank, tier)):
+                    with open(os.path.join(root, rank, tier, filename)) as f:
+                        game = json.load(f)
+                    idx = random.randint(0, len(game['events']) - 1)
+                    state = sample(game, idx)
+                    states.append(vectorize_state(state))
+                    labels.append(int(state['win']))
+                    if len(labels) % 1000 == 0:
+                        print(f'Processed {len(labels)} files')
 
-	return (np.array(states, dtype=np.float32), np.array(labels, dtype=np.uint8))
+    return (np.array(states, dtype=np.float32), np.array(labels, dtype=np.uint8))
 
 if __name__ == '__main__':
-	train_x, train_y = create_dataset('dataset/train')
-	np.save('train_x.npy', train_x)
-	np.save('train_y.npy', train_y)
+    train_x, train_y = create_dataset('dataset/train')
+    np.save('train_x.npy', train_x)
+    np.save('train_y.npy', train_y)
 
-	test_x, test_y = create_dataset('dataset/test')
-	np.save('test_x.npy', test_x)
-	np.save('test_y.npy', test_y)
+    test_x, test_y = create_dataset('dataset/test')
+    np.save('test_x.npy', test_x)
+    np.save('test_y.npy', test_y)

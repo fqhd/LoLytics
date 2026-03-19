@@ -1,6 +1,6 @@
 function MatchCard({ visible, index, onClick, leftImage, rightImage, win }) {
     const borderColor = win ? '#42cdff' : '#fc4747';
-    
+
     return (
         <div
             className={`match-card ${visible ? 'show' : ''}`}
@@ -10,20 +10,20 @@ function MatchCard({ visible, index, onClick, leftImage, rightImage, win }) {
             }}
             onClick={onClick}
         >
-            <div className="match-card-content">
+            <div className='match-card-content'>
                 {leftImage && (
                     <img
                         src={leftImage}
-                        alt="left"
-                        className="match-card-image left"
+                        alt='left'
+                        className='match-card-image left'
                     />
                 )}
-                <span className="match-card-text">vs</span>
+                <span className='match-card-text'>vs</span>
                 {rightImage && (
                     <img
                         src={rightImage}
-                        alt="right"
-                        className="match-card-image right"
+                        alt='right'
+                        className='match-card-image right'
                     />
                 )}
             </div>

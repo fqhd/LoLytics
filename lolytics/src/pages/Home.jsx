@@ -127,73 +127,73 @@ export default function Home() {
     }, [showMatches, showMatchDetails]);
 
     return (
-        <div className="container">
+        <div className='container'>
             <div className={`username ${searched ? 'username-show' : ''}`}>{name.toUpperCase()}#{tag.toUpperCase()}</div>
 
             <div className={`input-group-wrapper ${searched ? 'fade-out' : ''}`}>
-                <div className="title">LoLytics</div>
+                <div className='title'>LoLytics</div>
                 <div className={`error-message ${error != '' ? 'error-message-show' : ''}`}>{error}</div>
-                <div className="input-group">
-                    <input className="input-left" placeholder="Name" onChange={(e) => setName(e.target.value)} />
-                    <input className="input-right" placeholder="Tag" onChange={(e) => setTag(e.target.value)} />
-                    <select className="input-dropdown" defaultValue='europe' onChange={(e) => setRegion(e.target.value)}>
-                        <option value="americas">NA</option>
-                        <option value="europe">EUW</option>
-                        <option value="europe">ME</option>
-                        <option value="europe">EUNE</option>
-                        <option value="sea">OCE</option>
-                        <option value="asia">KR</option>
-                        <option value="asia">JP</option>
-                        <option value="americas">BR</option>
-                        <option value="americas">LAS</option>
-                        <option value="americas">LAN</option>
-                        <option value="europe">RU</option>
-                        <option value="europe">TR</option>
-                        <option value="sea">SEA</option>
-                        <option value="sea">TW</option>
-                        <option value="sea">VN</option>
+                <div className='input-group'>
+                    <input className='input-left' placeholder='Name' onChange={(e) => setName(e.target.value)} />
+                    <input className='input-right' placeholder='Tag' onChange={(e) => setTag(e.target.value)} />
+                    <select className='input-dropdown' defaultValue='europe' onChange={(e) => setRegion(e.target.value)}>
+                        <option value='americas'>NA</option>
+                        <option value='europe'>EUW</option>
+                        <option value='europe'>ME</option>
+                        <option value='europe'>EUNE</option>
+                        <option value='sea'>OCE</option>
+                        <option value='asia'>KR</option>
+                        <option value='asia'>JP</option>
+                        <option value='americas'>BR</option>
+                        <option value='americas'>LAS</option>
+                        <option value='americas'>LAN</option>
+                        <option value='europe'>RU</option>
+                        <option value='europe'>TR</option>
+                        <option value='sea'>SEA</option>
+                        <option value='sea'>TW</option>
+                        <option value='sea'>VN</option>
                     </select>
                 </div>
-                <div className="search-options">
-                    <label className="modern-radio">
+                <div className='search-options'>
+                    <label className='modern-radio'>
                         <input
-                            type="radio"
-                            name="queue"
-                            value="soloq"
-                            checked={active === "soloq"}
-                            onChange={() => handleChange("soloq")}
+                            type='radio'
+                            name='queue'
+                            value='soloq'
+                            checked={active === 'soloq'}
+                            onChange={() => handleChange('soloq')}
                         />
-                        <span className="checkmark"></span>
+                        <span className='checkmark'></span>
                         Ranked Solo/Duo
                     </label>
 
-                    <label className="modern-radio">
+                    <label className='modern-radio'>
                         <input
-                            type="radio"
-                            name="queue"
-                            value="draft"
-                            checked={active === "draft"}
-                            onChange={() => handleChange("draft")}
+                            type='radio'
+                            name='queue'
+                            value='draft'
+                            checked={active === 'draft'}
+                            onChange={() => handleChange('draft')}
                         />
-                        <span className="checkmark"></span>
+                        <span className='checkmark'></span>
                         Normal Draft
                     </label>
 
-                    <label className="modern-radio">
+                    <label className='modern-radio'>
                         <input
-                            type="radio"
-                            name="queue"
-                            value="flex"
-                            checked={active === "flex"}
-                            onChange={() => handleChange("flex")}
+                            type='radio'
+                            name='queue'
+                            value='flex'
+                            checked={active === 'flex'}
+                            onChange={() => handleChange('flex')}
                         />
-                        <span className="checkmark"></span>
+                        <span className='checkmark'></span>
                         Ranked Flex
                     </label>
                 </div>
 
-                <button className="search-button" onClick={handleSearch}>
-                    <span className="search-button-text">Search</span>
+                <button className='search-button' onClick={handleSearch}>
+                    <span className='search-button-text'>Search</span>
                 </button>
             </div>
 
@@ -215,163 +215,163 @@ export default function Home() {
                 <div className={`match-details ${showMatchDetails ? 'show' : ''}`} style={{
                     border: `3px solid ${selectedMatch.win ? '#42cdff' : '#fc4747'}`
                 }}>
-                    <div className="data">
-                        <div className="top-row">
-                            <div className="timeline">
+                    <div className='data'>
+                        <div className='top-row'>
+                            <div className='timeline'>
                                 <LineChart data={lineData} frameIndex={frameIndex} setFrameIndex={setFrameIndex} />
                             </div>
                             <div className='minimap'>
-                                <img src='images/nexus.png' className="blue-building building" style={{
+                                <img src='images/nexus.png' className='blue-building building' style={{
                                     left: '6%',
                                     bottom: '6%',
                                     width: '9.6%',
                                 }} />
 
-                                <img src='images/nexus.png' className="red-building building" style={{
+                                <img src='images/nexus.png' className='red-building building' style={{
                                     top: '6%',
                                     right: '6%',
                                     width: '9.6%',
                                 }} />
 
-                                {frames && frames[frameIndex].teams[0].inhibs[1] == 0 && <img src='images/inhibitor.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].inhibs[1] == 0 && <img src='images/inhibitor.png' className='blue-building building' style={{
                                     bottom: '15%',
                                     left: '15%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].inhibs[0] == 0 && <img src='images/inhibitor.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].inhibs[0] == 0 && <img src='images/inhibitor.png' className='blue-building building' style={{
                                     bottom: '18%',
                                     left: '4.5%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].inhibs[2] == 0 && <img src='images/inhibitor.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].inhibs[2] == 0 && <img src='images/inhibitor.png' className='blue-building building' style={{
                                     bottom: '4.5%',
                                     left: '18%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].inhibs[1] == 0 && <img src='images/inhibitor.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].inhibs[1] == 0 && <img src='images/inhibitor.png' className='red-building building' style={{
                                     top: '15%',
                                     right: '15%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].inhibs[0] == 0 && <img src='images/inhibitor.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].inhibs[0] == 0 && <img src='images/inhibitor.png' className='red-building building' style={{
                                     top: '18%',
                                     right: '4.5%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].inhibs[2] == 0 && <img src='images/inhibitor.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].inhibs[2] == 0 && <img src='images/inhibitor.png' className='red-building building' style={{
                                     top: '4.5%',
                                     right: '18%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[0] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[0] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '66%',
                                     left: '3%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[1] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[1] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '39%',
                                     left: '6%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[2] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[2] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '24%',
                                     left: '4.5%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[3] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[3] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '37.5%',
                                     left: '36%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[4] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[4] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '28.5%',
                                     left: '30%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[5] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[5] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '19.5%',
                                     left: '19.5%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[6] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[6] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '3%',
                                     left: '67.5%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[7] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[7] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '6%',
                                     left: '42%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[0].towers[8] == 1 && <img src='images/tower.png' className="blue-building building" style={{
+                                {frames && frames[frameIndex].teams[0].towers[8] == 1 && <img src='images/tower.png' className='blue-building building' style={{
                                     bottom: '4.5%',
                                     left: '24%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[0] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[0] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '0',
                                     right: '67.5%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[1] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[1] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '4.5%',
                                     right: '42%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[2] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[2] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '3%',
                                     right: '24%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[3] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[3] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '37.5%',
                                     right: '36%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[4] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[4] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '25.5%',
                                     right: '30%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[5] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[5] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '19.5%',
                                     right: '19.5%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[6] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[6] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '66%',
                                     right: '3%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[7] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[7] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '39%',
                                     right: '6%',
                                     width: '7.2%',
                                 }} />}
 
-                                {frames && frames[frameIndex].teams[1].towers[8] == 1 && <img src='images/tower.png' className="red-building building" style={{
+                                {frames && frames[frameIndex].teams[1].towers[8] == 1 && <img src='images/tower.png' className='red-building building' style={{
                                     top: '24%',
                                     right: '4.5%',
                                     width: '7.2%',
@@ -423,7 +423,7 @@ export default function Home() {
                                 })}
                             </div>
                         </div>
-                        <div className="bottom-row">
+                        <div className='bottom-row'>
                             <div className='items'>
                                 <PurchasePath items={items} frameIndex={frameIndex} />
                             </div>
@@ -433,10 +433,10 @@ export default function Home() {
                     </div>
                 </div>
             )}
-            <footer className="copyright">© 2025 LoLytics — Open Source (MIT License) · <a
-                href="https://github.com/fqhd/LoLytics"
-                target="_blank"
-                className="github"
+            <footer className='copyright'>© 2025 LoLytics — Open Source (MIT License) · <a
+                href='https://github.com/fqhd/LoLytics'
+                target='_blank'
+                className='github'
             >
                 View on GitHub
             </a></footer>

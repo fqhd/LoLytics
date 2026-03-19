@@ -212,9 +212,9 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             chartRef.current.draw();
         };
 
-        canvas.addEventListener("mouseleave", handleLeave);
+        canvas.addEventListener('mouseleave', handleLeave);
         return () => {
-            canvas.removeEventListener("mouseleave", handleLeave);
+            canvas.removeEventListener('mouseleave', handleLeave);
         };
     }, [frameIndex]);
 
