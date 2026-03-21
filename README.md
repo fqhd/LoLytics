@@ -107,7 +107,7 @@ node download.js 0.2 # 20% of the ids will be placed in the test directory
 ### Creating an optimized dataset
 After the matches have finished downloading, you can use the `create_dataset.py` script in the model package to generate a numpy dataset by sampling states at random points throughout each game.
 ```
-python create_dataset.py
+python -m create_dataset.py
 ```
 The resulting dataset will be saved in the root directory of the project.
 
