@@ -1,6 +1,11 @@
-![lolytics match analysis](./images/match_analysis.png)
+<h1 align="center">
+    <img alt="LoLytics" src="./images/title_image.png">
+</h1>
 
-[![CI](https://github.com/fqhd/LoLytics/actions/workflows/ci.yml/badge.svg)](https://github.com/fqhd/LoLytics/actions/workflows/ci.yml)
+<p align="center">
+    <img alt="Documentation" src="https://github.com/fqhd/LoLytics/actions/workflows/ci.yml/badge.svg">
+</p>
+
 ## Description
 LoLytics is a web app that helps review [League of Legends](https://www.leagueoflegends.com/) matches by empirically evaluating player performance at each point throughout a game. It highlights impactful moments using metrics like Win Probability Added (WPA) and points out the good plays and game losing mistakes.
 
