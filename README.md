@@ -112,5 +112,14 @@ python -m create_dataset.py
 The resulting dataset will be saved in the root directory of the project.
 
 ## Features
-
-- 
+- Account search
+- Match history
+- Purchase path
+- Runes
+- Events
+- Scoreboard
+- Minimap
+- Game event parsing
+- Global win probability graph
+- Event specific win probability delta
+- Neutral objective WPA
