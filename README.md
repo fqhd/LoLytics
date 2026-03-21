@@ -19,6 +19,11 @@ git clone https://github.com/fqhd/LoLytics.git
 ```
 This will download the main branch of the repo which contains the latest stable build of the site. If you are interested in contributing, make sure you fork the project and switch to the dev branch before making your changes.
 ### Building the Server
+Make sure you are in the root directory of the project:
+```
+cd LoLytics
+``` 
+
 Now it's time to create your virtual environment with a recent version of python and install the packages required by the server.
 
 Install a recent version of python:
@@ -34,7 +39,7 @@ And finally, with this environment active, install the required packages:
 ```
 pip install -r requirements.txt
 ```
-Now that you have all dependencies installed, to run the development server, ensure you are in the root of the project, and run one of the following commands depending on your operating system:
+Now that you have all dependencies installed, to run the development server, ensure you are at the root of the project, and run one of the following commands depending on your operating system:
 - Windows:
 ```
 set NODE_ENV=development
@@ -44,6 +49,8 @@ python -m server.app
 ```
 NODE_ENV=development python -m server.app
 ```
+> **Note:** Make sure to place your riot games API key in a .env file at the root of the project under the name `RIOT_KEY` or the server will not work.
+
 ### Building the Client
 Building the client takes even less steps than building the server. All you really need to do is cd into the node project and install required node dependencies:
 ```
@@ -85,8 +92,23 @@ def event_name(state, event):
 > Note: For the teamId variable in the code snippet above, 0 encodes the blue team and 1 is for red team.
 
 ## Training
+If you would like to train your own model or try out other algorithms, there are predefined helper functions in the Training.ipynb notebook to help you get started.
 
-If you would like to train your own model
+### Downloading games
+Currently, the only way to obtain a dataset of games is to download your own from the riot. The process to download games is in two steps, collecting match ids, and downloading the events.
+
+While you are at the root of the project, run the script named `collect.js`. This will use the API key in your `.env` file to fetch unique match ids from ranks ranging from iron to master. The collection script processes match ids in batches so this operation should only take a couple minutes to complete.
+
+Once the id collection script finishes running, it will save the ids in `match_ids.csv`, inspect this file to ensure its integrity before continuing. Once the contents have been verified, execute the download script and specify a test split to download the games (this is the part that takes the most time).
+```bash
+node download.js 0.2 # 20% of the ids will be placed in the test directory
+```
+
+After the matches have finished downloading, you can use the `create_dataset.py` script in the model package to generate a numpy dataset by sampling states at random points throughout each game.
+```
+python create_dataset.py
+```
+The resulting dataset will be saved in the root directory of the project.
 
 ## Features
 
