@@ -3,7 +3,8 @@
 </h1>
 
 <p align="center">
-    <img alt="Documentation" src="https://github.com/fqhd/LoLytics/actions/workflows/ci.yml/badge.svg">
+    <img alt="CI Badge" src="https://github.com/fqhd/LoLytics/actions/workflows/ci.yml/badge.svg">
+    <img alt="License Badge" src="https://img.shields.io/github/license/fqhd/lolytics">
 </p>
 
 ## Description
