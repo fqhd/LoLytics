@@ -3,7 +3,7 @@ from flask import jsonify, request
 from server.network import send_server_error
 from server.utils import find_participant_with_puuid
 from model.game import sample_all, sync_timers
-from model.create_dataset import vectorize_state
+from model.dataset import vectorize_state
 
 lr_model = joblib.load('model.pkl')
 
