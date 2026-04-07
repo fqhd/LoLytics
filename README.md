@@ -17,7 +17,7 @@ LoLytics also analyzes large sets of games to research which objectives, items, 
 Have questions or want to contribute? Join our [Discord](https://discord.gg/cqUKcvvX) community.
 ## Building
 ### Prerequisites
-The process for building the project is the same on all platforms, ensure you are using node version 24 or later and you have the latest version of pyenv installed.
+The process for building the project is the same on all platforms, ensure you are using node version 24 or later and you have the latest version of `pyenv` installed.
 
 First, clone the repository:
 ```
