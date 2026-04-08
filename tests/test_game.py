@@ -177,3 +177,40 @@ def test_process_tower_kill():
         'teamId': 100
     })
     assert state['teams'][0]['towers'][10] == 180000
+
+def test_process_inhibitor_kill():
+    state = {
+        'teams': [
+            {
+                'inhibs': [0, 0, 0]
+            }, {
+                'inhibs': [0, 0, 0]
+            }
+        ]
+    }
+
+    process_inhibitor_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'INHIBITOR_BUILDING',
+        'laneType': 'MID_LANE',
+        'teamId': 100
+    })
+    assert state['teams'][0]['inhibs'][1] == 300000
+
+    state['teams'][0]['inhibs'] = [0, 0, 0]
+    process_inhibitor_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'INHIBITOR_BUILDING',
+        'laneType': 'TOP_LANE',
+        'teamId': 200
+    })
+    assert state['teams'][1]['inhibs'][0] == 300000
+
+    state['teams'][0]['inhibs'] = [0, 0, 0]
+    process_inhibitor_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'INHIBITOR_BUILDING',
+        'laneType': 'BOT_LANE',
+        'teamId': 200
+    })
+    assert state['teams'][1]['inhibs'][2] == 300000
