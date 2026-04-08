@@ -90,3 +90,90 @@ def test_process_champion_kill():
     assert state['teams'][1]['players'][0]['deaths'] == 3
     assert state['teams'][1]['players'][0]['elder_timer'] == 0
     assert state['teams'][1]['players'][0]['death_timer'] > 0
+
+def test_process_tower_kill():
+    state = {
+        'teams': [
+            {
+                'towers': [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+            }, {
+                'towers': [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+            }
+        ]
+    }
+
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'MID_LANE',
+        'towerType': 'INNER_TURRET',
+        'teamId': 100
+    })
+    assert state['teams'][0]['towers'][4] == 0
+
+    state['teams'][0]['towers'] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'MID_LANE',
+        'towerType': 'OUTER_TURRET',
+        'teamId': 100
+    })
+    assert state['teams'][0]['towers'][3] == 0
+
+    state['teams'][0]['towers'] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'TOP_LANE',
+        'towerType': 'OUTER_TURRET',
+        'teamId': 200
+    })
+    assert state['teams'][1]['towers'][0] == 0
+
+    state['teams'][0]['towers'] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'MID_LANE',
+        'towerType': 'NEXUS_TURRET',
+        'teamId': 100
+    })
+    assert state['teams'][0]['towers'][9] == 180000
+
+    state['teams'][0]['towers'] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'MID_LANE',
+        'towerType': 'NEXUS_TURRET',
+        'teamId': 100
+    })
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'MID_LANE',
+        'towerType': 'NEXUS_TURRET',
+        'teamId': 100
+    })
+    assert state['teams'][0]['towers'][9] == 180000 and state['teams'][0]['towers'][10] == 180000
+
+    state['teams'][0]['towers'] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 180000, 0]
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'MID_LANE',
+        'towerType': 'NEXUS_TURRET',
+        'teamId': 100
+    })
+    assert state['teams'][0]['towers'][10] == 180000
+
+    state['teams'][0]['towers'] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 180000]
+    process_tower_kill(state, {
+        'type': 'BUILDING_KILL',
+        'buildingType': 'TOWER_BUILDING',
+        'laneType': 'MID_LANE',
+        'towerType': 'NEXUS_TURRET',
+        'teamId': 100
+    })
+    assert state['teams'][0]['towers'][10] == 180000
