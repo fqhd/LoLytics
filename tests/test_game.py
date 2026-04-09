@@ -273,3 +273,103 @@ def test_process_champion_kill_B():
     assert state['teams'][0]['players'][0]['death_timer'] > 0
     assert state['teams'][1]['players'][0]['kills'] == 5
     assert state['teams'][1]['players'][0]['kill_gold'] == 445
+
+def test_process_monster_kill():
+    state = {
+        'teams': [
+            {
+                'players': [
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 9837 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                ],
+                'drakes': [],
+                'rifts': 0,
+                'grubs': 0,
+            }, {
+                'players': [
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 0 },
+                    { 'baron_timer': 0, 'elder_timer': 0, 'death_timer': 38473 },
+                ],
+                'drakes': [],
+                'rifts': 0,
+                'grubs': 0,
+            }
+        ]
+    }
+
+    process_monster_kill(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'monsterType': 'DRAGON',
+        'monsterSubType': 'FIRE_DRAGON',
+        'killerId': 2
+    })
+    assert state['teams'][0]['drakes'][0] == 'FIRE_DRAGON'
+    assert len(state['teams'][0]['drakes']) == 1
+
+    process_monster_kill(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'monsterType': 'HORDE',
+        'killerId': 5
+    })
+    process_monster_kill(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'monsterType': 'HORDE',
+        'killerId': 5
+    })
+    process_monster_kill(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'monsterType': 'HORDE',
+        'killerId': 6
+    })
+    assert state['teams'][0]['grubs'] == 2
+    assert state['teams'][1]['grubs'] == 1
+
+    process_monster_kill(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'monsterType': 'RIFTHERALD',
+        'killerId': 0,
+    })
+    assert state['teams'][0]['rifts'] == 0
+    assert state['teams'][1]['rifts'] == 0
+
+    process_monster_kill(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'monsterType': 'RIFTHERALD',
+        'killerId': 10,
+    })
+    assert state['teams'][1]['rifts'] == 1
+
+    process_monster_kill(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'monsterType': 'BARON_NASHOR',
+        'killerId': 10
+    })
+    for player in state['teams'][1]['players']:
+        if player['death_timer'] == 0:
+            assert player['baron_timer'] == 180000
+
+    for player in state['teams'][0]['players']:
+        assert player['baron_timer'] == 0
+
+    process_monster_kill(state, {
+        'TYPE': 'ELITE_MONSTER_KILL',
+        'monsterType': 'DRAGON',
+        'monsterSubType': 'ELDER_DRAGON',
+        'killerId': 5,
+    })
+    for player in state['teams'][0]['players']:
+        if player['death_timer'] == 0:
+            assert player['elder_timer'] == 150000
+
+    for player in state['teams'][1]['players']:
+        assert player['elder_timer'] == 0
+
+
+
+
