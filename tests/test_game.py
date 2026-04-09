@@ -370,6 +370,63 @@ def test_process_monster_kill():
     for player in state['teams'][1]['players']:
         assert player['elder_timer'] == 0
 
+def test_process_levelup():
+    state = {
+        'teams': [
+            {
+                'players': [
+                    { 'level': 1 },
+                    { 'level': 1 },
+                    { 'level': 1 },
+                    { 'level': 1 },
+                    { 'level': 1 },
+                ]
+            }, {
+                'players': [
+                    { 'level': 1 },
+                    { 'level': 1 },
+                    { 'level': 1 },
+                    { 'level': 1 },
+                    { 'level': 1 },
+                ]
+            }
+        ]
+    }
 
-
-
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 1
+    })
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 1
+    })
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 1
+    })
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 2
+    })
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 7
+    })
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 5
+    })
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 5
+    })
+    process_levelup(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 10
+    })
+    assert state['teams'][0]['players'][0]['level'] == 4
+    assert state['teams'][0]['players'][1]['level'] == 2
+    assert state['teams'][0]['players'][4]['level'] == 3
+    assert state['teams'][1]['players'][1]['level'] == 2
+    assert state['teams'][1]['players'][4]['level'] == 2
