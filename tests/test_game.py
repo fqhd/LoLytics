@@ -581,6 +581,7 @@ def test_sample():
             assert v == t
         for v, t in zip(team['inhibs'], [0, 0, 0]):
             assert v == t
+    assert state['time'] == 1000
 
 def test_sample_until():
     game = {
@@ -665,3 +666,69 @@ def test_sample_until():
     state_from_sample = sample(game, 6)
 
     assert state_from_sample == state
+
+def test_sample_every():
+    game = {
+        'champions': None,
+        'win': False,
+        'events': [
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 4,
+                'timestamp': 1000
+            },
+            {
+                'type': 'CHAMPION_KILL',
+                'killerId': 8,
+                'victimId': 4,
+                'bounty': 300,
+                'shutdownBounty': 0,
+                'assistingParticipantIds': [ 6, 7, 10 ],
+                'timestamp': 35000
+            },
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 8,
+                'timestamp': 35000
+            },
+            {
+                'type': 'ELITE_MONSTER_KILL',
+                'killerId': 0,
+                'monsterType': 'RIFTHERALD',
+                'timestamp': 200000
+            },
+            {
+                'type': 'CHAMPION_KILL',
+                'killerId': 1,
+                'victimId': 6,
+                'bounty': 245,
+                'shutdownBounty': 0,
+                'timestamp': 210000
+            },
+            {
+                'type': 'ELITE_MONSTER_KILL',
+                'monsterType': 'DRAGON',
+                'monsterSubType': 'ELDER_DRAGON',
+                'killerId': 6,
+                'timestamp': 211000
+            },
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 8,
+                'timestamp': 212000
+            }
+        ]
+    }
+
+    def callback(state, event):
+        return event['type'] == 'LEVEL_UP', False
+
+    state_1 = sample(game, 0)
+    state_2 = sample(game, 2)
+    state_3 = sample(game, 6)
+
+    states = sample_every(game, callback)
+
+    assert states[0][0]['time'] == state_1['time']
+    assert states[1][0]['time'] == state_2['time']
+    assert states[2][0]['time'] == state_3['time']

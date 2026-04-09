@@ -174,7 +174,7 @@ def sample(game, index):
         update_with_event(state, game['events'][i], delta)
 
     sync_timers(state, game['events'][-1]['timestamp'] - game['events'][-2]['timestamp'])
-    state['time'] = game['events'][-1]['timestamp']
+    state['time'] = game['events'][index]['timestamp']
     return state
 
 def sample_until(game, callback):
@@ -191,63 +191,19 @@ def sample_until(game, callback):
 
     return False, None
 
-
-def sample_all(game):
-    state = create_initial_state(game)
-    states = []
-
-    states.append(copy.deepcopy(state))
-
-    delta = 0
-    for i in range(len(game['events'])):
-        prev_event = game['events'][i - 1] if i > 0 else game['events'][i]
-        event = game['events'][i]
-        delta = event['timestamp'] - prev_event['timestamp']
-        update_with_event(state, event, delta)
-        state['time'] = event['timestamp']
-        states.append(copy.deepcopy(state))
-
-    return states
-
 def sample_every(game, callback):
     state = create_initial_state(game)
     delta = 0
     state_samples = []
 
-    for prev_event, event in zip(game['events'], game['events'][1:]):
+    for i, event in enumerate(game['events']):
         event_outcome = callback(state, event)
+        delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
         if event_outcome[0]:
-            delta = event['timestamp'] - prev_event['timestamp']
             state_copy = copy.deepcopy(state)
             sync_timers(state_copy, delta)
             state_copy['time'] = event['timestamp']
             state_samples.append((state_copy, event_outcome[1]))
-        delta = event['timestamp'] - prev_event['timestamp']
         update_with_event(state, event, delta)
 
     return state_samples
-
-def sample_multi(game, indices):
-    indices = sorted(indices)
-
-    events = game['events']
-    state = create_initial_state(game)
-    samples = []
-
-    real_i = 1
-
-    for idx in indices:
-        while real_i < idx:
-            prev_ts = events[real_i - 1]['timestamp']
-            curr_ts = events[real_i]['timestamp']
-            update_with_event(state, events[real_i], curr_ts - prev_ts)
-            real_i += 1
-
-        delta = events[idx]['timestamp'] - events[idx - 1]['timestamp']
-        sync_timers(state, delta)
-
-        state['time'] = events[idx]['timestamp']
-
-        samples.append(copy.deepcopy(state))
-
-    return samples
