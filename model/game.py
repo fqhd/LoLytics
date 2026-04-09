@@ -169,17 +169,12 @@ def sync_timers(state, delta_time):
 def sample(game, index):
     state = create_initial_state(game)
 
-    for i in range(1, index + 1):
-        prev = game['events'][i-1]
-        curr = game['events'][i]
-        delta = curr['timestamp'] - prev['timestamp']
-        update_with_event(state, curr, delta)
+    for i in range(index):
+        delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
+        update_with_event(state, game['events'][i], delta)
 
-    if index > 0:
-        delta = game['events'][index]['timestamp'] - game['events'][index-1]['timestamp']
-        sync_timers(state, delta)
-
-    state['time'] = game['events'][index]['timestamp']
+    sync_timers(state, game['events'][-1]['timestamp'] - game['events'][-2]['timestamp'])
+    state['time'] = game['events'][-1]['timestamp']
     return state
 
 def sample_until(game, callback):
