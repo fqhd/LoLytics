@@ -430,3 +430,57 @@ def test_process_levelup():
     assert state['teams'][0]['players'][4]['level'] == 3
     assert state['teams'][1]['players'][1]['level'] == 2
     assert state['teams'][1]['players'][4]['level'] == 2
+
+def test_update_with_event():
+    game = {
+        'champions': None,
+        'win': False
+    }
+    state = create_initial_state(game)
+
+    update_with_event(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 1,
+        'timestamp': 10000
+    }, 10000)
+
+    update_with_event(state, {
+        'type': 'LEVEL_UP',
+        'participantId': 1,
+        'timestamp': 20000
+    }, 10000)
+
+    update_with_event(state, {
+        'type': 'ELITE_MONSTER_KILL',
+        'killerId': 1,
+        'monsterType': 'BARON_NASHOR',
+        'timestamp': 30000
+    }, 10000)
+
+    update_with_event(state, {
+        'type': 'CHAMPION_KILL',
+        'killerId': 6,
+        'victimId': 1,
+        'bounty': 350,
+        'shutdownBounty': 700,
+        'timestamp': 35000,
+        'assistingParticipantIds': [
+            7, 9, 10
+        ]
+    }, 5000)
+
+    assert state['teams'][0]['players'][0]['level'] == 3
+    assert state['teams'][0]['players'][0]['death_timer'] > 0
+    assert state['teams'][0]['players'][0]['baron_timer'] == 0
+    assert state['teams'][0]['players'][0]['deaths'] == 1
+
+    assert state['teams'][0]['players'][1]['baron_timer'] == 175000
+    assert state['teams'][0]['players'][2]['baron_timer'] == 175000
+    assert state['teams'][0]['players'][3]['baron_timer'] == 175000
+    assert state['teams'][0]['players'][4]['baron_timer'] == 175000
+
+    assert state['teams'][1]['players'][0]['kills'] == 1
+    assert state['teams'][1]['players'][0]['kill_gold'] == 1050
+    assert state['teams'][1]['players'][1]['assists'] == 1
+    assert state['teams'][1]['players'][3]['assists'] == 1
+    assert state['teams'][1]['players'][4]['assists'] == 1
