@@ -28,7 +28,7 @@ def test_calculate_death_timer():
         predicted_death_timer = math.ceil(predicted_death_timer)
         assert death_timer == predicted_death_timer
 
-def test_process_champion_kill():
+def test_process_champion_kill_A():
     state = {
         'teams': [
             {
@@ -215,7 +215,7 @@ def test_process_inhibitor_kill():
     })
     assert state['teams'][1]['inhibs'][2] == 300000
 
-def test_champion_kill():
+def test_process_champion_kill_B():
     state = {
         'teams': [{
             'players': [{
@@ -273,5 +273,3 @@ def test_champion_kill():
     assert state['teams'][0]['players'][0]['death_timer'] > 0
     assert state['teams'][1]['players'][0]['kills'] == 5
     assert state['teams'][1]['players'][0]['kill_gold'] == 445
-
-
