@@ -214,3 +214,64 @@ def test_process_inhibitor_kill():
         'teamId': 200
     })
     assert state['teams'][1]['inhibs'][2] == 300000
+
+def test_champion_kill():
+    state = {
+        'teams': [{
+            'players': [{
+                'kill_gold': 11,
+                'kills': 2,
+                'deaths': 3,
+                'death_timer': 0,
+                'elder_timer': 0,
+                'baron_timer': 40000,
+                'level': 10,
+            }, None, None, {'assists': 4}, None]
+        }, {
+            'players': [{
+                'kill_gold': 200,
+                'kills': 4,
+                'deaths': 5,
+                'elder_timer': 2304,
+                'baron_timer': 24984,
+                'death_timer': 0,
+                'level': 9,
+            }, None, None, None, None]
+        }]
+    }
+
+    process_champion_kill(state, {
+        'type': 'CHAMPION_KILL',
+        'killerId': 1,
+        'victimId': 6,
+        'bounty': 300,
+        'shutdownBounty': 100,
+        'assistingParticipantIds': [
+            4
+        ],
+        'timestamp': 1000000
+    })
+    assert state['teams'][0]['players'][0]['kills'] == 3
+    assert state['teams'][0]['players'][0]['kill_gold'] == 411
+    assert state['teams'][0]['players'][3]['assists'] == 5
+    assert state['teams'][1]['players'][0]['deaths'] == 6
+    assert state['teams'][1]['players'][0]['death_timer'] > 0
+    assert state['teams'][1]['players'][0]['baron_timer'] == 0
+    assert state['teams'][1]['players'][0]['elder_timer'] == 0
+
+    process_champion_kill(state, {
+        'type': 'CHAMPION_KILL',
+        'killerId': 6,
+        'victimId': 1,
+        'bounty': 245,
+        'shutdownBounty': 0,
+        'timestamp': 1000000
+    })
+    assert state['teams'][0]['players'][0]['deaths'] == 4
+    assert state['teams'][0]['players'][0]['elder_timer'] == 0
+    assert state['teams'][0]['players'][0]['baron_timer'] == 0
+    assert state['teams'][0]['players'][0]['death_timer'] > 0
+    assert state['teams'][1]['players'][0]['kills'] == 5
+    assert state['teams'][1]['players'][0]['kill_gold'] == 445
+
+
