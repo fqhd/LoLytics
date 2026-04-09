@@ -180,19 +180,17 @@ def sample(game, index):
 def sample_until(game, callback):
     state = create_initial_state(game)
 
-    delta = 0
-
-    for prev_event, event in zip(game['events'], game['events'][1:]):
+    for i, event in enumerate(game['events']):
         event_outcome = callback(state, event)
+        delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
         if event_outcome[0]:
-            delta = event['timestamp'] - prev_event['timestamp']
             sync_timers(state, delta)
             state['time'] = event['timestamp']
             return state, event_outcome[1]
-        delta = event['timestamp'] - prev_event['timestamp']
         update_with_event(state, event, delta)
 
     return False, None
+
 
 def sample_all(game):
     state = create_initial_state(game)

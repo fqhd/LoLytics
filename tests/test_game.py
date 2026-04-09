@@ -581,3 +581,87 @@ def test_sample():
             assert v == t
         for v, t in zip(team['inhibs'], [0, 0, 0]):
             assert v == t
+
+def test_sample_until():
+    game = {
+        'champions': None,
+        'win': False,
+        'events': [
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 4,
+                'timestamp': 1000
+            },
+            {
+                'type': 'CHAMPION_KILL',
+                'killerId': 8,
+                'victimId': 4,
+                'bounty': 300,
+                'shutdownBounty': 0,
+                'assistingParticipantIds': [ 6, 7, 10 ],
+                'timestamp': 35000
+            },
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 8,
+                'timestamp': 35000
+            },
+            {
+                'type': 'ELITE_MONSTER_KILL',
+                'killerId': 0,
+                'monsterType': 'RIFTHERALD',
+                'timestamp': 200000
+            },
+            {
+                'type': 'CHAMPION_KILL',
+                'killerId': 1,
+                'victimId': 6,
+                'bounty': 245,
+                'shutdownBounty': 0,
+                'timestamp': 210000
+            },
+            {
+                'type': 'ELITE_MONSTER_KILL',
+                'monsterType': 'DRAGON',
+                'monsterSubType': 'ELDER_DRAGON',
+                'killerId': 6,
+                'timestamp': 211000
+            },
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 8,
+                'timestamp': 212000
+            }
+        ]
+    }
+
+    def callback(state, event):
+        return event['timestamp'] == 212000, None
+
+    state, _ = sample_until(game, callback)
+
+    assert state['teams'][0]['players'][3]['level'] == 2
+    assert state['teams'][0]['players'][3]['deaths'] == 1
+    assert state['teams'][0]['players'][3]['death_timer'] == 0
+    assert state['teams'][0]['rifts'] == 0
+    assert state['teams'][1]['rifts'] == 0
+    assert state['teams'][1]['players'][2]['kills'] == 1
+    assert state['teams'][1]['players'][2]['level'] == 2
+    assert state['teams'][1]['players'][2]['kill_gold'] == 300
+    assert state['teams'][1]['players'][0]['assists'] == 1
+    assert state['teams'][1]['players'][1]['assists'] == 1
+    assert state['teams'][1]['players'][4]['assists'] == 1
+    assert state['teams'][0]['players'][0]['kills'] == 1
+    assert state['teams'][0]['players'][0]['kill_gold'] == 245
+    assert state['teams'][1]['players'][0]['deaths'] == 1
+    assert state['teams'][1]['players'][0]['death_timer'] > 0
+    assert state['teams'][1]['players'][0]['elder_timer'] == 0
+    assert state['teams'][1]['players'][1]['elder_timer'] == 149000
+    assert state['teams'][1]['players'][2]['elder_timer'] == 149000
+    assert state['teams'][1]['players'][3]['elder_timer'] == 149000
+    assert state['teams'][1]['players'][4]['elder_timer'] == 149000
+    assert state['time'] == 212000
+
+    state_from_sample = sample(game, 6)
+
+    assert state_from_sample == state
