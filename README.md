@@ -3,7 +3,8 @@
 </h1>
 
 <p align="center">
-    <img alt="CI Badge" src="https://github.com/fqhd/LoLytics/actions/workflows/ci.yml/badge.svg">
+    <img alt="Build Badge" src="https://github.com/fqhd/LoLytics/actions/workflows/build.yml/badge.svg">
+    <img alt="Tests Badge" src="https://github.com/fqhd/LoLytics/actions/workflows/test.yml/badge.svg">
     <img alt="License Badge" src="https://img.shields.io/github/license/fqhd/lolytics">
 </p>
 
@@ -28,7 +29,7 @@ This will download the main branch of the repo which contains the latest stable 
 Make sure you are in the root directory of the project:
 ```
 cd LoLytics
-``` 
+```
 
 Now it's time to create your virtual environment with a recent version of python and install the packages required by the server.
 
@@ -69,7 +70,7 @@ npm run dev
 ```
 If you would like to generate a production build, run `npm run build` instead, and the website bundle will be generated in the `dist/` directory.
 ## Research
-We also use the data collected to perform additional research about the game which you can find summarized in an article under the Research section. There aren't any strict rules under what areas to research or questions to answer using the data, as long as it is conducted in an unethical manner and you do not use the data to discriminate against or hurt any person or group of people. 
+We also use the data collected to perform additional research about the game which you can find summarized in an article under the Research section. There aren't any strict rules under what areas to research or questions to answer using the data, as long as it is conducted in an unethical manner and you do not use the data to discriminate against or hurt any person or group of people.
 
 That said, in the current state of the project, most of research efforts have gone into developing a machine learning model for win probability estimation. We use this model to calculate metrics like win probability added to assess the strength of each item and objective.
 
