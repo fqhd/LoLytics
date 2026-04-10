@@ -128,7 +128,7 @@ export default function Home() {
 
     return (
         <div className='container'>
-            <div className={`username ${searched ? 'username-show' : ''}`}>{name.toUpperCase()}#{tag.toUpperCase()}</div>
+            <div className={`username ${searched ? 'username-show' : ''}`}>{name.toUpperCase()}#{tag.replaceAll('#', '').toUpperCase()}</div>
 
             <div className={`input-group-wrapper ${searched ? 'fade-out' : ''}`}>
                 <div className='title'>LoLytics</div>

@@ -26,11 +26,11 @@ def vectorize_state(state):
         drakes_oh = [0, 0, 0, 0, 0, 0]
         for drake in team['drakes']:
             drakes_oh[drakes.index(drake)] += 1
+        v += drakes_oh
         v.append(team['rifts'])
         v.append(team['grubs'])
         v += team['towers']
         v += team['inhibs']
-        v += drakes_oh
     v.append(state['time'])
 
     return v
