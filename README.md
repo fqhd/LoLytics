@@ -69,6 +69,21 @@ Now, running a development server is as simple as:
 npm run dev
 ```
 If you would like to generate a production build, run `npm run build` instead, and the website bundle will be generated in the `dist/` directory.
+
+### Testing
+Currently, the only tests available are for the `dataset.py` and `game.py` modules as those are the parts which contain the core game logic and their functionality is of paramount importance.
+
+However, it is still possible to run tests for those but you will first need to make sure you have `pytest` installed and configured for your system. If you are in the lolenv environment, simply run:
+
+```
+pip install pytest
+```
+
+Next, run the `pytest` command with the `PYTHONPATH` environment variable set to the root of the project. This can be accomplished by running the following command from the root of the project:
+```
+PYTHONPATH=. pytest
+```
+
 ## Research
 We also use the data collected to perform additional research about the game which you can find summarized in an article under the Research section. There aren't any strict rules under what areas to research or questions to answer using the data, as long as it is conducted in an unethical manner and you do not use the data to discriminate against or hurt any person or group of people.
 
@@ -107,7 +122,7 @@ Currently, the only way to obtain a dataset of games is to download your own fro
 While you are at the root of the project, run the script named `collect.js`. This will use the API key in your `.env` file to fetch unique match ids from ranks ranging from iron to master. The collection script processes match ids in batches so this operation should only take a couple minutes to complete.
 
 Once the id collection script finishes running, it will save the ids in `match_ids.csv`, inspect this file to ensure its integrity before continuing. Once the contents have been verified, execute the download script and specify a test split to download the games (this is the part that takes the most time).
-```bash
+```
 node download.js 0.2 # 20% of the ids will be placed in the test directory
 ```
 
