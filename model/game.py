@@ -207,3 +207,20 @@ def sample_every(game, callback):
         update_with_event(state, event, delta)
 
     return state_samples
+
+def sample_all(game):
+    state = create_initial_state(game)
+    states = []
+
+    states.append(copy.deepcopy(state))
+
+    delta = 0
+    for i in range(len(game['events'])):
+        prev_event = game['events'][i - 1] if i > 0 else game['events'][i]
+        event = game['events'][i]
+        delta = event['timestamp'] - prev_event['timestamp']
+        update_with_event(state, event, delta)
+        state['time'] = event['timestamp']
+        states.append(copy.deepcopy(state))
+
+    return states
