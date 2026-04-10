@@ -10,13 +10,17 @@ function App() {
         <Router>
             <Navbar />
             <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='/research' element={<Research />} />
-                <Route path='/faq' element={<FAQ />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/research" element={<Research />} />
+                <Route path="/faq" element={<FAQ />} />
             </Routes>
-            <footer className='copyright'>
+            <footer className="copyright">
                 © 2025 LoLytics — Open Source (MIT License) ·{' '}
-                <a href='https://github.com/fqhd/LoLytics' target='_blank' className='github'>
+                <a
+                    href="https://github.com/fqhd/LoLytics"
+                    target="_blank"
+                    className="github"
+                >
                     View on GitHub
                 </a>
             </footer>

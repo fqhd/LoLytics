@@ -6,9 +6,8 @@ function Runes({ data, events }) {
     const [indicatorStyle, setIndicatorStyle] = useState({});
     const tabRefs = useRef({});
 
-    const formatTime = ms =>
+    const formatTime = (ms) =>
         `${String(Math.floor(ms / 60000)).padStart(2, '0')}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
-
 
     const { primaryTree = {}, secondaryTree = {}, statPerks = [] } = data;
 
@@ -34,8 +33,8 @@ function Runes({ data, events }) {
     }, [activeTab]); // reattach listener if tab changes (safeguard)
 
     return (
-        <div className='runes'>
-            <div className='tab-bar'>
+        <div className="runes">
+            <div className="tab-bar">
                 <button
                     ref={(el) => (tabRefs.current['runes'] = el)}
                     className={`tab ${activeTab === 'runes' ? 'active' : ''}`}
@@ -51,50 +50,50 @@ function Runes({ data, events }) {
                     Events
                 </button>
 
-                <div className='tab-indicator' style={indicatorStyle}></div>
+                <div className="tab-indicator" style={indicatorStyle}></div>
             </div>
 
-            <div className='tab-content'>
+            <div className="tab-content">
                 {activeTab === 'runes' && (
                     <>
                         {primaryTree.keystone && (
-                            <div className='left-column'>
+                            <div className="left-column">
                                 <img
                                     src={'/images/' + primaryTree.keystone}
-                                    alt='Main Keystone'
-                                    className='keystone-icon'
+                                    alt="Main Keystone"
+                                    className="keystone-icon"
                                 />
-                                <div className='sub-keystones'>
+                                <div className="sub-keystones">
                                     {primaryTree.subs?.map((icon, i) => (
                                         <img
                                             key={i}
                                             src={'/images/' + icon}
                                             alt={`Primary Sub ${i}`}
-                                            className='sub-keystone-icon'
+                                            className="sub-keystone-icon"
                                         />
                                     ))}
                                 </div>
                             </div>
                         )}
                         {secondaryTree.subs?.length > 0 && (
-                            <div className='right-column'>
-                                <div className='secondary-subs'>
+                            <div className="right-column">
+                                <div className="secondary-subs">
                                     {secondaryTree.subs.map((icon, i) => (
                                         <img
                                             key={i}
                                             src={'/images/' + icon}
                                             alt={`Secondary Sub ${i}`}
-                                            className='sub-keystone-icon'
+                                            className="sub-keystone-icon"
                                         />
                                     ))}
                                 </div>
-                                <div className='stat-perks'>
+                                <div className="stat-perks">
                                     {statPerks.map((icon, i) => (
                                         <img
                                             key={i}
                                             src={icon}
                                             alt={`Stat Perk ${i}`}
-                                            className='stat-icon'
+                                            className="stat-icon"
                                         />
                                     ))}
                                 </div>
@@ -104,38 +103,55 @@ function Runes({ data, events }) {
                 )}
 
                 {activeTab === 'other' && events && (
-                    <div className='other-tab'>
+                    <div className="other-tab">
                         <React.Fragment>
                             {events.map((e, i) => (
                                 <div
                                     key={i}
-                                    className={'game-event' + (e.delta > 0 ? ' good' : ' bad')}
+                                    className={
+                                        'game-event' +
+                                        (e.delta > 0 ? ' good' : ' bad')
+                                    }
                                 >
-                                    <div className='top-half'>
+                                    <div className="top-half">
                                         <div>
-                                            <img className='champ-icon' src={e.left} alt='' />
+                                            <img
+                                                className="champ-icon"
+                                                src={e.left}
+                                                alt=""
+                                            />
                                             {e.assists && (
                                                 <React.Fragment>
                                                     {e.assists.map((a, j) => (
                                                         <img
                                                             key={j}
-                                                            className='champ-icon-small'
+                                                            className="champ-icon-small"
                                                             src={a}
-                                                            alt=''
+                                                            alt=""
                                                         />
                                                     ))}
                                                 </React.Fragment>
                                             )}
                                         </div>
-                                        <div className='the-fucked'>
-                                            <img className='sword-icon' src='/images/sword.png' alt='' />
-                                            <img className='champ-icon' src={e.right} alt='' />
+                                        <div className="the-fucked">
+                                            <img
+                                                className="sword-icon"
+                                                src="/images/sword.png"
+                                                alt=""
+                                            />
+                                            <img
+                                                className="champ-icon"
+                                                src={e.right}
+                                                alt=""
+                                            />
                                         </div>
                                     </div>
-                                    <div className='bottom-half'>
+                                    <div className="bottom-half">
                                         <span>{formatTime(e.time)}</span>
-                                        <span className='event-delta'>
-                                            {(e.delta > 0 ? '+' : '') + e.delta + '%'}
+                                        <span className="event-delta">
+                                            {(e.delta > 0 ? '+' : '') +
+                                                e.delta +
+                                                '%'}
                                         </span>
                                     </div>
                                 </div>
