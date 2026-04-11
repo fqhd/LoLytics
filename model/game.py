@@ -213,12 +213,13 @@ def sample_all(game):
     state = create_initial_state(game)
     states = []
 
-    states.append(copy.deepcopy(state))
-
     for i, event in enumerate(game['events']):
-        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
-        update_with_event(state, event, delta)
         state['time'] = event['timestamp']
+        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
+        state_copy = copy.deepcopy(state)
+        sync_timers(state_copy, delta)
+        states.append(state_copy)
+        update_with_event(state, event, delta)
         states.append(copy.deepcopy(state))
 
     return states
