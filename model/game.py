@@ -173,7 +173,8 @@ def sample(game, index):
         delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
         update_with_event(state, game['events'][i], delta)
 
-    sync_timers(state, game['events'][-1]['timestamp'] - game['events'][-2]['timestamp'])
+    if index > 0:
+        sync_timers(state, game['events'][index]['timestamp'] - game['events'][index-1]['timestamp'])
     state['time'] = game['events'][index]['timestamp']
     return state
 
@@ -182,7 +183,7 @@ def sample_until(game, callback):
 
     for i, event in enumerate(game['events']):
         event_outcome = callback(state, event)
-        delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
+        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
         if event_outcome[0]:
             sync_timers(state, delta)
             state['time'] = event['timestamp']
@@ -198,7 +199,7 @@ def sample_every(game, callback):
 
     for i, event in enumerate(game['events']):
         event_outcome = callback(state, event)
-        delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
+        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
         if event_outcome[0]:
             state_copy = copy.deepcopy(state)
             sync_timers(state_copy, delta)
@@ -214,11 +215,8 @@ def sample_all(game):
 
     states.append(copy.deepcopy(state))
 
-    delta = 0
-    for i in range(len(game['events'])):
-        prev_event = game['events'][i - 1] if i > 0 else game['events'][i]
-        event = game['events'][i]
-        delta = event['timestamp'] - prev_event['timestamp']
+    for i, event in enumerate(game['events']):
+        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
         update_with_event(state, event, delta)
         state['time'] = event['timestamp']
         states.append(copy.deepcopy(state))

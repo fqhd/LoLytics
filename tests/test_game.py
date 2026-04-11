@@ -1,5 +1,6 @@
 from model.game import *
 import math
+import copy
 
 def test_create_players():
     players = create_players()
@@ -534,6 +535,16 @@ def test_sample():
                 'type': 'LEVEL_UP',
                 'participantId': 8,
                 'timestamp': 212000
+            },
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 9,
+                'timestamp': 213000
+            },
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 3,
+                'timestamp': 215000
             }
         ]
     }
