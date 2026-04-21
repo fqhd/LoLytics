@@ -145,3 +145,9 @@ The resulting dataset will be saved in the root directory of the project.
 - Global win probability graph
 - Event specific win probability delta
 - Neutral objective WPA
+
+## ToDo
+- Item grading
+- Rune grading
+- Timeline highlights
+
