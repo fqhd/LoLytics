@@ -150,4 +150,4 @@ The resulting dataset will be saved in the root directory of the project.
 - Item grading
 - Rune grading
 - Timeline highlights
-
+- Dynamic minimap
