@@ -73,7 +73,7 @@ If you would like to generate a production build, run `npm run build` instead, a
 ### Testing
 Currently, the only tests available are for the `dataset.py` and `game.py` modules as those are the parts which contain the core game logic and their functionality is of paramount importance.
 
-However, it is still possible to run tests for those but you will first need to make sure you have `pytest` installed and configured for your system. If you are in the lolenv environment, simply run:
+However, it is still possible to run tests for those but you will first need to make sure you have `pytest` installed and configured for your system. We recommend installing via `pip` within the same environment of the project. If you are in the lolenv environment, simply run:
 
 ```
 pip install pytest
