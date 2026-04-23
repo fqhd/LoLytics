@@ -1,6 +1,7 @@
 import os, json, random
 import numpy as np
 from model.game import sample
+import copy
 
 with open('champion_to_index.json') as f:
     champion_to_index = json.load(f)

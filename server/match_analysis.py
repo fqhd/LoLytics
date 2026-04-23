@@ -1,8 +1,8 @@
 import os, json, requests, math, joblib, copy, numpy as np
 from flask import jsonify, request
 from server.network import send_server_error
-from server.utils import find_participant_with_puuid
-from model.game import sample_all, sync_timers
+from server.utils import find_participant_with_puuid, calculate_deltas
+from model.game import sample_all, sync_timers, create_initial_state, update_with_event
 from model.dataset import vectorize_state
 
 lr_model = joblib.load('model.pkl')
@@ -15,7 +15,7 @@ def is_strong_event(event):
         return False
     return event['type'] in ['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'LEVEL_UP']
 
-def get_win_probability_widgets(events, probs, champions):
+def get_win_probability_widgets(events, deltas, champions):
     widgets = []
     for i in range(len(events)):
         event = events[i]
@@ -58,7 +58,7 @@ def get_win_probability_widgets(events, probs, champions):
                 assister_icon = f'/images/icons/{champion}.jpg'
                 assist_icons.append(assister_icon)
 
-        delta = probs[i + 1] - probs[i]
+        delta = deltas[i]
 
         widgets.append({
             'left': killer_icon,
@@ -93,19 +93,23 @@ def find_rune_with_id(id):
 
     return None
 
-def get_states_per_minute(frames, states, champions, probs):
+def get_states_per_minute(frames, game):
     client_states = []
     probabilities = []
+
+    dynamic_state = create_initial_state(game)
 
     i = 0
 
     for frame in frames:
-        # Skip through states until we find the current state index
-        while i < len(states) - 1 and states[i]['time'] < frame['timestamp']:
+        while i < len(game['events']) and game['events'][i]['timestamp'] < frame['timestamp']:
+            delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
+            update_with_event(dynamic_state, game['events'][i], delta)
             i += 1
-
-        current_state = states[max(i - 1, 0)]
-        sync_timers(current_state, frame['timestamp'] - current_state['time'])
+        
+        current_state = copy.deepcopy(dynamic_state)
+        sync_timers(current_state, max(frame['timestamp'] - game['events'][max(i - 1, 0)]['timestamp'], 0))
+        current_state['time'] = frame['timestamp']
 
         prob = lr_model.predict_proba(np.array([vectorize_state(current_state)]))[0, 1].item()
 
@@ -126,7 +130,7 @@ def get_states_per_minute(frames, states, champions, probs):
             player = frame['participantFrames'][k]
             x = player['position']['x']
             y = player['position']['y']
-            champion_name = champions[int(k)-1]
+            champion_name = game['champions'][int(k)-1]
             state['teams'][0]['towers'] = copy.deepcopy(current_state['teams'][0]['towers'])
             state['teams'][0]['inhibs'] = copy.deepcopy(current_state['teams'][0]['inhibs'])
             state['teams'][0]['players'].append({
@@ -144,7 +148,7 @@ def get_states_per_minute(frames, states, champions, probs):
             player = frame['participantFrames'][k]
             x = player['position']['x']
             y = player['position']['y']
-            champion_name = champions[int(k)-1]
+            champion_name = game['champions'][int(k)-1]
             state['teams'][1]['towers'] = copy.deepcopy(current_state['teams'][1]['towers'])
             state['teams'][1]['inhibs'] = copy.deepcopy(current_state['teams'][1]['inhibs'])
             state['teams'][1]['players'].append({
@@ -253,13 +257,14 @@ def match_analysis():
                 game['events'].append(event)
 
     states = sample_all(game)
-    vectorized = [vectorize_state(x) for x in states] # States right after every event
+    vectorized = [vectorize_state(x) for x in states]
     X_input = np.array(vectorized)
-    probs = lr_model.predict_proba(X_input)[:, 1].tolist() # Probabilities that the blue team wins after every event
+    probs = lr_model.predict_proba(X_input)[:, 1].tolist()
+    deltas = calculate_deltas(probs)
 
-    states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], states, game['champions'], probs)
+    states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], game)
 
-    widgets = get_win_probability_widgets(game['events'], probs, game['champions'])
+    widgets = get_win_probability_widgets(game['events'], deltas, game['champions'])
 
     events = {}
 
