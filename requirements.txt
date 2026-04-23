@@ -5,3 +5,4 @@ numpy==2.4.3
 scikit-learn==1.6.1
 dotenv==0.9.9
 requests==2.32.5
+nbstripout==0.9.1
