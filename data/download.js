@@ -1,11 +1,12 @@
 import { get_game_data } from './game.js';
 import fs from 'fs';
-import { API_KEYS } from './api_keys.js';
-import { shuffle } from './utils.js';
+import { shuffle, sleep, parse_env_file } from './utils.js';
 
 fs.mkdirSync('dataset', { recursive: true });
 fs.mkdirSync('dataset/train', { recursive: true });
 fs.mkdirSync('dataset/test', { recursive: true });
+
+const env = parse_env_file('.env');
 
 const match_data = fs.readFileSync('match_ids.csv', 'utf8');
 const lines = match_data.split('\n');
@@ -14,7 +15,13 @@ lines.pop();
 
 shuffle(lines);
 
+const BATCH_SIZE = 25;
+
 const TEST_SPLIT = process.argv[2];
+if (!TEST_SPLIT) {
+    console.error('Test split must be defined');
+    process.exit(-1);
+}
 if (TEST_SPLIT > 1) {
     console.error('Test split must be less than 1');
     process.exit(-1);
@@ -27,47 +34,33 @@ console.log(`Downloading dataset with ${TEST_SIZE} test samples`);
 
 async function download_games(rows, split) {
     let promises = [];
-    let elos = [];
-    let index = 0;
 
-    for (const line of rows) {
+    for (let i = 0; i < rows.length; i++) {
+        const line = rows[i];
+
         const [match_id, rank, tier] = line.split(',');
 
-        promises.push(get_game_data(match_id, API_KEYS[promises.length]));
-        elos.push({rank, tier});
-        if (promises.length >= API_KEYS.length) {
-            const results = await Promise.all(promises);
-            results.forEach((game, i) => {
-                if (game != null) {
-                    fs.mkdirSync(`dataset/${split}/${elos[i].rank}`, { recursive: true });
-                    if (elos[i].rank == 'MASTER') {
-                        fs.writeFileSync(`dataset/${split}/${elos[i].rank}/game_${index}.json`, JSON.stringify(game), 'utf8');
-                    } else {
-                        fs.mkdirSync(`dataset/${split}/${elos[i].rank}/${elos[i].tier}`, { recursive: true });
-                        fs.writeFileSync(`dataset/${split}/${elos[i].rank}/${elos[i].tier}/game_${index}.json`, JSON.stringify(game), 'utf8');
-                    }
-                    index++;
-                }
-            });
+        promises.push((async () => {
+            const data = await get_game_data(match_id, env.RIOT_KEY);
+            if (data != null) {
+                fs.mkdirSync(`dataset/${split}/${rank}`, { recursive: true });
+                fs.mkdirSync(`dataset/${split}/${rank}/${tier}`, { recursive: true });
+                fs.writeFileSync(`dataset/${split}/${rank}/${tier}/${match_id}.json`, JSON.stringify(data), 'utf8');
+            }
+        })());
+
+        if (promises.length >= BATCH_SIZE) {
+            const progress = parseInt((i / rows.length) * 100);
+            console.log(`Progress(${split}): ${progress}%`);
+
+            await sleep(1300);
+            await Promise.all(promises);
             promises = [];
-            elos = [];
         }
     }
-
+    
     if (promises.length > 0) {
-        const results = await Promise.all(promises);
-        results.forEach((game, i) => {
-            if (game != null) {
-                fs.mkdirSync(`dataset/${split}/${elos[i].rank}`, { recursive: true });
-                if (elos[i].rank == 'MASTER') {
-                    fs.writeFileSync(`dataset/${split}/${elos[i].rank}/game_${index}.json`, JSON.stringify(game), 'utf8');
-                } else {
-                    fs.mkdirSync(`dataset/${split}/${elos[i].rank}/${elos[i].tier}`, { recursive: true });
-                    fs.writeFileSync(`dataset/${split}/${elos[i].rank}/${elos[i].tier}/game_${index}.json`, JSON.stringify(game), 'utf8');
-                }
-                index++;
-            }
-        });
+        await Promise.all(promises);
     }
 }
 

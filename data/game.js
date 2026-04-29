@@ -1,10 +1,10 @@
-import { api_call } from './utils.js';
-
 export async function get_game_data(MATCH_ID, key) {
     try {
-        const game = await api_call(`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}?api_key=${key}`);
+        let game = await fetch(`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}?api_key=${key}`);
+        game = await game.json();
 
-        const timeline = await api_call(`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}/timeline?api_key=${key}`);
+        let timeline = await fetch(`https://europe.api.riotgames.com/lol/match/v5/matches/${MATCH_ID}/timeline?api_key=${key}`);
+        timeline = await timeline.json();
 
         const data = { champions: [], events: [], win: game.info.participants[0].win };
 

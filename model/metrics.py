@@ -30,11 +30,33 @@ def ece_score(py, y_test, n_bins=10):
         ece += Bm[m] * np.abs((acc[m] - conf[m]))
     return ece / sum(Bm)
 
+def ece_score_binary(py, y_test, n_bins=10):
+    py = np.array(py)
+    y_test = np.array(y_test).squeeze()
+
+    # convert sigmoid output to 2-class probabilities
+    py = np.concatenate([1 - py, py], axis=1)
+
+    py_index = np.argmax(py, axis=1)
+    py_value = py[np.arange(len(py)), py_index]
+
+    bins = np.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+
+    for m in range(n_bins):
+        mask = (py_value >= bins[m]) & (py_value < bins[m+1])
+        if np.any(mask):
+            acc = np.mean(py_index[mask] == y_test[mask])
+            conf = np.mean(py_value[mask])
+            ece += np.sum(mask) * abs(acc - conf)
+
+    return ece / len(py)
+
 def compute_model_output_metrics(y_true, y_pred, probs):
     # standard deviation and ece as well here.
     accuracy = accuracy_score(y_true, y_pred)
-    ece = ece_score(probs, y_true)
-    std = probs[:, 1].std()
+    ece = ece_score_binary(probs, y_true)
+    std = probs.std()
     bce = log_loss(y_true, probs)
     return {
         'acc': accuracy,

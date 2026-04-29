@@ -1,47 +1,78 @@
 import fs from 'fs';
-import { get_ids, get_match_id_batch } from './match_ids.js';
-import { API_KEYS } from './api_keys.js';
+import { parse_env_file, sleep, shuffle } from './utils.js';
 
-let all_games = [];
+let all_ids = [];
 
-let promises = [];
+const env = parse_env_file('.env');
 
-for (const rank of ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND']) {
-    for (const tier of ['I', 'II', 'III', 'IV']) {
-        promises.push(get_ids(rank, tier, API_KEYS[promises.length]));
-        if (promises.length >= API_KEYS.length) {
-            const results = await Promise.all(promises);
-            all_games = all_games.concat(...results);
-            promises = [];
+async function get_rank_ids(tier, division) {
+    if (tier == 'CHALLENGER') {
+        await sleep(1300);
+        let response = await fetch(`https://euw1.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=${env.RIOT_KEY}`);
+        response = await response.json();
+        return response.entries.map(x => x.puuid);
+    } else if (tier == 'GRANDMASTER') {
+        await sleep(1300);
+        let response = await fetch(`https://euw1.api.riotgames.com/lol/league/v4/grandmasterleagues/by-queue/RANKED_SOLO_5x5?api_key=${env.RIOT_KEY}`);
+        response = await response.json();
+        return response.entries.map(x => x.puuid);
+    } else if (tier == 'MASTER') {
+        await sleep(1300);
+        let response = await fetch(`https://euw1.api.riotgames.com/lol/league/v4/masterleagues/by-queue/RANKED_SOLO_5x5?api_key=${env.RIOT_KEY}`);
+        response = await response.json();
+        shuffle(response.entries);
+        return response.entries.map(x => x.puuid).slice(0, 1400);
+    } else {
+        let ids = [];
+        for (let page = 1; page < 4; page++) {
+            await sleep(1300);
+            let response = await fetch(`https://euw1.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/${tier}/${division}?page=${page}&api_key=${env.RIOT_KEY}`);
+            response = await response.json();
+            ids = ids.concat(response);
         }
+        return ids.map(x => x.puuid);
     }
 }
 
-if (promises.length > 0) {
-    const results = await Promise.all(promises);
-    all_games = all_games.concat(...results);
-    promises = [];
+for (const tier of ['MASTER', 'GRANDMASTER', 'CHALLENGER']) {
+    const division = 'I';
+    const ids = await get_rank_ids(tier, division);
+    all_ids = all_ids.concat(ids.map(v => [tier, division, v]));
 }
 
-let match_ids = await get_match_id_batch('MASTER', undefined, undefined, API_KEYS[0]);
-for (const id of match_ids) {
-    all_games.push({
-        match_id: id,
-        rank: 'MASTER',
-    });
+for (const tier of ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND']) {
+    for (const division of ['I', 'II', 'III', 'IV']) {
+        const ids = await get_rank_ids(tier, division);
+        all_ids = all_ids.concat(ids.map(v => [tier, division, v]));
+    }
+}
+
+shuffle(all_ids);
+
+console.log(`Found ${all_ids.length} users, or approx. ${all_ids.length * 19} matches.`);
+
+const matches = [];
+
+for (const [tier, division, puuid] of all_ids) {
+    try {
+        await sleep(100);
+        let response = await fetch(`https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=420&start=0&count=20&api_key=${env.RIOT_KEY}`);
+        response = await response.json();
+        for (const match_id of response) {
+            matches.push({ tier, division, match_id });
+        }
+    } catch (e) {
+        console.error(`Failed to fetch ids for ${tier},${division},${puuid}`);
+    }
 }
 
 const seen = new Set();
-const deduped = all_games.filter(o => !seen.has(o.match_id) && seen.add(o.match_id));
+const deduped = matches.filter(o => !seen.has(o.match_id) && seen.add(o.match_id));
 
 let csv = 'match_id,rank,tier\n';
 
-for (const obj of deduped) {
-    const match_id = obj.match_id;
-    const rank = obj.rank;
-    const tier = obj.tier ?? '';
-
-    csv += `${match_id},${rank},${tier}\n`;
+for (const {tier, division, match_id} of deduped) {
+    csv += `${match_id},${tier},${division}\n`;
 }
 
 fs.writeFileSync('match_ids.csv', csv, 'utf8');

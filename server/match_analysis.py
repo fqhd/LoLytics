@@ -4,8 +4,11 @@ from server.network import send_server_error
 from server.utils import find_participant_with_puuid, calculate_deltas
 from model.game import sample_all, sync_timers, create_initial_state, update_with_event
 from model.dataset import vectorize_state
+from model.network import Network
+import torch
 
-lr_model = joblib.load('model.pkl')
+model = Network(emb_dim=4)
+model.load_state_dict(torch.load('model.pth', weights_only=True))
 
 with open('./server/runes.json', encoding='utf-8') as f:
     rune_data = json.load(f)
@@ -111,7 +114,10 @@ def get_states_per_minute(frames, game):
         sync_timers(current_state, max(frame['timestamp'] - game['events'][max(i - 1, 0)]['timestamp'], 0))
         current_state['time'] = frame['timestamp']
 
-        prob = lr_model.predict_proba(np.array([vectorize_state(current_state)]))[0, 1].item()
+        state_vec = vectorize_state(current_state)
+        state_vec.append(0)
+
+        prob = model(torch.tensor([state_vec])).item()
 
         state = {
             'teams': [
@@ -258,8 +264,10 @@ def match_analysis():
 
     states = sample_all(game)
     vectorized = [vectorize_state(x) for x in states]
-    X_input = np.array(vectorized)
-    probs = lr_model.predict_proba(X_input)[:, 1].tolist()
+    for arr in vectorized:
+        arr.append(0)
+    X_input = torch.tensor(vectorized)
+    probs = model(X_input)[:, 0].tolist()
     deltas = calculate_deltas(probs)
 
     states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], game)

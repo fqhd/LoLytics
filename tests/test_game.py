@@ -801,3 +801,54 @@ def test_sample_all():
     assert states[4]['teams'][1]['players'][2]['level'] == 1
     assert states[5]['teams'][1]['players'][2]['level'] == 2
     assert states[4]['time'] == states[5]['time']
+
+def test_sample_t():
+    game = {
+        'champions': None,
+        'win': False,
+        'events': [
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 4,
+                'timestamp': 1000
+            },
+            {
+                'type': 'CHAMPION_KILL',
+                'killerId': 8,
+                'victimId': 4,
+                'bounty': 300,
+                'shutdownBounty': 0,
+                'assistingParticipantIds': [ 6, 7, 10 ],
+                'timestamp': 35000
+            },
+            {
+                'type': 'LEVEL_UP',
+                'participantId': 8,
+                'timestamp': 35000
+            }
+        ]
+    }
+
+    state_1 = sample_t(game, 50)
+
+    for team in state_1['teams']:
+        for player in team['players']:
+            assert player['death_timer'] == 0
+            assert player['kill_gold'] == 0
+            assert player['kills'] == 0
+            assert player['deaths'] == 0
+            assert player['assists'] == 0
+            assert player['baron_timer'] == 0
+            assert player['elder_timer'] == 0
+            assert player['level'] == 1
+    assert state_1['time'] == 50
+
+    state_2 = sample_t(game, 35001)
+    assert state_2['time'] == 35001
+    assert state_2['teams'][0]['players'][3]['deaths'] == 1
+    assert state_2['teams'][0]['players'][3]['death_timer'] > 0
+    assert state_2['teams'][1]['players'][2]['kills'] == 1
+    assert state_2['teams'][1]['players'][2]['kill_gold'] == 300
+
+    state_3 = sample_t(game, 40000)
+    assert state_3['teams'][0]['players'][3]['death_timer'] < state_2['teams'][0]['players'][3]['death_timer']
