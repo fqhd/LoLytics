@@ -18,11 +18,17 @@ means[87:90] = 0
 std[167:170] = 300000
 std[87:90] = 300000
 
-# Towers
+# Nexus Towers
 means[165:167] = 0
 means[85:87] = 0
 std[165:167] = 180000
 std[85:87] = 180000
+
+# Lane Towers
+means[156:165] = 0
+means[76:85] = 0
+std[156:165] = 1
+std[76:85] = 1
 
 print('Means:')
 for v in means[10:-1]:

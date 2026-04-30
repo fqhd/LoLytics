@@ -7,8 +7,7 @@ from model.dataset import vectorize_state
 from model.network import Network
 import torch
 
-model = Network(emb_dim=4)
-model.load_state_dict(torch.load('model.pth', weights_only=True))
+model = joblib.load('model.pkl')
 
 with open('./server/runes.json', encoding='utf-8') as f:
     rune_data = json.load(f)
@@ -117,7 +116,7 @@ def get_states_per_minute(frames, game):
         state_vec = vectorize_state(current_state)
         state_vec.append(0)
 
-        prob = model(torch.tensor([state_vec])).item()
+        prob = model.predict_proba(np.array([state_vec]))[0, 1].item()
 
         state = {
             'teams': [
@@ -267,7 +266,7 @@ def match_analysis():
     for arr in vectorized:
         arr.append(0)
     X_input = torch.tensor(vectorized)
-    probs = model(X_input)[:, 0].tolist()
+    probs = model.predict_proba(X_input)[:, 1].tolist()
     deltas = calculate_deltas(probs)
 
     states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], game)

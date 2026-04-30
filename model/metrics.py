@@ -55,7 +55,7 @@ def ece_score_binary(py, y_test, n_bins=10):
 def compute_model_output_metrics(y_true, y_pred, probs):
     # standard deviation and ece as well here.
     accuracy = accuracy_score(y_true, y_pred)
-    ece = ece_score_binary(probs, y_true)
+    ece = ece_score(probs, y_true)
     std = probs.std()
     bce = log_loss(y_true, probs)
     return {
