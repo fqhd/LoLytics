@@ -24,7 +24,7 @@ export default function Home() {
     const [items, setItems] = useState([]);
     const [frames, setFrames] = useState(null);
     const [frameIndex, setFrameIndex] = useState(0);
-    const [region, setRegion] = useState('europe');
+    const [region, setRegion] = useState('euw1');
 
     const handleChange = (name) => setActive(name);
 
@@ -88,7 +88,7 @@ export default function Home() {
         setSelectedMatch(matchImages[i]);
 
         let response = await fetch(
-            `${apiUrl}/match_analysis/?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}`,
+            `${apiUrl}/match_analysis/?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}&queue=${active}`,
         );
         response = await response.json();
 
@@ -164,24 +164,26 @@ export default function Home() {
                     />
                     <select
                         className="input-dropdown"
-                        defaultValue="europe"
+                        defaultValue="euw1"
                         onChange={(e) => setRegion(e.target.value)}
                     >
-                        <option value="americas">NA</option>
-                        <option value="europe">EUW</option>
-                        <option value="europe">ME</option>
-                        <option value="europe">EUNE</option>
-                        <option value="sea">OCE</option>
-                        <option value="asia">KR</option>
-                        <option value="asia">JP</option>
-                        <option value="americas">BR</option>
-                        <option value="americas">LAS</option>
-                        <option value="americas">LAN</option>
-                        <option value="europe">RU</option>
-                        <option value="europe">TR</option>
-                        <option value="sea">SEA</option>
-                        <option value="sea">TW</option>
-                        <option value="sea">VN</option>
+                        <option value="br1">BR</option>
+                        <option value="eun1">EUNE</option>
+                        <option value="euw1">EUW</option>
+                        <option value="jp1">JP</option>
+                        <option value="kr">KR</option>
+                        <option value="la1">LAN</option>
+                        <option value="la2">LAS</option>
+                        <option value="me1">ME</option>
+                        <option value="na1">NA</option>
+                        <option value="oc1">OCE</option>
+                        <option value="ph2">PH</option>
+                        <option value="ru">RU</option>
+                        <option value="sg2">SG</option>
+                        <option value="th2">TH</option>
+                        <option value="tr1">TR</option>
+                        <option value="tw2">TW</option>
+                        <option value="vn2">VN</option>
                     </select>
                 </div>
                 <div className="search-options">

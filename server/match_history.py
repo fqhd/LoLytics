@@ -1,11 +1,13 @@
 import os, requests
 from flask import jsonify, request
 from server.network import send_server_error
+from server.utils import get_mass_region
 
 def match_history():
     name = request.args.get('name')
     tag = request.args.get('tag')
     region = request.args.get('region')
+    mass = get_mass_region(region)
     queue = request.args.get('queue')
 
     queue_id = {
@@ -16,7 +18,7 @@ def match_history():
 
     try:
         user_response = requests.get(
-            f'https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{name}/{tag}',
+            f'https://{mass}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{name}/{tag}',
             params={'api_key': os.environ.get('RIOT_KEY')}
         )
 
@@ -27,7 +29,7 @@ def match_history():
         puuid = user_response.json()['puuid']
 
         history_response = requests.get(
-            f'https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids',
+            f'https://{mass}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids',
             params={
                 'queue': queue_id,
                 'start': 0,

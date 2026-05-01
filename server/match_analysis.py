@@ -1,10 +1,9 @@
 import os, json, requests, math, joblib, copy, numpy as np
 from flask import jsonify, request
 from server.network import send_server_error
-from server.utils import find_participant_with_puuid, calculate_deltas
+from server.utils import find_participant_with_puuid, calculate_deltas, get_mass_region
 from model.game import sample_all, sync_timers, create_initial_state, update_with_event
-from model.dataset import vectorize_state
-from model.network import Network
+from model.dataset import vectorize_state, rank_to_elo
 import torch
 
 model = joblib.load('model.pkl')
@@ -95,7 +94,7 @@ def find_rune_with_id(id):
 
     return None
 
-def get_states_per_minute(frames, game):
+def get_states_per_minute(frames, game, elo):
     client_states = []
     probabilities = []
 
@@ -114,7 +113,7 @@ def get_states_per_minute(frames, game):
         current_state['time'] = frame['timestamp']
 
         state_vec = vectorize_state(current_state)
-        state_vec.append(0)
+        state_vec.append(elo)
 
         prob = model.predict_proba(np.array([state_vec]))[0, 1].item()
 
@@ -219,10 +218,23 @@ def get_participant_item_purchases(frames, participant_id):
 
 cache = {}
 
+def get_player_rank(resp, queueType):
+    for ranks in resp:
+        if ranks['queueType'] == queueType:
+            return ranks['tier']
+    return 'GOLD'
+
 def match_analysis():
     id = request.args.get('id')
     puuid = request.args.get('puuid')
     region = request.args.get('region')
+    mass = get_mass_region(region)
+    queue = request.args.get('queue')
+
+    queueType = {
+        'soloq': 'RANKED_SOLO_5x5',
+        'flex': 'RANKED_FLEX_SR'
+    }.get(queue)
 
     cache_key = f'{id}:{puuid}'
 
@@ -231,11 +243,13 @@ def match_analysis():
 
     riot_key = os.getenv('RIOT_KEY')
 
-    game_url = f'https://{region}.api.riotgames.com/lol/match/v5/matches/{id}?api_key={riot_key}'
-    timeline_url = f'https://{region}.api.riotgames.com/lol/match/v5/matches/{id}/timeline?api_key={riot_key}'
+    game_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}?api_key={riot_key}'
+    timeline_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}/timeline?api_key={riot_key}'
+    league_url = f'https://{region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}?api_key={riot_key}'
 
     game_resp = requests.get(game_url)
     timeline_resp = requests.get(timeline_url)
+    league_resp = requests.get(league_url)
 
     if game_resp.status_code == 404:
         return jsonify({'error': 'Match not found'}), 404
@@ -247,9 +261,17 @@ def match_analysis():
     if timeline_resp.status_code != 200:
         print('API error:', timeline_resp.status_code, timeline_resp.text)
         return send_server_error()
+    
+    if league_resp.status_code != 200:
+        print('API error:', league_resp.status_code, league_resp.text)
+        return send_server_error()
 
     game_data = game_resp.json()
     timeline_data = timeline_resp.json()
+    league_resp = league_resp.json()
+
+    rank = get_player_rank(league_resp, queueType)
+    elo = rank_to_elo(rank)
 
     game = { 'champions': [], 'events': [], 'win': None }
 
@@ -264,12 +286,12 @@ def match_analysis():
     states = sample_all(game)
     vectorized = [vectorize_state(x) for x in states]
     for arr in vectorized:
-        arr.append(0)
+        arr.append(elo)
     X_input = torch.tensor(vectorized)
     probs = model.predict_proba(X_input)[:, 1].tolist()
     deltas = calculate_deltas(probs)
 
-    states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], game)
+    states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], game, elo)
 
     widgets = get_win_probability_widgets(game['events'], deltas, game['champions'])
 
