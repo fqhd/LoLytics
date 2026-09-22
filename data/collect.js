@@ -23,9 +23,9 @@ async function get_rank_ids(tier, division) {
         shuffle(response.entries);
         return response.entries.map(x => x.puuid).slice(0, 1400);
     } else {
+        await sleep(1300);
         let ids = [];
-        for (let page = 1; page < 4; page++) {
-            await sleep(1300);
+        for (let page = 1; page < 8; page++) {
             let response = await fetch(`https://euw1.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/${tier}/${division}?page=${page}&api_key=${env.RIOT_KEY}`);
             response = await response.json();
             ids = ids.concat(response);
