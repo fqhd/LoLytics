@@ -107,7 +107,7 @@ def get_states_per_minute(frames, game, elo):
             delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
             update_with_event(dynamic_state, game['events'][i], delta)
             i += 1
-        
+
         current_state = copy.deepcopy(dynamic_state)
         sync_timers(current_state, max(frame['timestamp'] - game['events'][max(i - 1, 0)]['timestamp'], 0))
         current_state['time'] = frame['timestamp']
@@ -261,7 +261,7 @@ def match_analysis():
     if timeline_resp.status_code != 200:
         print('API error:', timeline_resp.status_code, timeline_resp.text)
         return send_server_error()
-    
+
     if league_resp.status_code != 200:
         print('API error:', league_resp.status_code, league_resp.text)
         return send_server_error()
