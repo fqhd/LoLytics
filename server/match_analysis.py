@@ -200,7 +200,12 @@ def get_participant_item_purchases(frames, participant_id):
                         if grouped[m][event['beforeId']] <= 0:
                             del grouped[m][event['beforeId']]
 
+                        # If this minute bucket is now empty, remove it entirely
+                        if not grouped[m]:
+                            del grouped[m]
+
                         break
+
     result = [
         {
             'time': int(time),
@@ -210,6 +215,7 @@ def get_participant_item_purchases(frames, participant_id):
             ],
         }
         for time, items in grouped.items()
+        if items  # defensive: skip any empty buckets
     ]
 
     result.sort(key=lambda x: x['time'])
