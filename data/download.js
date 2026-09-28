@@ -35,6 +35,8 @@ console.log(`Downloading dataset with ${TEST_SIZE} test samples`);
 async function download_games(rows, split) {
     let promises = [];
 
+    let last_progress = 0;
+
     for (let i = 0; i < rows.length; i++) {
         const line = rows[i];
 
@@ -51,14 +53,17 @@ async function download_games(rows, split) {
 
         if (promises.length >= BATCH_SIZE) {
             const progress = parseInt((i / rows.length) * 100);
-            console.log(`Progress(${split}): ${progress}%`);
+            if (progress != last_progress) {
+                last_progress = progress;
+                console.log(`Progress(${split}): ${progress}%`);
+            }
 
             await sleep(1300);
             await Promise.all(promises);
             promises = [];
         }
     }
-    
+
     if (promises.length > 0) {
         await Promise.all(promises);
     }
