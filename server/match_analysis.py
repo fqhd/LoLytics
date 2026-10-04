@@ -1,11 +1,12 @@
 import os, json, requests, math, joblib, copy, numpy as np
 from flask import jsonify, request
 from server.network import send_server_error
-from server.utils import find_participant_with_puuid
-from model.game import sample_all, sync_timers
-from model.dataset import vectorize_state
+from server.utils import find_participant_with_puuid, calculate_deltas, get_mass_region
+from model.game import sample_all, sync_timers, create_initial_state, update_with_event
+from model.dataset import vectorize_state, rank_to_elo
+import torch
 
-lr_model = joblib.load('model.pkl')
+model = joblib.load('model.pkl')
 
 with open('./server/runes.json', encoding='utf-8') as f:
     rune_data = json.load(f)
@@ -15,7 +16,7 @@ def is_strong_event(event):
         return False
     return event['type'] in ['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'LEVEL_UP']
 
-def get_win_probability_widgets(events, probs, champions):
+def get_win_probability_widgets(events, deltas, champions):
     widgets = []
     for i in range(len(events)):
         event = events[i]
@@ -58,7 +59,7 @@ def get_win_probability_widgets(events, probs, champions):
                 assister_icon = f'/images/icons/{champion}.jpg'
                 assist_icons.append(assister_icon)
 
-        delta = probs[i + 1] - probs[i]
+        delta = deltas[i]
 
         widgets.append({
             'left': killer_icon,
@@ -93,21 +94,28 @@ def find_rune_with_id(id):
 
     return None
 
-def get_states_per_minute(frames, states, champions, probs):
+def get_states_per_minute(frames, game, elo):
     client_states = []
     probabilities = []
+
+    dynamic_state = create_initial_state(game)
 
     i = 0
 
     for frame in frames:
-        # Skip through states until we find the current state index
-        while i < len(states) - 1 and states[i]['time'] < frame['timestamp']:
+        while i < len(game['events']) and game['events'][i]['timestamp'] < frame['timestamp']:
+            delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
+            update_with_event(dynamic_state, game['events'][i], delta)
             i += 1
 
-        current_state = states[max(i - 1, 0)]
-        sync_timers(current_state, frame['timestamp'] - current_state['time'])
+        current_state = copy.deepcopy(dynamic_state)
+        sync_timers(current_state, max(frame['timestamp'] - game['events'][max(i - 1, 0)]['timestamp'], 0))
+        current_state['time'] = frame['timestamp']
 
-        prob = lr_model.predict_proba(np.array([vectorize_state(current_state)]))[0, 1].item()
+        state_vec = vectorize_state(current_state)
+        state_vec.append(elo)
+
+        prob = model.predict_proba(np.array([state_vec]))[0, 1].item()
 
         state = {
             'teams': [
@@ -126,7 +134,7 @@ def get_states_per_minute(frames, states, champions, probs):
             player = frame['participantFrames'][k]
             x = player['position']['x']
             y = player['position']['y']
-            champion_name = champions[int(k)-1]
+            champion_name = game['champions'][int(k)-1]
             state['teams'][0]['towers'] = copy.deepcopy(current_state['teams'][0]['towers'])
             state['teams'][0]['inhibs'] = copy.deepcopy(current_state['teams'][0]['inhibs'])
             state['teams'][0]['players'].append({
@@ -144,7 +152,7 @@ def get_states_per_minute(frames, states, champions, probs):
             player = frame['participantFrames'][k]
             x = player['position']['x']
             y = player['position']['y']
-            champion_name = champions[int(k)-1]
+            champion_name = game['champions'][int(k)-1]
             state['teams'][1]['towers'] = copy.deepcopy(current_state['teams'][1]['towers'])
             state['teams'][1]['inhibs'] = copy.deepcopy(current_state['teams'][1]['inhibs'])
             state['teams'][1]['players'].append({
@@ -192,7 +200,12 @@ def get_participant_item_purchases(frames, participant_id):
                         if grouped[m][event['beforeId']] <= 0:
                             del grouped[m][event['beforeId']]
 
+                        # If this minute bucket is now empty, remove it entirely
+                        if not grouped[m]:
+                            del grouped[m]
+
                         break
+
     result = [
         {
             'time': int(time),
@@ -202,6 +215,7 @@ def get_participant_item_purchases(frames, participant_id):
             ],
         }
         for time, items in grouped.items()
+        if items  # defensive: skip any empty buckets
     ]
 
     result.sort(key=lambda x: x['time'])
@@ -210,10 +224,23 @@ def get_participant_item_purchases(frames, participant_id):
 
 cache = {}
 
+def get_player_rank(resp, queueType):
+    for ranks in resp:
+        if ranks['queueType'] == queueType:
+            return ranks['tier']
+    return 'GOLD'
+
 def match_analysis():
     id = request.args.get('id')
     puuid = request.args.get('puuid')
     region = request.args.get('region')
+    mass = get_mass_region(region)
+    queue = request.args.get('queue')
+
+    queueType = {
+        'soloq': 'RANKED_SOLO_5x5',
+        'flex': 'RANKED_FLEX_SR'
+    }.get(queue)
 
     cache_key = f'{id}:{puuid}'
 
@@ -222,11 +249,13 @@ def match_analysis():
 
     riot_key = os.getenv('RIOT_KEY')
 
-    game_url = f'https://{region}.api.riotgames.com/lol/match/v5/matches/{id}?api_key={riot_key}'
-    timeline_url = f'https://{region}.api.riotgames.com/lol/match/v5/matches/{id}/timeline?api_key={riot_key}'
+    game_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}?api_key={riot_key}'
+    timeline_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}/timeline?api_key={riot_key}'
+    league_url = f'https://{region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}?api_key={riot_key}'
 
     game_resp = requests.get(game_url)
     timeline_resp = requests.get(timeline_url)
+    league_resp = requests.get(league_url)
 
     if game_resp.status_code == 404:
         return jsonify({'error': 'Match not found'}), 404
@@ -239,8 +268,16 @@ def match_analysis():
         print('API error:', timeline_resp.status_code, timeline_resp.text)
         return send_server_error()
 
+    if league_resp.status_code != 200:
+        print('API error:', league_resp.status_code, league_resp.text)
+        return send_server_error()
+
     game_data = game_resp.json()
     timeline_data = timeline_resp.json()
+    league_resp = league_resp.json()
+
+    rank = get_player_rank(league_resp, queueType)
+    elo = rank_to_elo(rank)
 
     game = { 'champions': [], 'events': [], 'win': None }
 
@@ -253,13 +290,16 @@ def match_analysis():
                 game['events'].append(event)
 
     states = sample_all(game)
-    vectorized = [vectorize_state(x) for x in states] # States right after every event
-    X_input = np.array(vectorized)
-    probs = lr_model.predict_proba(X_input)[:, 1].tolist() # Probabilities that the blue team wins after every event
+    vectorized = [vectorize_state(x) for x in states]
+    for arr in vectorized:
+        arr.append(elo)
+    X_input = torch.tensor(vectorized)
+    probs = model.predict_proba(X_input)[:, 1].tolist()
+    deltas = calculate_deltas(probs)
 
-    states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], states, game['champions'], probs)
+    states_per_minute, probabilities = get_states_per_minute(timeline_data['info']['frames'], game, elo)
 
-    widgets = get_win_probability_widgets(game['events'], probs, game['champions'])
+    widgets = get_win_probability_widgets(game['events'], deltas, game['champions'])
 
     events = {}
 

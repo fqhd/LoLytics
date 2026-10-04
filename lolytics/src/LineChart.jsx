@@ -7,12 +7,20 @@ import {
     LinearScale,
     Title,
     CategoryScale,
-    Tooltip
+    Tooltip,
 } from 'chart.js';
 
 const EPSILON = 0.05;
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip);
+Chart.register(
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    Title,
+    CategoryScale,
+    Tooltip,
+);
 
 export default function LineChart({ data, frameIndex, setFrameIndex }) {
     const canvasRef = useRef(null);
@@ -25,7 +33,11 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             const index = hoverIndexRef.current;
             if (index === null) return;
 
-            const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+            const {
+                ctx,
+                chartArea: { top, bottom },
+                scales: { x },
+            } = chart;
 
             ctx.save();
             ctx.beginPath();
@@ -35,7 +47,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
             ctx.stroke();
             ctx.restore();
-        }
+        },
     };
 
     useEffect(() => {
@@ -54,7 +66,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         pointBackgroundColor: data.map(() => '#60dfffff'),
                         tension: 0.3,
                         segment: {
-                            borderColor: ctx => {
+                            borderColor: (ctx) => {
                                 const i = ctx.p1DataIndex;
                                 const dataset = ctx.chart.data.datasets[0].data;
                                 const change = dataset[i] - dataset[i - 1];
@@ -64,13 +76,13 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                                 }
                                 return '#60dfffff';
                             },
-                            borderWidth: ctx => {
+                            borderWidth: (ctx) => {
                                 const i = ctx.p1DataIndex;
                                 const dataset = ctx.chart.data.datasets[0].data;
                                 const change = dataset[i] - dataset[i - 1];
 
                                 return Math.abs(change) > EPSILON ? 4 : 3;
-                            }
+                            },
                         },
                         pointRadius: 0,
                         pointHoverRadius: 5,
@@ -86,10 +98,13 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         callbacks: {
                             label: function (context) {
                                 const value = context.parsed.y;
-                                const percentage = 'Win Probability: ' + (value * 100).toFixed(1) + '%';
+                                const percentage =
+                                    'Win Probability: ' +
+                                    (value * 100).toFixed(1) +
+                                    '%';
                                 return percentage;
-                            }
-                        }
+                            },
+                        },
                     },
                     title: {
                         display: true,
@@ -103,7 +118,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         event,
                         'index',
                         { intersect: false },
-                        false
+                        false,
                     );
                     if (points.length) {
                         hoverIndexRef.current = points[0].index;
@@ -119,7 +134,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                         event,
                         'index',
                         { intersect: false },
-                        false
+                        false,
                     );
                     if (points.length) {
                         const index = points[0].index;
@@ -132,14 +147,17 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                 scales: {
                     x: {
                         grid: { color: 'rgba(255, 255, 255, 0.5)' },
-                        ticks: { color: '#fff' }
+                        ticks: { color: '#fff' },
                     },
                     y: {
                         min: 0,
                         max: 1,
                         grid: { color: 'rgba(255, 255, 255, 0.5)' },
                         beginAtZero: true,
-                        ticks: { color: '#fff', callback: (value) => `${Math.round(value * 100)}%` }
+                        ticks: {
+                            color: '#fff',
+                            callback: (value) => `${Math.round(value * 100)}%`,
+                        },
                     },
                 },
             },
@@ -147,7 +165,7 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
         });
 
         return () => {
-            chartRef.current.destroy()
+            chartRef.current.destroy();
         };
     }, []);
 
@@ -172,7 +190,9 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                 const dir = Math.sign(change);
 
                 if (isSharp) {
-                    let nextChange = 0, nextIsSharp = false, nextDir = 0;
+                    let nextChange = 0,
+                        nextIsSharp = false,
+                        nextDir = 0;
                     if (i + 1 < data.length) {
                         nextChange = data[i + 1] - data[i];
                         nextIsSharp = Math.abs(nextChange) > EPSILON;
@@ -182,7 +202,8 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
                     pointBackgroundColor[i] = dir > 0 ? 'lime' : 'red';
                     pointBorderColor[i] = dir > 0 ? 'lime' : 'red';
 
-                    const shouldDraw = !nextIsSharp || (nextIsSharp && nextDir !== dir);
+                    const shouldDraw =
+                        !nextIsSharp || (nextIsSharp && nextDir !== dir);
 
                     if (shouldDraw) {
                         pointRadius[i] = 5;
@@ -191,14 +212,14 @@ export default function LineChart({ data, frameIndex, setFrameIndex }) {
             }
         }
 
-        chartRef.current.data.datasets[0].pointBackgroundColor = pointBackgroundColor;
+        chartRef.current.data.datasets[0].pointBackgroundColor =
+            pointBackgroundColor;
 
-        chartRef.current.data.datasets[0].pointBorderColor = pointBorderColor.map((c, i) =>
-            i === frameIndex ? 'white' : c
-        );
+        chartRef.current.data.datasets[0].pointBorderColor =
+            pointBorderColor.map((c, i) => (i === frameIndex ? 'white' : c));
 
-        chartRef.current.data.datasets[0].pointRadius = pointRadius.map((r, i) =>
-            i === frameIndex ? 5 : r
+        chartRef.current.data.datasets[0].pointRadius = pointRadius.map(
+            (r, i) => (i === frameIndex ? 5 : r),
         );
 
         chartRef.current.update();

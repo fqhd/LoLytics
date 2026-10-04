@@ -39,7 +39,7 @@
 }
 
 .champion-icon.dead::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background-size: cover;

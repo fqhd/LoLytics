@@ -1,47 +1,4 @@
-const TIME_BETWEEN_REQUESTS = 1300;
-
-export function api_call(url) {
-    return new Promise((resolve, reject) => {
-        setTimeout(async () => {
-            try {
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    const error = new Error(`Request failed with status ${response.status}`);
-                    error.response = response;
-                    throw error;
-                }
-
-                const json = await response.json();
-                resolve(json);
-            } catch (e) {
-                reject(e);
-            }
-        }, TIME_BETWEEN_REQUESTS);
-    });
-}
-
-export function deep_copy(obj) {
-    if (obj === null || typeof obj !== 'object') {
-        return obj;
-    }
-
-    if (Array.isArray(obj)) {
-        const copy = [];
-        for (let i = 0; i < obj.length; i++) {
-            copy[i] = deep_copy(obj[i]);
-        }
-        return copy;
-    }
-
-    const copy = {};
-    for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            copy[key] = deep_copy(obj[key]);
-        }
-    }
-    return copy;
-}
+import fs from 'fs';
 
 export function shuffle(array) {
     let current_index = array.length,
@@ -59,22 +16,39 @@ export function shuffle(array) {
     return array;
 }
 
-export async function fetch_with_retries(url, timeout = 3000) {
-    for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-            const response = await api_call(url);
-            return response;
-        } catch (error) {
-            if (attempt < 3) {
-                console.warn(
-                    `Attempt ${attempt} failed. Retrying in ${timeout}ms... ${url}`,
-                );
-                await new Promise((resolve) => setTimeout(resolve, timeout));
-            } else {
-                console.error(`Attempt ${attempt} failed. Returning null.`);
-                console.log(url);
-                return null;
+export function parse_env_file(file_path) {
+    try {
+        const content = fs.readFileSync(file_path, 'utf8');
+        
+        const env_dict = {};
+        
+        content.split('\n').forEach(line => {
+            line = line.trim();
+            if (line === '' || line.startsWith('#')) return;
+            
+            const separator_index = line.indexOf('=');
+            if (separator_index === -1) return;
+            
+            let key = line.substring(0, separator_index).trim();
+            let value = line.substring(separator_index + 1).trim();
+            
+            if ((value.startsWith('"') && value.endsWith('"')) || 
+                (value.startsWith("'") && value.endsWith("'"))) {
+                value = value.slice(1, -1);
             }
-        }
+            
+            value = value.replace(/\\"/g, '"').replace(/\\'/g, "'");
+            
+            env_dict[key] = value;
+        });
+        
+        return env_dict;
+    } catch (error) {
+        console.error(`Error reading ${file_path}:`, error.message);
+        return {};
     }
+}
+
+export function sleep(ms){
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }

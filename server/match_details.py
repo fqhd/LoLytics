@@ -1,6 +1,6 @@
 import os, requests
 from flask import request, jsonify
-from server.utils import find_participant_with_puuid, find_opponent
+from server.utils import find_participant_with_puuid, find_opponent, get_mass_region
 
 # Simple in-memory cache (like JS Map)
 cache = {}
@@ -13,6 +13,7 @@ def match_details():
     match_id = request.args.get('id')
     puuid = request.args.get('puuid')
     region = request.args.get('region')
+    mass = get_mass_region(region)
 
     cache_key = f'{match_id}:{puuid}'
 
@@ -22,7 +23,7 @@ def match_details():
 
     try:
         response = requests.get(
-            f'https://{region}.api.riotgames.com/lol/match/v5/matches/{match_id}',
+            f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{match_id}',
             params={'api_key': os.getenv('RIOT_KEY')},
         )
 

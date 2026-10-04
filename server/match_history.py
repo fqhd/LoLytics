@@ -1,12 +1,24 @@
-import os, requests
+import os, json, requests
 from flask import jsonify, request
 from server.network import send_server_error
+from server.utils import get_mass_region
+
+LOG_FILE = os.path.join(os.path.dirname(__file__), 'match_history_log.jsonl')
 
 def match_history():
     name = request.args.get('name')
     tag = request.args.get('tag')
     region = request.args.get('region')
+    mass = get_mass_region(region)
     queue = request.args.get('queue')
+
+    with open(LOG_FILE, 'a') as f:
+        f.write(json.dumps({
+            'name': name,
+            'tag': tag,
+            'region': region,
+            'queue': queue,
+        }) + '\n')
 
     queue_id = {
         'soloq': 420,
@@ -16,7 +28,7 @@ def match_history():
 
     try:
         user_response = requests.get(
-            f'https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{name}/{tag}',
+            f'https://{mass}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{name}/{tag}',
             params={'api_key': os.environ.get('RIOT_KEY')}
         )
 
@@ -27,7 +39,7 @@ def match_history():
         puuid = user_response.json()['puuid']
 
         history_response = requests.get(
-            f'https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids',
+            f'https://{mass}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids',
             params={
                 'queue': queue_id,
                 'start': 0,

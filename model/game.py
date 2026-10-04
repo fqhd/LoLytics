@@ -173,7 +173,8 @@ def sample(game, index):
         delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
         update_with_event(state, game['events'][i], delta)
 
-    sync_timers(state, game['events'][-1]['timestamp'] - game['events'][-2]['timestamp'])
+    if index > 0:
+        sync_timers(state, game['events'][index]['timestamp'] - game['events'][index-1]['timestamp'])
     state['time'] = game['events'][index]['timestamp']
     return state
 
@@ -182,7 +183,7 @@ def sample_until(game, callback):
 
     for i, event in enumerate(game['events']):
         event_outcome = callback(state, event)
-        delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
+        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
         if event_outcome[0]:
             sync_timers(state, delta)
             state['time'] = event['timestamp']
@@ -198,7 +199,7 @@ def sample_every(game, callback):
 
     for i, event in enumerate(game['events']):
         event_outcome = callback(state, event)
-        delta = game['events'][i]['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else game['events'][i]['timestamp']
+        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
         if event_outcome[0]:
             state_copy = copy.deepcopy(state)
             sync_timers(state_copy, delta)
@@ -207,3 +208,33 @@ def sample_every(game, callback):
         update_with_event(state, event, delta)
 
     return state_samples
+
+def sample_all(game):
+    state = create_initial_state(game)
+    states = []
+
+    for i, event in enumerate(game['events']):
+        state['time'] = event['timestamp']
+        delta = event['timestamp'] - game['events'][i - 1]['timestamp'] if i > 0 else event['timestamp']
+        state_copy = copy.deepcopy(state)
+        sync_timers(state_copy, delta)
+        states.append(state_copy)
+        update_with_event(state, event, delta)
+        states.append(copy.deepcopy(state))
+
+    return states
+
+def sample_t(game, t):
+    state = create_initial_state(game)
+    
+    for i, event in enumerate(game['events']):
+        delta = t - game['events'][i - 1]['timestamp'] if i > 0 else t
+        if event['timestamp'] > t:
+            sync_timers(state, delta)
+            state['time'] = t
+            return state
+        update_with_event(state, event, delta)
+    
+    sync_timers(state, t - game['events'][-1]['timestamp'])
+    state['time'] = t
+    return state
