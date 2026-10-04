@@ -1,7 +1,9 @@
-import os, requests
+import os, json, requests
 from flask import jsonify, request
 from server.network import send_server_error
 from server.utils import get_mass_region
+
+LOG_FILE = os.path.join(os.path.dirname(__file__), 'match_history_log.jsonl')
 
 def match_history():
     name = request.args.get('name')
@@ -9,6 +11,14 @@ def match_history():
     region = request.args.get('region')
     mass = get_mass_region(region)
     queue = request.args.get('queue')
+
+    with open(LOG_FILE, 'a') as f:
+        f.write(json.dumps({
+            'name': name,
+            'tag': tag,
+            'region': region,
+            'queue': queue,
+        }) + '\n')
 
     queue_id = {
         'soloq': 420,
