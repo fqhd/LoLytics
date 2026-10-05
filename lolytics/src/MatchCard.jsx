@@ -1,5 +1,6 @@
-function MatchCard({ visible, index, onClick, leftImage, rightImage, win }) {
-    const borderColor = win ? '#42cdff' : '#fc4747';
+function MatchCard({ visible, index, onClick, leftImage, rightImage, win, duration }) {
+
+    const borderColor = duration > 300 ? (win ? '#42cdff' : '#fc4747') : '#888';
 
     return (
         <div

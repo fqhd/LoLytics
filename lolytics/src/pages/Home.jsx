@@ -61,6 +61,7 @@ export default function Home() {
                     left: `/images/splash/${match.player_champion}.jpg`,
                     right: `/images/splash/${match.opponent_champion}.jpg`,
                     win: match.win,
+                    duration: match.duration,
                     id: history.match_ids[i],
                     team: match.team,
                     puuid: history.puuid,
@@ -241,6 +242,7 @@ export default function Home() {
                         leftImage={matchImages[i]?.left}
                         rightImage={matchImages[i]?.right}
                         win={matchImages[i]?.win}
+                        duration={matchImages[i]?.duration}
                     />
                 ))}
             </div>
