@@ -21,9 +21,9 @@ else:
     print('CORS disabled (production)')
 
 # Routes
-app.add_url_rule('/match_history/', view_func=match_history, methods=['GET'])
-app.add_url_rule('/match_details/', view_func=match_details, methods=['GET'])
-app.add_url_rule('/match_analysis/', view_func=match_analysis, methods=['GET'])
+app.add_url_rule('/api/match_history/', view_func=match_history, methods=['GET'])
+app.add_url_rule('/api/match_details/', view_func=match_details, methods=['GET'])
+app.add_url_rule('/api/match_analysis/', view_func=match_analysis, methods=['GET'])
 
 if __name__ == '__main__':
     app.run(port=3000, debug=(NODE_ENV == 'development'))

@@ -35,7 +35,7 @@ export default function Home() {
             const start = Date.now();
 
             let history = await fetch(
-                `${apiUrl}/match_history/?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}&queue=${active}`,
+                `${apiUrl}/api/match_history/?name=${name}&tag=${tag.replaceAll('#', '')}&region=${region}&queue=${active}`,
             );
             if (history.status != 200) {
                 history = await history.json();
@@ -47,7 +47,7 @@ export default function Home() {
             for (const match_id of history.match_ids.slice(0, 5)) {
                 matchDetails.push(
                     fetch(
-                        `${apiUrl}/match_details/?id=${match_id}&puuid=${history.puuid}&region=${region}`,
+                        `${apiUrl}/api/match_details/?id=${match_id}&puuid=${history.puuid}&region=${region}`,
                     ),
                 );
             }
@@ -61,6 +61,7 @@ export default function Home() {
                     left: `/images/splash/${match.player_champion}.jpg`,
                     right: `/images/splash/${match.opponent_champion}.jpg`,
                     win: match.win,
+                    duration: match.duration,
                     id: history.match_ids[i],
                     team: match.team,
                     puuid: history.puuid,
@@ -88,7 +89,7 @@ export default function Home() {
         setSelectedMatch(matchImages[i]);
 
         let response = await fetch(
-            `${apiUrl}/match_analysis/?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}&queue=${active}`,
+            `${apiUrl}/api/match_analysis/?id=${matchImages[i].id}&puuid=${matchImages[i].puuid}&region=${region}&queue=${active}`,
         );
         response = await response.json();
 
@@ -241,6 +242,7 @@ export default function Home() {
                         leftImage={matchImages[i]?.left}
                         rightImage={matchImages[i]?.right}
                         win={matchImages[i]?.win}
+                        duration={matchImages[i]?.duration}
                     />
                 ))}
             </div>

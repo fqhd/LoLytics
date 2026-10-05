@@ -44,6 +44,7 @@ def match_details():
         response_data = {
             'player_champion': player.get('championName'),
             'opponent_champion': opponent.get('championName'),
+            'duration': game_data['info']['gameDuration'],
             'win': player.get('win'),
             'team': player.get('teamId'),
         }
