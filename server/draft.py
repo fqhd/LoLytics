@@ -1,3 +1,4 @@
+import csv
 import json
 import threading
 
@@ -9,6 +10,7 @@ from model.network import DraftTransformer
 
 CKPT_PATH = 'draft_transformer.pt'          # matches what you saved
 CHAMPION_MAP_PATH = 'champion_to_index.json'
+MATCHUP_CSV_PATH = 'matchup_strengths.csv'
 
 # Must match the value the model was TRAINED with. MultiheadAttention weight
 # shapes do not depend on nhead, so a mismatch loads cleanly and produces
@@ -18,6 +20,55 @@ NHEAD = 4
 
 with open(CHAMPION_MAP_PATH) as f:
     champion_to_index = json.load(f)
+
+
+def _load_matchup_matrix(path):
+    """Load the matchup strength CSV into matrix[attacker][defender] floats."""
+    matrix = {}
+    with open(path, newline='') as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        columns = header[1:]  # first cell is the row-label column
+        for row in reader:
+            if not row:
+                continue
+            name = row[0]
+            if not name:
+                continue
+            matrix[name] = {}
+            for col_name, val in zip(columns, row[1:]):
+                if not val:
+                    continue
+                try:
+                    matrix[name][col_name] = float(val)
+                except ValueError:
+                    continue
+    return matrix
+
+
+try:
+    matchup_matrix = _load_matchup_matrix(MATCHUP_CSV_PATH)
+    print(f'Matchup matrix loaded: {len(matchup_matrix)} rows')
+except FileNotFoundError:
+    print(f'WARNING: {MATCHUP_CSV_PATH} not found — matchup data unavailable.')
+    matchup_matrix = {}
+
+
+def _matchup(a, b):
+    """Strength of champion `a` into champion `b` (×100), or None if unavailable."""
+    if not a or not b:
+        return None
+    row = matchup_matrix.get(a)
+    if row is None:
+        key_a = next((k for k in matchup_matrix if k.lower() == a.lower()), None)
+        if key_a is None:
+            return None
+        row = matchup_matrix[key_a]
+    if b in row:
+        return row[b] * 100.0
+    key_b = next((k for k in row if k.lower() == b.lower()), None)
+    return row.get(key_b) * 100.0 if key_b is not None else None
+
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -153,4 +204,22 @@ def draft():
         probs  = torch.softmax(logits, dim=-1)
         blue_win_prob = probs[0, 0].item()
 
-    return jsonify({'blue_win_prob': float(blue_win_prob)})
+    # Matchup strengths, keyed by role index.
+    #   blue_into_red[i][j] = matrix[blue[i]][red[j]]  (blue i's strength into red j)
+    #   red_into_blue[j][i] = matrix[red[j]][blue[i]]  (red j's strength into blue i)
+    blue_into_red = [
+        [_matchup(blue_names[i], red_names[j]) for j in range(5)]
+        for i in range(5)
+    ]
+    red_into_blue = [
+        [_matchup(red_names[j], blue_names[i]) for i in range(5)]
+        for j in range(5)
+    ]
+
+    return jsonify({
+        'blue_win_prob': float(blue_win_prob),
+        'matchups': {
+            'blue_into_red': blue_into_red,
+            'red_into_blue': red_into_blue,
+        },
+    })

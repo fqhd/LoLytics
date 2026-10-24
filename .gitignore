@@ -37,7 +37,4 @@ match_ids.csv
 match_history_log.jsonl
 *.bin
 *.npz
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
+games.csv

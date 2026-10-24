@@ -3,32 +3,17 @@ import './Draft.css';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const CHAMPIONS = [
-    'Aatrox', 'Ahri', 'Akali', 'Akshan', 'Alistar', 'Amumu', 'Anivia', 'Annie',
-    'Aphelios', 'Ashe', 'Aurelion Sol', 'Aurora', 'Azir', 'Bard', 'Belveth',
-    'Blitzcrank', 'Brand', 'Braum', 'Briar', 'Caitlyn', 'Camille', 'Cassiopeia',
-    'Chogath', 'Corki', 'Darius', 'Diana', 'DrMundo', 'Draven', 'Ekko',
-    'Elise', 'Evelynn', 'Ezreal', 'Fiddlesticks', 'Fiora', 'Fizz', 'Galio',
-    'Gangplank', 'Garen', 'Gnar', 'Gragas', 'Graves', 'Gwen', 'Hecarim',
-    'Heimerdinger', 'Hwei', 'Illaoi', 'Irelia', 'Ivern', 'Janna', 'JarvanIV',
-    'Jax', 'Jayce', 'Jhin', 'Jinx', 'KSante', 'Kaisa', 'Kalista', 'Karma',
-    'Karthus', 'Kassadin', 'Katarina', 'Kayle', 'Kayn', 'Kennen', 'Khazix',
-    'Kindred', 'Kled', 'KogMaw', 'Leblanc', 'LeeSin', 'Leona', 'Lillia',
-    'Lissandra', 'Locke', 'Lucian', 'Lulu', 'Lux', 'Malphite', 'Malzahar',
-    'Maokai', 'MasterYi', 'Milio', 'MissFortune', 'MonkeyKing', 'Mordekaiser',
-    'Morgana', 'Naafiri', 'Nami', 'Nasus', 'Nautilus', 'Neeko', 'Nidalee',
-    'Nilah', 'Nocturne', 'Nunu', 'Olaf', 'Orianna', 'Ornn', 'Pantheon',
-    'Poppy', 'Pyke', 'Qiyana', 'Quinn', 'Rakan', 'Rammus', 'RekSai', 'Rell',
-    'Renata', 'Renekton', 'Rengar', 'Riven', 'Rumble', 'Ryze', 'Samira',
-    'Sejuani', 'Senna', 'Seraphine', 'Sett', 'Shaco', 'Shen', 'Shyvana',
-    'Singed', 'Sion', 'Sivir', 'Skarner', 'Smolder', 'Sona', 'Soraka',
-    'Swain', 'Sylas', 'Syndra', 'TahmKench', 'Taliyah', 'Talon', 'Taric',
-    'Teemo', 'Thresh', 'Tristana', 'Trundle', 'Tryndamere', 'TwistedFate',
-    'Twitch', 'Udyr', 'Urgot', 'Varus', 'Vayne', 'Veigar', 'Velkoz', 'Vex',
-    'Vi', 'Viego', 'Viktor', 'Vladimir', 'Volibear', 'Warwick', 'Xayah',
-    'Xerath', 'XinZhao', 'Yasuo', 'Yone', 'Yorick', 'Yuumi', 'Zac', 'Zed',
-    'Zeri', 'Ziggs', 'Zilean', 'Zoe', 'Zyra',
-];
+const CHAMPIONS = ['Aatrox', 'Ahri', 'Akali', 'Akshan', 'Alistar', 'Ambessa', 'Amumu', 'Anivia', 'Annie', 'Aphelios', 'Ashe', 'AurelionSol', 'Aurora', 'Azir', 'Bard', 'Belveth', 'Blitzcrank', 'Brand', 'Braum', 'Briar', 'Caitlyn', 'Camille', 'Cassiopeia', 'Chogath', 'Corki', 'Darius', 'Diana', 'DrMundo', 'Draven', 'Ekko', 'Elise', 'Evelynn', 'Ezreal', 'FiddleSticks', 'Fiora', 'Fizz', 'Galio', 'Gangplank', 'Garen', 'Gnar', 'Gragas', 'Graves', 'Gwen', 'Hecarim', 'Heimerdinger', 'Hwei', 'Illaoi', 'Irelia', 'Ivern', 'Janna', 'JarvanIV', 'Jax', 'Jayce', 'Jhin', 'Jinx', 'KSante', 'Kaisa', 'Kalista', 'Karma', 'Karthus', 'Kassadin', 'Katarina', 'Kayle', 'Kayn', 'Kennen', 'Khazix', 'Kindred', 'Kled', 'KogMaw', 'Leblanc', 'LeeSin', 'Leona', 'Lillia', 'Lissandra', 'Lucian', 'Lulu', 'Lux', 'Malphite', 'Malzahar', 'Maokai', 'MasterYi', 'Mel', 'Milio', 'MissFortune', 'Mordekaiser', 'Morgana', 'Naafiri', 'Nami', 'Nasus', 'Nautilus', 'Neeko', 'Nidalee', 'Nilah', 'Nocturne', 'Nunu', 'Olaf', 'Orianna', 'Ornn', 'Pantheon', 'Poppy', 'Pyke', 'Qiyana', 'Quinn', 'Rakan', 'Rammus', 'RekSai', 'Rell', 'Renata', 'Renekton', 'Rengar', 'Riven', 'Rumble', 'Ryze', 'Samira', 'Sejuani', 'Senna', 'Seraphine', 'Sett', 'Shaco', 'Shen', 'Shyvana', 'Singed', 'Sion', 'Sivir', 'Skarner', 'Smolder', 'Sona', 'Soraka', 'Swain', 'Sylas', 'Syndra', 'TahmKench', 'Taliyah', 'Talon', 'Taric', 'Teemo', 'Thresh', 'Tristana', 'Trundle', 'Tryndamere', 'TwistedFate', 'Twitch', 'Udyr', 'Urgot', 'Varus', 'Vayne', 'Veigar', 'Velkoz', 'Vex', 'Vi', 'Viego', 'Viktor', 'Vladimir', 'Volibear', 'Warwick', 'Wukong', 'Xayah', 'Xerath', 'XinZhao', 'Yasuo', 'Yone', 'Yorick', 'Yunara', 'Yuumi', 'Zaahen', 'Zac', 'Zed', 'Zeri', 'Ziggs', 'Zilean', 'Zoe', 'Zyra', 'Locke'];
+
+// Frontend display name -> server name (used for the API request and icon path).
+// Add entries here when the frontend spelling differs from Riot's canonical name.
+const ALIASES = {
+    Wukong: 'MonkeyKing',
+};
+
+function toServerName(name) {
+    return ALIASES[name] || name;
+}
 
 const ROLES = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
 
@@ -59,24 +44,20 @@ function snapToChampion(text) {
     const lower = text.toLowerCase().trim();
     if (!lower) return '';
 
-    // 1. Exact (case-insensitive)
     const exact = CHAMPIONS.find((c) => c.toLowerCase() === lower);
     if (exact) return exact;
 
-    // 2. Unique prefix
     const starts = CHAMPIONS.filter((c) => c.toLowerCase().startsWith(lower));
     if (starts.length === 1) return starts[0];
     if (starts.length > 1) {
         return starts.sort((a, b) => a.length - b.length)[0];
     }
 
-    // 3. Substring
     const includes = CHAMPIONS.filter((c) => c.toLowerCase().includes(lower));
     if (includes.length >= 1) {
         return includes.sort((a, b) => a.length - b.length)[0];
     }
 
-    // 4. Edit distance (fuzzy for typos)
     let best = '';
     let bestDist = Infinity;
     for (const c of CHAMPIONS) {
@@ -98,8 +79,7 @@ function previewChampion(text) {
     const lower = text.toLowerCase().trim();
     if (!lower) return '';
     const starts = CHAMPIONS.filter((c) => c.toLowerCase().startsWith(lower));
-    if (starts.length === 1) return starts[0];
-    return '';
+    return starts[0];
 }
 
 export default function Draft() {
@@ -108,6 +88,10 @@ export default function Draft() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
+
+    const [dragFrom, setDragFrom] = useState(null);   // { side, index }
+    const [dragOver, setDragOver] = useState(null);   // { side, index }
+    const [hoveredSlot, setHoveredSlot] = useState(null); // { side, index }
 
     const blueRefs = useRef([]);
     const redRefs = useRef([]);
@@ -161,8 +145,79 @@ export default function Draft() {
         }
     };
 
+    /* ---------------- Drag & drop ---------------- */
+
+    const moveChampion = (from, to) => {
+        if (!from || !to) return;
+        if (from.side === to.side && from.index === to.index) return;
+
+        const blue = [...blueChamps];
+        const red = [...redChamps];
+        const srcArr = from.side === 'blue' ? blue : red;
+        const dstArr = to.side === 'blue' ? blue : red;
+
+        const moving = snapToChampion(srcArr[from.index]) || srcArr[from.index];
+        if (!moving) return;
+
+        srcArr[from.index] = dstArr[to.index];
+        dstArr[to.index] = moving;
+
+        setBlueChamps(blue);
+        setRedChamps(red);
+        setResult(null);
+        setError('');
+    };
+
+    const handleDragStart = (side, index, e) => {
+        const arr = side === 'blue' ? blueChamps : redChamps;
+        const champion = snapToChampion(arr[index]);
+        if (!champion) {
+            e.preventDefault();
+            return;
+        }
+        setDragFrom({ side, index });
+        setDragOver(null);
+        setHoveredSlot(null);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', champion);
+    };
+
+    const handleDragOver = (side, index, e) => {
+        if (!dragFrom) return;
+        if (dragFrom.side === side && dragFrom.index === index) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOver((prev) =>
+            prev && prev.side === side && prev.index === index
+                ? prev
+                : { side, index },
+        );
+    };
+
+    const handleDragLeave = (side, index, e) => {
+        if (e.currentTarget.contains(e.relatedTarget)) return;
+        setDragOver((prev) =>
+            prev && prev.side === side && prev.index === index ? null : prev,
+        );
+    };
+
+    const handleDrop = (side, index, e) => {
+        e.preventDefault();
+        if (dragFrom) {
+            moveChampion(dragFrom, { side, index });
+        }
+        setDragFrom(null);
+        setDragOver(null);
+    };
+
+    const handleDragEnd = () => {
+        setDragFrom(null);
+        setDragOver(null);
+    };
+
+    /* ---------------- Actions ---------------- */
+
     const handlePredict = async () => {
-        // Snap all values defensively before validating
         const snappedBlue = blueChamps.map(snapToChampion);
         const snappedRed = redChamps.map(snapToChampion);
         setBlueChamps(snappedBlue);
@@ -178,10 +233,13 @@ export default function Draft() {
         setResult(null);
 
         try {
+            const blueServer = snappedBlue.map(toServerName);
+            const redServer = snappedRed.map(toServerName);
+
             const url =
                 `${apiUrl}/api/draft/` +
-                `?blue=${encodeURIComponent(snappedBlue.join(','))}` +
-                `&red=${encodeURIComponent(snappedRed.join(','))}`;
+                `?blue=${encodeURIComponent(blueServer.join(','))}` +
+                `&red=${encodeURIComponent(redServer.join(','))}`;
 
             const resp = await fetch(url);
             if (resp.status !== 200) {
@@ -202,6 +260,9 @@ export default function Draft() {
         setRedChamps(Array(5).fill(''));
         setResult(null);
         setError('');
+        setDragFrom(null);
+        setDragOver(null);
+        setHoveredSlot(null);
         blueRefs.current[0]?.focus();
     };
 
@@ -210,22 +271,120 @@ export default function Draft() {
         setBlueChamps([...redChamps]);
         setRedChamps(b);
         setResult(null);
+        setHoveredSlot(null);
+    };
+
+    /**
+     * Resolve the matchup number to display next to a slot.
+     *
+     * The number is shown from the perspective of the champion it's displayed
+     * against: positive = that champion has the advantage, negative = the enemy
+     * has the advantage. Because the raw value is "attacker's strength into
+     * defender", we negate it so the sign matches the slot it's shown next to.
+     *
+     * - Red slot j, default:    -blue_into_red[j][j]
+     * - Red slot j, hover blue i: -blue_into_red[i][j]
+     * - Blue slot i, default:   -red_into_blue[i][i]
+     * - Blue slot i, hover red j: -red_into_blue[j][i]
+     */
+    const getMatchupValue = (side, index) => {
+        if (!result || !result.matchups) return null;
+        const { blue_into_red, red_into_blue } = result.matchups;
+
+        if (side === 'red') {
+            const raw =
+                hoveredSlot && hoveredSlot.side === 'blue'
+                    ? blue_into_red?.[hoveredSlot.index]?.[index]
+                    : blue_into_red?.[index]?.[index];
+            return raw == null ? null : -raw;
+        }
+
+        const raw =
+            hoveredSlot && hoveredSlot.side === 'red'
+                ? red_into_blue?.[hoveredSlot.index]?.[index]
+                : red_into_blue?.[index]?.[index];
+        return raw == null ? null : -raw;
     };
 
     const renderSlot = (side, index) => {
         const value = side === 'blue' ? blueChamps[index] : redChamps[index];
         const preview = previewChampion(value);
+        const snapped = snapToChampion(value);
         const refs = side === 'blue' ? blueRefs : redRefs;
+        const iconName = preview ? toServerName(preview) : null;
+
+        const isDragging =
+            dragFrom && dragFrom.side === side && dragFrom.index === index;
+        const isDragOver =
+            !isDragging &&
+            dragOver &&
+            dragOver.side === side &&
+            dragOver.index === index;
+        const isMatchupHovered =
+            result && hoveredSlot && hoveredSlot.side !== side;
+
+        const matchupValue = getMatchupValue(side, index);
+
+        let matchupClass = 'draft-matchup-neutral';
+        if (matchupValue !== null) {
+            if (matchupValue > 0.005) matchupClass = 'draft-matchup-positive';
+            else if (matchupValue < -0.005) matchupClass = 'draft-matchup-negative';
+        }
+
+        const slotClass =
+            'draft-slot' +
+            (snapped ? ' draft-slot-draggable' : '') +
+            (isDragging ? ' draft-slot-dragging' : '') +
+            (isDragOver ? ' draft-slot-drag-over' : '') +
+            (isMatchupHovered ? ' draft-slot-matchup-hover' : '');
+
+        const displayStr =
+            matchupValue === null
+                ? ''
+                : Math.abs(matchupValue) < 0.005
+                ? '0.00'
+                : `${matchupValue > 0 ? '+' : ''}${matchupValue.toFixed(2)}`;
+
+        const matchupTitle =
+            matchupValue === null
+                ? ''
+                : `Matchup strength: ${displayStr}\n` +
+                  (matchupValue > 0
+                      ? 'Positive = advantage for this champion'
+                      : matchupValue < 0
+                      ? 'Negative = advantage for the enemy'
+                      : 'Even matchup');
 
         return (
-            <div className="draft-slot" key={`${side}-${index}`}>
+            <div
+                key={`${side}-${index}`}
+                className={slotClass}
+                draggable={Boolean(snapped)}
+                onDragStart={(e) => handleDragStart(side, index, e)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(side, index, e)}
+                onDragLeave={(e) => handleDragLeave(side, index, e)}
+                onDrop={(e) => handleDrop(side, index, e)}
+                onMouseEnter={() => {
+                    if (snapped && !dragFrom) setHoveredSlot({ side, index });
+                }}
+                onMouseLeave={() => {
+                    setHoveredSlot((prev) =>
+                        prev && prev.side === side && prev.index === index
+                            ? null
+                            : prev,
+                    );
+                }}
+            >
                 <span className="draft-role">{ROLES[index]}</span>
                 <div className="draft-input-wrapper">
-                    {preview ? (
+                    {iconName ? (
                         <img
                             className="draft-icon"
-                            src={`/images/icons/${preview}.jpg`}
+                            src={`/images/icons/${iconName}.jpg`}
                             alt={preview}
+                            title="Drag to move"
+                            draggable={false}
                             onError={(e) => {
                                 e.target.style.visibility = 'hidden';
                             }}
@@ -247,6 +406,11 @@ export default function Draft() {
                         spellCheck={false}
                         autoComplete="off"
                     />
+                    {matchupValue !== null && (
+                        <span className={`draft-matchup ${matchupClass}`} title={matchupTitle}>
+                            {displayStr}
+                        </span>
+                    )}
                 </div>
             </div>
         );

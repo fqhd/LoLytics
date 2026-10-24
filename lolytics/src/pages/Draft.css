@@ -285,3 +285,52 @@
     outline: none;
     min-width: 0;
 }
+
+/* ---- Drag & drop ---- */
+
+.draft-slot-draggable {
+    cursor: grab;
+}
+
+.draft-slot-draggable:active {
+    cursor: grabbing;
+}
+
+.draft-slot-dragging {
+    opacity: 0.4;
+}
+
+.draft-slot-drag-over {
+    outline: 2px dashed #4a9eff;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+.draft-slot-matchup-hover {
+    outline: 2px solid rgba(74, 158, 255, 0.35);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* ---- Matchup numbers ---- */
+
+.draft-matchup {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    margin-left: 0.375rem;
+}
+
+.draft-matchup-positive {
+    color: #51cf66;
+}
+
+.draft-matchup-negative {
+    color: #ff6b6b;
+}
+
+.draft-matchup-neutral {
+    color: #888;
+}
