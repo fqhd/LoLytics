@@ -1,9 +1,7 @@
 import os
 import json
 import numpy as np
-import torch
-from torch.utils.data import Dataset
-from model.game import sample_every
+from model.game import sample_t
 
 with open('champion_to_index.json') as f:
     champion_to_index = json.load(f)
@@ -15,9 +13,11 @@ RANKS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD',
          'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER']
 
 STORAGE_DTYPE = np.float32
+MIN_GAME_MS = 5 * 60_000   # skip games shorter than 5 minutes
 
 
 def vectorize_state(state):
+    """171 features: 10 champions + 161 state features (last is time in minutes)."""
     v = []
     for champion in state['champions']:
         v.append(champion_to_index[champion])
@@ -39,7 +39,7 @@ def vectorize_state(state):
         v += team['towers']
         v += team['inhibs']
 
-    v.append(state['time'] / 60_000.0)   # minutes, not ms
+    v.append(state['time'] / 60_000.0)
     return v
 
 
@@ -47,115 +47,68 @@ def rank_to_elo(rank):
     return RANKS.index(rank) + 1
 
 
-def is_strong_event(event):
-    if event['type'] == 'ELITE_MONSTER_KILL' and event['killerId'] == 0:
-        return False
-    return event['type'] in ['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL']
-
-
-def event_callback(state, event):
-    return (is_strong_event(event), None)
-
-
-def create_game_sequence(game, rank, min_events=3):
-    samples = sample_every(game, event_callback)
-    if len(samples) < min_events:
+def create_game_state(game, rank, rng):
+    """Sample one state per game at a uniformly random time using sample_t."""
+    last_t = game['events'][-1]['timestamp']
+    if last_t <= MIN_GAME_MS:
         return None, None
 
-    seq = []
-    prev_t = None
-    for state_copy, _ in samples:
-        v = vectorize_state(state_copy)
-        v.append(rank_to_elo(rank))
+    t = int(rng.integers(0, last_t + 1))
+    state = sample_t(game, t)
 
-        t_min = state_copy['time'] / 60_000.0
-        dt_min = 0.0 if prev_t is None else (t_min - prev_t)
-        v.append(dt_min)
-        prev_t = t_min
+    v = vectorize_state(state)          # 171 features
+    v.append(rank_to_elo(rank))         # 172
 
-        seq.append(v)
-
-    win = int(samples[-1][0]['win'])
-    return np.asarray(seq, dtype=STORAGE_DTYPE), win
+    return np.asarray(v, dtype=STORAGE_DTYPE), int(state['win'])
 
 
-def create_dataset_mmap(root, bin_path, index_path, min_events=3):
-    offsets = []
-    labels = []
-    total_elems = 0
-    feat_dim = None
+def create_dataset(root, seed=None):
+    """Return (states (N, 172), labels (N,)) — one state per game."""
+    rng = np.random.default_rng(seed)
+    states, labels = [], []
 
-    f = open(bin_path, 'wb')
-    try:
-        for rank in os.listdir(root):
-            if rank == '.DS_Store':
+    for rank in os.listdir(root):
+        if rank == '.DS_Store':
+            continue
+        for tier in os.listdir(os.path.join(root, rank)):
+            if tier == '.DS_Store':
                 continue
-            for tier in os.listdir(os.path.join(root, rank)):
-                if tier == '.DS_Store':
+            for filename in os.listdir(os.path.join(root, rank, tier)):
+                if filename == '.DS_Store':
                     continue
-                for filename in os.listdir(os.path.join(root, rank, tier)):
-                    if filename == '.DS_Store':
-                        continue
-                    with open(os.path.join(root, rank, tier, filename)) as fh:
-                        game = json.load(fh)
+                with open(os.path.join(root, rank, tier, filename)) as fh:
+                    game = json.load(fh)
 
-                    seq, win = create_game_sequence(game, rank, min_events=min_events)
-                    if seq is None:
-                        continue
+                v, win = create_game_state(game, rank, rng)
+                if v is None:
+                    continue
 
-                    if feat_dim is None:
-                        feat_dim = seq.shape[1]
-                    seq.tofile(f)
+                states.append(v)
+                labels.append(win)
 
-                    offsets.append((total_elems, seq.shape[0]))
-                    labels.append(win)
-                    total_elems += seq.size
+                if len(labels) % 5000 == 0:
+                    print(f'  processed {len(labels)} games')
 
-                    if len(labels) % 5000 == 0:
-                        gb = total_elems * np.dtype(STORAGE_DTYPE).itemsize / 1e9
-                        print(f'  wrote {len(labels)} games ({gb:.2f} GB)')
-    finally:
-        f.close()
-
-    np.savez(
-        index_path,
-        offsets=np.asarray(offsets, dtype=np.int64),
-        labels=np.asarray(labels, dtype=np.uint8),
-        feat_dim=np.int64(feat_dim),
-        dtype=np.array(np.dtype(STORAGE_DTYPE).str),
-    )
-    print(f'wrote {len(labels)} games -> {bin_path} + {index_path}')
+    return (np.stack(states),
+            np.asarray(labels, dtype=np.uint8))
 
 
-class MmapSeqDataset(Dataset):
-    def __init__(self, bin_path, index_path):
-        idx = np.load(index_path, allow_pickle=False)
-        self.offsets = idx['offsets']
-        self.labels = idx['labels'].astype(np.float32)
-        self.feat_dim = int(idx['feat_dim'])
-        self.dtype = np.dtype(idx['dtype'].item())
-        self.bin_path = bin_path
-        self._mmap = None
-
-    def _get_mmap(self):
-        if self._mmap is None:
-            self._mmap = np.memmap(self.bin_path, dtype=self.dtype, mode='r')
-        return self._mmap
-
-    def __len__(self):
-        return len(self.labels)
-
-    def __getitem__(self, i):
-        off, length = self.offsets[i]
-        length = int(length)
-        n = length * self.feat_dim
-        flat = np.array(self._get_mmap()[off:off + n])
-        seq = flat.reshape(length, self.feat_dim).astype(np.float32)
-        return torch.from_numpy(seq), self.labels[i]
+def load_split(prefix):
+    """Load a saved (states, labels) pair as (states, labels) NumPy arrays."""
+    states = np.load(f'{prefix}_states.npy')
+    labels = np.load(f'{prefix}_labels.npy')
+    return states, labels
 
 
 if __name__ == '__main__':
     print('--- train split ---')
-    create_dataset_mmap('dataset/train', 'train_seq.bin', 'train_seq_index.npz')
+    train_x, train_y = create_dataset('dataset/train', seed=0)
+    np.save('train_states.npy', train_x)
+    np.save('train_labels.npy', train_y)
+    print(f'wrote {len(train_y)} games, states shape {train_x.shape}')
+
     print('--- test split ---')
-    create_dataset_mmap('dataset/test', 'test_seq.bin', 'test_seq_index.npz')
+    test_x, test_y = create_dataset('dataset/test', seed=1)
+    np.save('test_states.npy', test_x)
+    np.save('test_labels.npy', test_y)
+    print(f'wrote {len(test_y)} games, states shape {test_x.shape}')

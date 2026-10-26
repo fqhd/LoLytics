@@ -1,87 +1,35 @@
 import numpy as np
-import torch
-from tqdm import tqdm
+import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from model.dataset import MmapSeqDataset
-from model.network import Network
+
+CKPT_PATH   = 'logreg.joblib'
+STATES_PATH = 'test_states.npy'
+LABELS_PATH = 'test_labels.npy'
+
+# Feature layout of the saved states:
+#   [0..9]    champions   (ignored by the LR model — dropped at train time)
+#   [10..170] vectorize_state output (161 features; time is the last of them)
+#   [171]     rank_to_elo
+TIME_COL = 170
 
 
-CKPT_PATH = 'gru_best.pt'
+# -----------------------------------------------------------------------------
+# Eval: feed every saved state through the logistic regression in one pass.
+# No DataLoader needed — sklearn predictions are a single vectorized call.
+# -----------------------------------------------------------------------------
+def evaluate_all(model, scaler, feature_cols, states, labels, time_col):
+    X = states[:, feature_cols].astype(np.float64)
+    X_s = scaler.transform(X)
+    probs = model.predict_proba(X_s)[:, 1].astype(np.float64)
+    times = states[:, time_col].astype(np.float64)
+    return probs, labels.astype(np.int64), times
 
 
-def find_feature_indices(feat_dim):
-    return {
-        'time_col': feat_dim - 3,
-        'rank_col': feat_dim - 2,
-        'dt_col':   feat_dim - 1,
-    }
-
-
-def truncate_at_random_time(seq_full, label, time_col, rng):
-    times = seq_full[:, time_col].numpy()
-    if len(times) < 2 or times[-1] <= times[0]:
-        return None
-
-    T = rng.uniform(0.0, times[-1])
-    k = int(np.searchsorted(times, T, side='right') - 1)
-    if k < 1:
-        return None
-
-    return seq_full[:k + 1].clone(), float(label), float(times[k])
-
-
-@torch.no_grad()
-def evaluate_uniform_time(model, dataset, device, time_col,
-                          batch_size=64, seed=2024):
-    model.eval()
-    rng = np.random.default_rng(seed)
-
-    truncated = []
-    for i in range(len(dataset)):
-        seq_full, label = dataset[i]
-        out = truncate_at_random_time(seq_full, label, time_col, rng)
-        if out is None:
-            continue
-        truncated.append(out)
-
-    if not truncated:
-        raise RuntimeError('No usable truncated sequences.')
-
-    truncated.sort(key=lambda s: s[0].shape[0])
-    feat_dim = truncated[0][0].shape[1]
-
-    probs_all, labels_all, times_all = [], [], []
-
-    for start in tqdm(range(0, len(truncated), batch_size),
-                      desc='eval', leave=False):
-        chunk = truncated[start:start + batch_size]
-        max_len = max(s[0].shape[0] for s in chunk)
-
-        padded  = torch.zeros(len(chunk), max_len, feat_dim)
-        lengths = torch.tensor([s[0].shape[0] for s in chunk], dtype=torch.long)
-        labels  = torch.tensor([s[1] for s in chunk], dtype=torch.float32)
-        qt      = torch.tensor([s[2] for s in chunk], dtype=torch.float32)
-
-        for j, (seq, _, _) in enumerate(chunk):
-            padded[j, :seq.shape[0]] = seq
-
-        padded = padded.to(device)
-        probs = model(padded, lengths)
-        ar = torch.arange(probs.size(0), device=device)
-        last = probs[ar, (lengths - 1).to(device)]
-
-        probs_all.append(last.cpu())
-        labels_all.append(labels)
-        times_all.append(qt)
-
-    probs  = torch.cat(probs_all).numpy()
-    labels = torch.cat(labels_all).numpy()
-    times  = torch.cat(times_all).numpy()
-    return probs, labels, times
-
-
+# -----------------------------------------------------------------------------
+# Metrics
+# -----------------------------------------------------------------------------
 def accuracy(probs, labels):
     return float(((probs > 0.5).astype(np.int64) == labels.astype(np.int64)).mean())
 
@@ -124,7 +72,8 @@ def print_by_minute(probs, labels, times):
               f'{bce(p, y):>7.3f} | {conf:>7.3f} | {spread(p):>7.3f}')
 
 
-def plot_reliability(probs, labels, ece_val, out_path='reliability.png'):
+def plot_reliability(probs, labels, ece_val,
+                     out_path='reliability_logreg.png'):
     bins = np.linspace(0, 1, 16)
     idx = np.clip(np.digitize(probs, bins, right=True) - 1, 0, len(bins) - 2)
     centers, accs, counts = [], [], []
@@ -151,7 +100,7 @@ def plot_reliability(probs, labels, ece_val, out_path='reliability.png'):
     print(f'Saved {out_path}')
 
 
-def plot_distribution(probs, out_path='distribution.png'):
+def plot_distribution(probs, out_path='distribution_logreg.png'):
     plt.figure(figsize=(8, 5))
     sns.histplot(x=probs, kde=True, bins=15)
     plt.xlabel('Predicted P(blue wins)')
@@ -165,40 +114,37 @@ def plot_distribution(probs, out_path='distribution.png'):
 
 
 def main():
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # ---- Load single-state test set ----
+    test_states = np.load(STATES_PATH)
+    test_labels = np.load(LABELS_PATH)
+    print(f'Test states: {len(test_states)} | shape={test_states.shape} | '
+          f'feat_dim={test_states.shape[1]}')
 
-    test_ds = MmapSeqDataset('test_seq.bin', 'test_seq_index.npz')
-    print(f'Test games on disk: {len(test_ds)}')
+    # ---- Load logistic regression checkpoint ----
+    ckpt = joblib.load(CKPT_PATH)
+    model       = ckpt['model']
+    scaler      = ckpt['scaler']
+    feature_cols = ckpt['feature_cols']
+    n_features  = ckpt['n_features']
 
-    feat_dim = test_ds.feat_dim
-    cols = find_feature_indices(feat_dim)
-    print(f'feat_dim={feat_dim} | time_col={cols["time_col"]} | '
-          f'rank_col={cols["rank_col"]} | dt_col={cols["dt_col"]}')
+    # Sanity check: the checkpoint was trained on N numerical features
+    # (columns 10..10+N). The test file must have the same layout.
+    actual_num = test_states.shape[1] - 10
+    if n_features != actual_num:
+        raise ValueError(
+            f'Model expects {n_features} numerical features (after the 10 '
+            f'champion columns) but {STATES_PATH} has {actual_num}. '
+            f'The feature layout of the test file does not match the '
+            f'checkpoint.'
+        )
 
-    state = torch.load(CKPT_PATH, map_location=device)
-    n_numerical = state['means'].shape[0]
-    emb_dim     = state['embed.weight'].shape[1]
-    hidden_dim  = state['rnn.weight_hh_l0'].shape[1]
-    num_layers  = sum(1 for k in state if k.startswith('rnn.weight_ih_l'))
-    rnn_type    = {3: 'GRU', 4: 'LSTM'}[state['rnn.weight_hh_l0'].shape[0] // hidden_dim]
+    n_nonzero = int((np.abs(model.coef_) > 1e-8).sum())
+    print(f'LR loaded | {n_nonzero}/{model.coef_.size} nonzero coefs | '
+          f'intercept {model.intercept_[0]:.4f} | n_features={n_features}')
 
-    model = Network(
-        n_numerical=n_numerical,
-        means=state['means'],
-        stds=state['stds'],
-        n_champions=173,
-        emb_dim=emb_dim,
-        hidden_dim=hidden_dim,
-        num_layers=num_layers,
-        dropout=0.0,
-    ).to(device)
-    model.load_state_dict(state)
-    model.eval()
-    print(f'Model: {rnn_type} | {num_layers} layers | hidden={hidden_dim} | '
-          f'emb_dim={emb_dim} | n_numerical={n_numerical}')
-
-    probs, labels, times = evaluate_uniform_time(
-        model, test_ds, device, cols['time_col'], seed=2024,
+    # ---- Eval ----
+    probs, labels, times = evaluate_all(
+        model, scaler, feature_cols, test_states, test_labels, TIME_COL,
     )
 
     a = accuracy(probs, labels)
@@ -206,7 +152,7 @@ def main():
     b = bce(probs, labels)
     s = spread(probs)
 
-    print(f'\n=== Uniform time-sampling evaluation ===')
+    print(f'\n=== Single-state evaluation (Logistic Regression) ===')
     print(f'Games evaluated: {len(labels)}')
     print(f'Accuracy:        {a:.4f}')
     print(f'ECE (15 bins):   {e:.4f}')
@@ -217,8 +163,9 @@ def main():
     plot_reliability(probs, labels, e)
     plot_distribution(probs)
 
-    np.savez('test_predictions.npz', probs=probs, labels=labels, times=times)
-    print('Saved test_predictions.npz')
+    np.savez('test_predictions_logreg.npz',
+             probs=probs, labels=labels, times=times)
+    print('Saved test_predictions_logreg.npz')
 
 
 if __name__ == '__main__':

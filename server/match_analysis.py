@@ -4,26 +4,19 @@ from server.network import send_server_error
 from server.utils import find_participant_with_puuid, get_mass_region
 from model.game import sync_timers, create_initial_state, update_with_event
 from model.dataset import vectorize_state, rank_to_elo
-import torch
-from model.network import Network
+import joblib
 
 
-# --- Load GRU ---
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-_ckpt = torch.load('gru_best.pt', map_location=device)
-model = Network(
-    n_numerical=_ckpt['means'].shape[0],
-    means=_ckpt['means'],
-    stds=_ckpt['stds'],
-    n_champions=173,
-    emb_dim=_ckpt['embed.weight'].shape[1],
-    hidden_dim=_ckpt['rnn.weight_hh_l0'].shape[1],
-    num_layers=sum(1 for k in _ckpt if k.startswith('rnn.weight_ih_l')),
-    dropout=0.0,
-).to(device)
-model.load_state_dict(_ckpt)
-model.eval()
-del _ckpt
+# --- Load logistic regression checkpoint ---
+# Saved by train.py as a dict: {'model', 'scaler', 'feature_cols', 'n_features'}
+# `feature_cols` are the indices into the 172-vector the LR was trained on —
+# it excludes the 10 champion indices (0..9) at train time, so we must apply
+# the same slice at inference.
+_lr_ckpt = joblib.load('logreg.joblib')
+lr_model        = _lr_ckpt['model']
+lr_scaler       = _lr_ckpt['scaler']
+lr_feature_cols = _lr_ckpt['feature_cols']
+del _lr_ckpt
 
 
 with open('./server/runes.json', encoding='utf-8') as f:
@@ -36,83 +29,51 @@ def is_strong_event(event):
     return event['type'] in ['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL']
 
 
-# --- Sequence-aware inference helpers ---
+# --- LR inference helper ---
 
-@torch.no_grad()
-def predict_from_states(states, elo):
-    """Feed a list of state dicts to the GRU; return P(blue wins) at the last step."""
-    if not states:
-        return 0.5
+def predict_prob(state, elo):
+    """Return P(blue wins) for a single state using the trained LR model.
 
-    features = []
-    prev_t = None
-    for state in states:
-        v = vectorize_state(state)
-        v.append(elo)
-        t_min = state['time'] / 60_000.0
-        dt = 0.0 if prev_t is None else (t_min - prev_t)
-        v.append(dt)
-        features.append(v)
-        prev_t = t_min
-
-    x = torch.tensor(np.asarray(features, dtype=np.float32),
-                     device=device).unsqueeze(0)
-    lengths = torch.tensor([len(features)], dtype=torch.long)
-    probs = model(x, lengths)
-    return probs[0, -1].item()
-
-
-@torch.no_grad()
-def predict_all_timesteps(states, elo):
-    """Return P(blue wins) at every timestep in `states`."""
-    if not states:
-        return []
-    features = []
-    prev_t = None
-    for state in states:
-        v = vectorize_state(state)
-        v.append(elo)
-        t_min = state['time'] / 60_000.0
-        dt = 0.0 if prev_t is None else (t_min - prev_t)
-        v.append(dt)
-        features.append(v)
-        prev_t = t_min
-
-    x = torch.tensor(np.asarray(features, dtype=np.float32),
-                     device=device).unsqueeze(0)
-    lengths = torch.tensor([len(features)], dtype=torch.long)
-    probs = model(x, lengths)
-    return probs[0].tolist()
+    The full vector is 172 long: [0..9] champions, [10..170] state features,
+    [171] elo.  The LR was trained on ``arr[feature_cols]`` (which is the
+    last 162 entries — everything except the champion indices), so we apply
+    the same slice here.
+    """
+    v = vectorize_state(state)                 # 171 features
+    v.append(elo)                              # 172 — elo is the last column
+    arr = np.asarray(v, dtype=np.float64)
+    X = arr[lr_feature_cols].reshape(1, -1)    # (1, n_features)
+    X_s = lr_scaler.transform(X)
+    return float(lr_model.predict_proba(X_s)[0, 1])
 
 
 def compute_event_deltas(game, elo):
-    """For each strong event, P(after) - P(before) using the GRU.
+    """For each strong event, P(after) - P(before) using the LR model.
 
-    The 'before' sequence is [pre_0, ..., pre_i] and 'after' is
-    [pre_0, ..., pre_i-1, post_i] — same prefix, only the last step
-    swapped — so the delta isolates the event's immediate effect.
+    Unlike the GRU, the LR is stateless — no growing history is needed.
+    `pre_state` is the game state at the event timestamp before the event
+    is applied; `post_state` is the state at the same timestamp after it
+    is applied.  The delta isolates the event's immediate effect.
     """
     deltas = []
-    pre_states = []
     dynamic_state = create_initial_state(game)
 
     for i, event in enumerate(game['events']):
         delta_t = (event['timestamp'] - game['events'][i - 1]['timestamp']
                    if i > 0 else event['timestamp'])
 
+        # Pre-event snapshot at the event's timestamp
         pre_state = copy.deepcopy(dynamic_state)
         sync_timers(pre_state, delta_t)
         pre_state['time'] = event['timestamp']
-        pre_states.append(pre_state)
+        p_before = predict_prob(pre_state, elo)
 
-        p_before = predict_from_states(pre_states, elo)
-
+        # Apply event, snapshot post-event state at same timestamp
         update_with_event(dynamic_state, event, delta_t)
-
         post_state = copy.deepcopy(dynamic_state)
         post_state['time'] = event['timestamp']
+        p_after = predict_prob(post_state, elo)
 
-        p_after = predict_from_states(pre_states[:-1] + [post_state], elo)
         deltas.append(p_after - p_before)
 
     return deltas
@@ -196,12 +157,15 @@ def find_rune_with_id(id):
 
 
 def get_states_per_minute(frames, game, elo):
-    """Per-minute states and P(blue wins) using the GRU over the event history."""
+    """Per-minute UI states and P(blue wins) using the LR model.
+
+    The LR is stateless, so the probability at each frame depends only on
+    the current state — no per-frame sequence history needs to be tracked.
+    """
     client_states = []
     probabilities = []
 
     dynamic_state = create_initial_state(game)
-    strong_event_history = []  # list of pre-event state dicts
 
     i = 0
     for frame in frames:
@@ -209,13 +173,6 @@ def get_states_per_minute(frames, game, elo):
             event = game['events'][i]
             delta = (event['timestamp'] - game['events'][i - 1]['timestamp']
                      if i > 0 else event['timestamp'])
-
-            if is_strong_event(event):
-                pre_state = copy.deepcopy(dynamic_state)
-                sync_timers(pre_state, delta)
-                pre_state['time'] = event['timestamp']
-                strong_event_history.append(pre_state)
-
             update_with_event(dynamic_state, event, delta)
             i += 1
 
@@ -224,9 +181,9 @@ def get_states_per_minute(frames, game, elo):
         sync_timers(current_state, max(frame['timestamp'] - last_event_t, 0))
         current_state['time'] = frame['timestamp']
 
-        prob = predict_from_states(strong_event_history + [current_state], elo)
+        prob = predict_prob(current_state, elo)
 
-        # UI state (unchanged from before)
+        # UI state (unchanged)
         state = {
             'teams': [
                 {'players': [], 'towers': []},
