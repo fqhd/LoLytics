@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 CKPT_PATH = 'logreg.joblib'
+BIN_PATH  = 'logreg.bin'
 
 
 def evaluate(name, pipe, X, y):
@@ -15,6 +16,42 @@ def evaluate(name, pipe, X, y):
     acc = accuracy_score(y, (probs > 0.5).astype(np.int64))
     bce = log_loss(y, probs)
     print(f'{name:>5} | acc {acc:.4f} | bce {bce:.4f}')
+
+
+def export_binary(pipe, path):
+    """Write [means | stds | coef | intercept] as little-endian float64.
+
+    Layout (n = n_features, 161 for the state-only model):
+        offset 0*n .. 1*n : scaler means       (n float64)
+        offset 1*n .. 2*n : scaler stds        (n float64)
+        offset 2*n .. 3*n : logistic coefs     (n float64)
+        offset 3*n .. 3*n+1: logistic intercept (1 float64)
+
+    Little-endian is the native byte order on x86-64 / ARM64, so a C++
+    reader can `fread` directly into a float64 buffer without swapping.
+    Total file size = (3*n + 1) * 8 bytes.
+    """
+    scaler = pipe.named_steps['scaler']
+    clf    = pipe.named_steps['logreg']
+
+    means     = scaler.mean_.astype('<f8')
+    stds      = scaler.scale_.astype('<f8')       # scale_ = std (or 1 for const cols)
+    coefs     = clf.coef_.astype('<f8').ravel()   # shape (1, n) → (n,)
+    intercept = clf.intercept_.astype('<f8')      # shape (1,)
+
+    n = means.shape[0]
+    assert stds.shape[0] == n
+    assert coefs.shape[0] == n
+    assert intercept.shape[0] == 1
+
+    with open(path, 'wb') as f:
+        f.write(means.tobytes())
+        f.write(stds.tobytes())
+        f.write(coefs.tobytes())
+        f.write(intercept.tobytes())
+
+    print(f'Saved {path} | n_features={n} | '
+          f'{3 * n + 1} float64 | {(3 * n + 1) * 8} bytes')
 
 
 def main():
@@ -57,6 +94,8 @@ def main():
 
     joblib.dump(pipe, CKPT_PATH)
     print(f'Saved {CKPT_PATH}')
+
+    export_binary(pipe, BIN_PATH)
 
 
 if __name__ == '__main__':

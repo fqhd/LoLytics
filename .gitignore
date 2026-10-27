@@ -38,3 +38,4 @@ match_history_log.jsonl
 *.bin
 *.npz
 games.csv
+build
