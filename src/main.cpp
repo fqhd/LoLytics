@@ -11,7 +11,6 @@
 #include <cstring>
 #include <unordered_map>
 #include <array>
-#include <regex>
 
 #include "Game.hpp"
 
@@ -30,6 +29,11 @@ struct Entry {
     bool win;
 };
 
+struct ItemInfo {
+    std::string name;
+    std::string type;
+};
+
 bool load_lr(const char* path, LRModel& m) {
     FILE* f = std::fopen(path, "rb");
     if (!f) return false;
@@ -42,8 +46,8 @@ bool load_lr(const char* path, LRModel& m) {
     return true;
 }
 
-std::unordered_map<uint32_t, std::string> load_item_names(const char* path) {
-    std::unordered_map<uint32_t, std::string> result;
+std::unordered_map<uint32_t, ItemInfo> load_item_info(const char* path) {
+    std::unordered_map<uint32_t, ItemInfo> result;
     std::ifstream f(path);
     if (!f) {
         std::cerr << "Warning: could not open " << path << "\n";
@@ -52,12 +56,15 @@ std::unordered_map<uint32_t, std::string> load_item_names(const char* path) {
     std::string line;
     while (std::getline(f, line)) {
         if (line.empty()) continue;
-        const size_t sp = line.find(' ');
-        if (sp == std::string::npos) continue;
-        const uint32_t id = static_cast<uint32_t>(std::stoul(line.substr(0, sp)));
-        std::string name = line.substr(sp + 1);
+        const size_t sp1 = line.find(' ');
+        if (sp1 == std::string::npos) continue;
+        const size_t sp2 = line.find(' ', sp1 + 1);
+        if (sp2 == std::string::npos) continue;
+        const std::string type = line.substr(0, sp1);
+        const uint32_t id = static_cast<uint32_t>(std::stoul(line.substr(sp1 + 1, sp2 - sp1 - 1)));
+        std::string name = line.substr(sp2 + 1);
         if (!name.empty() && name.back() == '\r') name.pop_back();
-        result[id] = name;
+        result[id] = {name, type};
     }
     return result;
 }
@@ -96,6 +103,10 @@ static std::string csv_escape(const std::string& s) {
     return out;
 }
 
+static inline bool is_ignored_item(uint32_t id) {
+    return id == 2421 || id == 3599 || id == 3600 || id == 3172 || id == 3171 || id == 3168 || id == 3175 || id == 3173 || id == 3174 || id == 3170 || id == 2422;
+}
+
 int main() {
     LRModel model;
     if (!load_lr("logreg.bin", model)) {
@@ -103,8 +114,8 @@ int main() {
         return 1;
     }
 
-    const auto itemNames = load_item_names("item_mapping.txt");
-    std::cout << "Loaded " << itemNames.size() << " item names\n";
+    const auto itemInfo = load_item_info("item_mapping.txt");
+    std::cout << "Loaded " << itemInfo.size() << " item mappings\n";
 
     namespace fs = std::filesystem;
     const fs::path root = "dataset/test_bin";
@@ -140,6 +151,7 @@ int main() {
 
             if (type == 4) {
                 const uint32_t itemId = read_u32(ev + 5);
+                if (is_ignored_item(itemId)) continue;
                 const uint8_t pid = ev[9];
                 const double blueProb = predict_prob(model, game.vectorizeState());
                 Entry e;
@@ -169,12 +181,12 @@ int main() {
     for (const auto& kv : predictions) itemIds.push_back(kv.first);
     std::sort(itemIds.begin(), itemIds.end());
 
-    std::ofstream csv("item_stats.csv");
+    std::ofstream csv("lolytics/public/item_stats.csv");
     if (!csv) {
         std::cerr << "Failed to open item_stats.csv for writing\n";
         return 1;
     }
-    csv << "itemId,itemName,n,WPA,WPE,WR,SE(p),SD(wr),pickrate,95% CI,ECE\n";
+    csv << "type,itemId,itemName,n,WPA,WPE,WR,SE(p),SD(wr),pickrate,95% CI,ECE\n";
 
     std::cout << "Processed " << totalGames << " games\n";
     std::cout << "Writing stats for " << itemIds.size() << " items\n";
@@ -231,12 +243,18 @@ int main() {
             ece += (static_cast<double>(binCount[b]) / n) * std::abs(acc - conf);
         }
 
-        std::string name;
-        auto it = itemNames.find(itemId);
-        if (it != itemNames.end()) name = it->second;
-        else                        name = std::to_string(itemId);
+        std::string name, type;
+        auto it = itemInfo.find(itemId);
+        if (it != itemInfo.end()) {
+            name = it->second.name;
+            type = it->second.type;
+        } else {
+            name = std::to_string(itemId);
+            type = "Unknown";
+        }
 
-        csv << itemId << ","
+        csv << csv_escape(type) << ","
+            << itemId << ","
             << csv_escape(name) << ","
             << n << ","
             << WPA << ","
