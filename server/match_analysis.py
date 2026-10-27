@@ -3,20 +3,11 @@ from flask import jsonify, request
 from server.network import send_server_error
 from server.utils import find_participant_with_puuid, get_mass_region
 from model.game import sync_timers, create_initial_state, update_with_event
-from model.dataset import vectorize_state, rank_to_elo
+from model.dataset import vectorize_state
 import joblib
 
 
-# --- Load logistic regression checkpoint ---
-# Saved by train.py as a dict: {'model', 'scaler', 'feature_cols', 'n_features'}
-# `feature_cols` are the indices into the 172-vector the LR was trained on —
-# it excludes the 10 champion indices (0..9) at train time, so we must apply
-# the same slice at inference.
-_lr_ckpt = joblib.load('logreg.joblib')
-lr_model        = _lr_ckpt['model']
-lr_scaler       = _lr_ckpt['scaler']
-lr_feature_cols = _lr_ckpt['feature_cols']
-del _lr_ckpt
+lr_pipe = joblib.load('logreg.joblib')
 
 
 with open('./server/runes.json', encoding='utf-8') as f:
@@ -29,32 +20,15 @@ def is_strong_event(event):
     return event['type'] in ['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL']
 
 
-# --- LR inference helper ---
-
-def predict_prob(state, elo):
-    """Return P(blue wins) for a single state using the trained LR model.
-
-    The full vector is 172 long: [0..9] champions, [10..170] state features,
-    [171] elo.  The LR was trained on ``arr[feature_cols]`` (which is the
-    last 162 entries — everything except the champion indices), so we apply
-    the same slice here.
-    """
-    v = vectorize_state(state)                 # 171 features
-    v.append(elo)                              # 172 — elo is the last column
-    arr = np.asarray(v, dtype=np.float64)
-    X = arr[lr_feature_cols].reshape(1, -1)    # (1, n_features)
-    X_s = lr_scaler.transform(X)
-    return float(lr_model.predict_proba(X_s)[0, 1])
+def predict_prob(state):
+    """Return P(blue wins) for a single state using the trained pipeline."""
+    v = vectorize_state(state)
+    arr = np.asarray(v, dtype=np.float64).reshape(1, -1)
+    return float(lr_pipe.predict_proba(arr)[0, 1])
 
 
-def compute_event_deltas(game, elo):
-    """For each strong event, P(after) - P(before) using the LR model.
-
-    Unlike the GRU, the LR is stateless — no growing history is needed.
-    `pre_state` is the game state at the event timestamp before the event
-    is applied; `post_state` is the state at the same timestamp after it
-    is applied.  The delta isolates the event's immediate effect.
-    """
+def compute_event_deltas(game):
+    """For each strong event, P(after) - P(before)."""
     deltas = []
     dynamic_state = create_initial_state(game)
 
@@ -62,30 +36,26 @@ def compute_event_deltas(game, elo):
         delta_t = (event['timestamp'] - game['events'][i - 1]['timestamp']
                    if i > 0 else event['timestamp'])
 
-        # Pre-event snapshot at the event's timestamp
         pre_state = copy.deepcopy(dynamic_state)
         sync_timers(pre_state, delta_t)
         pre_state['time'] = event['timestamp']
-        p_before = predict_prob(pre_state, elo)
+        p_before = predict_prob(pre_state)
 
-        # Apply event, snapshot post-event state at same timestamp
         update_with_event(dynamic_state, event, delta_t)
         post_state = copy.deepcopy(dynamic_state)
         post_state['time'] = event['timestamp']
-        p_after = predict_prob(post_state, elo)
+        p_after = predict_prob(post_state)
 
         deltas.append(p_after - p_before)
 
     return deltas
 
 
-# --- Widgets ---
-
 def get_win_probability_widgets(events, deltas, champions):
     widgets = []
     for i in range(len(events)):
         event = events[i]
-        if event['type'] == 'LEVEL_UP':  # no-op now, kept for safety
+        if event['type'] == 'LEVEL_UP':
             continue
         killer_icon = None
         victim_icon = None
@@ -156,12 +126,7 @@ def find_rune_with_id(id):
     return None
 
 
-def get_states_per_minute(frames, game, elo):
-    """Per-minute UI states and P(blue wins) using the LR model.
-
-    The LR is stateless, so the probability at each frame depends only on
-    the current state — no per-frame sequence history needs to be tracked.
-    """
+def get_states_per_minute(frames, game):
     client_states = []
     probabilities = []
 
@@ -181,9 +146,8 @@ def get_states_per_minute(frames, game, elo):
         sync_timers(current_state, max(frame['timestamp'] - last_event_t, 0))
         current_state['time'] = frame['timestamp']
 
-        prob = predict_prob(current_state, elo)
+        prob = predict_prob(current_state)
 
-        # UI state (unchanged)
         state = {
             'teams': [
                 {'players': [], 'towers': []},
@@ -270,24 +234,11 @@ def get_participant_item_purchases(frames, participant_id):
 cache = {}
 
 
-def get_player_rank(resp, queueType):
-    for ranks in resp:
-        if ranks['queueType'] == queueType:
-            return ranks['tier']
-    return 'GOLD'
-
-
 def match_analysis():
     id = request.args.get('id')
     puuid = request.args.get('puuid')
     region = request.args.get('region')
     mass = get_mass_region(region)
-    queue = request.args.get('queue')
-
-    queueType = {
-        'soloq': 'RANKED_SOLO_5x5',
-        'flex': 'RANKED_FLEX_SR',
-    }.get(queue)
 
     cache_key = f'{id}:{puuid}'
     if cache_key in cache:
@@ -297,11 +248,9 @@ def match_analysis():
 
     game_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}?api_key={riot_key}'
     timeline_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}/timeline?api_key={riot_key}'
-    league_url = f'https://{region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}?api_key={riot_key}'
 
     game_resp = requests.get(game_url)
     timeline_resp = requests.get(timeline_url)
-    league_resp = requests.get(league_url)
 
     if game_resp.status_code == 404:
         return jsonify({'error': 'Match not found'}), 404
@@ -311,16 +260,9 @@ def match_analysis():
     if timeline_resp.status_code != 200:
         print('API error:', timeline_resp.status_code, timeline_resp.text)
         return send_server_error()
-    if league_resp.status_code != 200:
-        print('API error:', league_resp.status_code, league_resp.text)
-        return send_server_error()
 
     game_data = game_resp.json()
     timeline_data = timeline_resp.json()
-    league_resp = league_resp.json()
-
-    rank = get_player_rank(league_resp, queueType)
-    elo = rank_to_elo(rank)
 
     game = {'champions': [], 'events': [], 'win': None}
     for participant in game_data['info']['participants']:
@@ -330,9 +272,9 @@ def match_analysis():
             if is_strong_event(event):
                 game['events'].append(event)
 
-    deltas = compute_event_deltas(game, elo)
+    deltas = compute_event_deltas(game)
     states_per_minute, probabilities = get_states_per_minute(
-        timeline_data['info']['frames'], game, elo,
+        timeline_data['info']['frames'], game,
     )
     widgets = get_win_probability_widgets(game['events'], deltas, game['champions'])
 

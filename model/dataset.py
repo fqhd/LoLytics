@@ -13,15 +13,12 @@ RANKS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD',
          'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER']
 
 STORAGE_DTYPE = np.float32
-MIN_GAME_MS = 5 * 60_000   # skip games shorter than 5 minutes
+MIN_GAME_MS = 5 * 60_000
 
 
 def vectorize_state(state):
-    """171 features: 10 champions + 161 state features (last is time in minutes)."""
+    """161 state features; time (ms) is the last feature."""
     v = []
-    for champion in state['champions']:
-        v.append(champion_to_index[champion])
-
     for team in state['teams']:
         for player in team['players']:
             for key in player:
@@ -39,7 +36,7 @@ def vectorize_state(state):
         v += team['towers']
         v += team['inhibs']
 
-    v.append(state['time'] / 60_000.0)
+    v.append(state['time'])
     return v
 
 
@@ -47,8 +44,7 @@ def rank_to_elo(rank):
     return RANKS.index(rank) + 1
 
 
-def create_game_state(game, rank, rng):
-    """Sample one state per game at a uniformly random time using sample_t."""
+def create_game_state(game, rng):
     last_t = game['events'][-1]['timestamp']
     if last_t <= MIN_GAME_MS:
         return None, None
@@ -56,14 +52,11 @@ def create_game_state(game, rank, rng):
     t = int(rng.integers(0, last_t + 1))
     state = sample_t(game, t)
 
-    v = vectorize_state(state)          # 171 features
-    v.append(rank_to_elo(rank))         # 172
-
+    v = vectorize_state(state)
     return np.asarray(v, dtype=STORAGE_DTYPE), int(state['win'])
 
 
 def create_dataset(root, seed=None):
-    """Return (states (N, 172), labels (N,)) — one state per game."""
     rng = np.random.default_rng(seed)
     states, labels = [], []
 
@@ -79,7 +72,7 @@ def create_dataset(root, seed=None):
                 with open(os.path.join(root, rank, tier, filename)) as fh:
                     game = json.load(fh)
 
-                v, win = create_game_state(game, rank, rng)
+                v, win = create_game_state(game, rng)
                 if v is None:
                     continue
 
@@ -94,7 +87,6 @@ def create_dataset(root, seed=None):
 
 
 def load_split(prefix):
-    """Load a saved (states, labels) pair as (states, labels) NumPy arrays."""
     states = np.load(f'{prefix}_states.npy')
     labels = np.load(f'{prefix}_labels.npy')
     return states, labels

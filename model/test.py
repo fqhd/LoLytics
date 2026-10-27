@@ -4,32 +4,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-CKPT_PATH   = 'logreg.joblib'
+CKPT_PATH = 'logreg.joblib'
 STATES_PATH = 'test_states.npy'
 LABELS_PATH = 'test_labels.npy'
 
-# Feature layout of the saved states:
-#   [0..9]    champions   (ignored by the LR model — dropped at train time)
-#   [10..170] vectorize_state output (161 features; time is the last of them)
-#   [171]     rank_to_elo
-TIME_COL = 170
 
-
-# -----------------------------------------------------------------------------
-# Eval: feed every saved state through the logistic regression in one pass.
-# No DataLoader needed — sklearn predictions are a single vectorized call.
-# -----------------------------------------------------------------------------
-def evaluate_all(model, scaler, feature_cols, states, labels, time_col):
-    X = states[:, feature_cols].astype(np.float64)
-    X_s = scaler.transform(X)
-    probs = model.predict_proba(X_s)[:, 1].astype(np.float64)
-    times = states[:, time_col].astype(np.float64)
+def evaluate_all(pipe, states, labels):
+    probs = pipe.predict_proba(states)[:, 1].astype(np.float64)
+    times = states[:, -1].astype(np.float64) / 60_000.0
     return probs, labels.astype(np.int64), times
 
 
-# -----------------------------------------------------------------------------
-# Metrics
-# -----------------------------------------------------------------------------
 def accuracy(probs, labels):
     return float(((probs > 0.5).astype(np.int64) == labels.astype(np.int64)).mean())
 
@@ -114,38 +99,25 @@ def plot_distribution(probs, out_path='distribution_logreg.png'):
 
 
 def main():
-    # ---- Load single-state test set ----
     test_states = np.load(STATES_PATH)
     test_labels = np.load(LABELS_PATH)
     print(f'Test states: {len(test_states)} | shape={test_states.shape} | '
           f'feat_dim={test_states.shape[1]}')
 
-    # ---- Load logistic regression checkpoint ----
-    ckpt = joblib.load(CKPT_PATH)
-    model       = ckpt['model']
-    scaler      = ckpt['scaler']
-    feature_cols = ckpt['feature_cols']
-    n_features  = ckpt['n_features']
-
-    # Sanity check: the checkpoint was trained on N numerical features
-    # (columns 10..10+N). The test file must have the same layout.
-    actual_num = test_states.shape[1] - 10
-    if n_features != actual_num:
+    pipe = joblib.load(CKPT_PATH)
+    if pipe.n_features_in_ != test_states.shape[1]:
         raise ValueError(
-            f'Model expects {n_features} numerical features (after the 10 '
-            f'champion columns) but {STATES_PATH} has {actual_num}. '
-            f'The feature layout of the test file does not match the '
-            f'checkpoint.'
+            f'Pipeline expects {pipe.n_features_in_} features but '
+            f'{STATES_PATH} has {test_states.shape[1]}.'
         )
 
-    n_nonzero = int((np.abs(model.coef_) > 1e-8).sum())
-    print(f'LR loaded | {n_nonzero}/{model.coef_.size} nonzero coefs | '
-          f'intercept {model.intercept_[0]:.4f} | n_features={n_features}')
+    clf = pipe.named_steps['logreg']
+    n_nonzero = int((np.abs(clf.coef_) > 1e-8).sum())
+    print(f'Pipeline loaded | {n_nonzero}/{clf.coef_.size} nonzero coefs | '
+          f'intercept {clf.intercept_[0]:.4f} | '
+          f'n_features={pipe.n_features_in_}')
 
-    # ---- Eval ----
-    probs, labels, times = evaluate_all(
-        model, scaler, feature_cols, test_states, test_labels, TIME_COL,
-    )
+    probs, labels, times = evaluate_all(pipe, test_states, test_labels)
 
     a = accuracy(probs, labels)
     e = ece(probs, labels)
@@ -162,10 +134,6 @@ def main():
     print_by_minute(probs, labels, times)
     plot_reliability(probs, labels, e)
     plot_distribution(probs)
-
-    np.savez('test_predictions_logreg.npz',
-             probs=probs, labels=labels, times=times)
-    print('Saved test_predictions_logreg.npz')
 
 
 if __name__ == '__main__':
