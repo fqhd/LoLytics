@@ -288,23 +288,25 @@ export default function Draft() {
      * - Blue slot i, hover red j: -red_into_blue[j][i]
      */
     const getMatchupValue = (side, index) => {
-        if (!result || !result.matchups) return null;
-        const { blue_into_red, red_into_blue } = result.matchups;
+            if (!result || !result.matchups) return null;
+            const { blue_into_red, red_into_blue } = result.matchups;
 
-        if (side === 'red') {
-            const raw =
-                hoveredSlot && hoveredSlot.side === 'blue'
-                    ? blue_into_red?.[hoveredSlot.index]?.[index]
-                    : blue_into_red?.[index]?.[index];
+            if (side === 'blue') {
+                if (hoveredSlot && hoveredSlot.side === 'red') {
+                    const raw = red_into_blue?.[hoveredSlot.index]?.[index];
+                    return raw == null ? null : -raw;
+                }
+                const raw = blue_into_red?.[index]?.[index];
+                return raw == null ? null : -raw;
+            }
+
+            if (hoveredSlot && hoveredSlot.side === 'blue') {
+                const raw = blue_into_red?.[hoveredSlot.index]?.[index];
+                return raw == null ? null : -raw;
+            }
+            const raw = red_into_blue?.[index]?.[index];
             return raw == null ? null : -raw;
-        }
-
-        const raw =
-            hoveredSlot && hoveredSlot.side === 'red'
-                ? red_into_blue?.[hoveredSlot.index]?.[index]
-                : red_into_blue?.[index]?.[index];
-        return raw == null ? null : -raw;
-    };
+        };
 
     const renderSlot = (side, index) => {
         const value = side === 'blue' ? blueChamps[index] : redChamps[index];
