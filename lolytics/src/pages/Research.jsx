@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import './Research.css';
 
 const PERCENT_COLS = new Set([
-    'WPA', 'WPE', 'WR', 'SE(p)', 'SD(wr)', 'pickrate', 'ECE',
+    'WPA', 'WPE', 'WR', 'SE(wpa)', 'SE(p)', 'SE(wr)', 'pickrate', 'ECE',
 ]);
 
 const HIDDEN_COLS = new Set(['itemId', 'type']);
@@ -59,14 +59,21 @@ function renderHeader(h) {
     if (h === 'SE(p)') {
         return (
             <>
-                SE<sub>p̄</sub>
+                SE<sub>WPE</sub>
             </>
         );
     }
-    if (h === 'SD(wr)') {
+    if (h === 'SE(wr)') {
         return (
             <>
-                SE<sub>wr</sub>
+                SE<sub>WR</sub>
+            </>
+        );
+    }
+    if (h === 'SE(wpa)') {
+        return (
+            <>
+                SE<sub>WPA</sub>
             </>
         );
     }

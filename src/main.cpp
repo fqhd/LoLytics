@@ -10,28 +10,54 @@
 #include <cmath>
 #include <cstring>
 #include <unordered_map>
+#include <unordered_set>
 #include <array>
+#include <random>
+#include <numeric>
 
 #include "Game.hpp"
 
 static constexpr int N = 161;
 static constexpr int EVENT_SIZE = 25;
 static constexpr int HEADER_SIZE = 15;
-static constexpr int NUM_BINS = 10;
+static constexpr int NUM_BOOTSTRAP = 2000;
+static constexpr uint32_t BOOTSTRAP_SEED = 0xC0FFEE;
+
+// Adjust if your binary format uses a different event id for item sells.
+static constexpr uint8_t EVENT_ITEM_PURCHASE = 4;
+static constexpr uint8_t EVENT_ITEM_UNDO     = 5;
+static constexpr uint8_t EVENT_ITEM_SELL     = 7;
 
 struct LRModel {
     std::vector<double> means, stds, coefs;
     double intercept;
 };
 
-struct Entry {
-    double prob;
-    bool win;
-};
-
 struct ItemInfo {
     std::string name;
     std::string type;
+};
+
+// One live purchase entry. If the item is later sold, sold=true and
+// sellProb holds the model win probability at the moment of selling.
+struct PurchaseEntry {
+    double prob;       // win prob at purchase time
+    bool   win;        // actual binary game outcome
+    bool   sold;
+    double sellProb;   // win prob at sell time (valid only if sold)
+};
+
+// Pre-aggregated stats for one item within one game.
+struct PerGameItemStat {
+    int    itemIdx;
+    double sumP;
+    double sumP2;
+    double sumWin;     // sum of winValue (sellProb if sold, else actual outcome)
+    int    count;
+};
+
+struct GameData {
+    std::vector<PerGameItemStat> itemStats;
 };
 
 bool load_lr(const char* path, LRModel& m) {
@@ -49,10 +75,7 @@ bool load_lr(const char* path, LRModel& m) {
 std::unordered_map<uint32_t, ItemInfo> load_item_info(const char* path) {
     std::unordered_map<uint32_t, ItemInfo> result;
     std::ifstream f(path);
-    if (!f) {
-        std::cerr << "Warning: could not open " << path << "\n";
-        return result;
-    }
+    if (!f) { std::cerr << "Warning: could not open " << path << "\n"; return result; }
     std::string line;
     while (std::getline(f, line)) {
         if (line.empty()) continue;
@@ -104,7 +127,12 @@ static std::string csv_escape(const std::string& s) {
 }
 
 static inline bool is_ignored_item(uint32_t id) {
-    return id == 2421 || id == 3599 || id == 3600 || id == 3172 || id == 3171 || id == 3168 || id == 3175 || id == 3173 || id == 3174 || id == 3170 || id == 2422;
+    return id == 2421 || id == 3599 || id == 3600 || id == 3172 || id == 3171 ||
+           id == 3168 || id == 3175 || id == 3173 || id == 3174 || id == 3170 || id == 2422;
+}
+
+static inline uint64_t make_key(uint8_t playerId, uint32_t itemId) {
+    return (static_cast<uint64_t>(playerId) << 32) | itemId;
 }
 
 int main() {
@@ -124,12 +152,28 @@ int main() {
         return 1;
     }
 
-    std::unordered_map<uint32_t, std::vector<Entry>> predictions;
-    std::unordered_map<uint32_t, int> itemGameCounts;
+    size_t totalFiles = 0;
+    for (const auto& dirEntry : fs::recursive_directory_iterator(root))
+        if (dirEntry.is_regular_file()) totalFiles++;
+    std::cout << "Found " << totalFiles << " game files\n";
+    const size_t fileProgressStep = std::max<size_t>(1, totalFiles / 100);
+    size_t processedFiles = 0;
+
+    std::vector<GameData> games;
+    std::unordered_map<uint32_t, int> itemToIdx;
+    std::vector<uint32_t> idxToItem;
+    std::unordered_map<uint32_t, int> itemTotalPurchases;  // surviving purchases only
     int totalGames = 0;
 
     for (const auto& dirEntry : fs::recursive_directory_iterator(root)) {
         if (!dirEntry.is_regular_file()) continue;
+
+        ++processedFiles;
+        if (processedFiles % fileProgressStep == 0 || processedFiles == totalFiles) {
+            std::cout << "\rProcessing games: " << processedFiles << "/" << totalFiles
+                      << " (" << static_cast<int>(100.0 * processedFiles / totalFiles)
+                      << "%)" << std::flush;
+        }
 
         std::vector<uint8_t> buffer;
         try { buffer = read_binary_file(dirEntry.path().string()); }
@@ -142,131 +186,212 @@ int main() {
         if (buffer.size() < HEADER_SIZE + static_cast<size_t>(eventCount) * EVENT_SIZE) continue;
 
         Game game;
-        std::unordered_map<uint32_t, int> gameItemCounts;
+        // Keyed by (playerId, itemId); holds live purchase entries for this match.
+        std::unordered_map<uint64_t, std::vector<PurchaseEntry>> active;
 
         for (uint32_t i = 0; i < eventCount; ++i) {
             const uint8_t* ev = buffer.data() + HEADER_SIZE + i * EVENT_SIZE;
             const uint8_t type = ev[0];
             game.updateWithEvent(ev);
 
-            if (type == 4) {
+            if (type == EVENT_ITEM_PURCHASE) {
                 const uint32_t itemId = read_u32(ev + 5);
                 if (is_ignored_item(itemId)) continue;
                 const uint8_t pid = ev[9];
                 const double blueProb = predict_prob(model, game.vectorizeState());
-                Entry e;
-                if (pid >= 1 && pid <= 5) { e.prob = blueProb; e.win = blueWon; }
-                else                      { e.prob = 1.0 - blueProb; e.win = !blueWon; }
-                predictions[itemId].push_back(e);
-                gameItemCounts[itemId]++;
-            } else if (type == 5) {
-                const uint32_t beforeId = read_u32(ev + 10);
-                if (beforeId == 0) continue;
-                auto it = predictions.find(beforeId);
-                if (it != predictions.end() && !it->second.empty()) {
+                PurchaseEntry pe;
+                if (pid >= 1 && pid <= 5) {
+                    pe.prob = blueProb;
+                    pe.win  = blueWon;
+                } else {
+                    pe.prob = 1.0 - blueProb;
+                    pe.win  = !blueWon;
+                }
+                pe.sold     = false;
+                pe.sellProb = -1.0;
+                active[make_key(pid, itemId)].push_back(pe);
+            }
+            else if (type == EVENT_ITEM_UNDO) {
+                // Undo removes the purchase entirely (item never took effect).
+                const uint32_t itemId = read_u32(ev + 10);
+                if (itemId == 0) continue;
+                const uint8_t pid = ev[9];
+                auto it = active.find(make_key(pid, itemId));
+                if (it != active.end() && !it->second.empty()) {
                     it->second.pop_back();
-                    gameItemCounts[beforeId]--;
+                }
+            }
+            else if (type == EVENT_ITEM_SELL) {
+                // Sell: freeze the win probability at the moment of selling.
+                // Adjust offsets if your sell event layout differs.
+                const uint32_t itemId = read_u32(ev + 5);
+                const uint8_t pid = ev[9];
+                auto it = active.find(make_key(pid, itemId));
+                if (it != active.end()) {
+                    // Mark the most recent unsold entry as sold.
+                    for (auto rit = it->second.rbegin(); rit != it->second.rend(); ++rit) {
+                        if (!rit->sold) {
+                            const double blueProb = predict_prob(model, game.vectorizeState());
+                            rit->sellProb = (pid >= 1 && pid <= 5)
+                                            ? blueProb
+                                            : 1.0 - blueProb;
+                            rit->sold = true;
+                            break;
+                        }
+                    }
                 }
             }
         }
 
-        for (auto& [itemId, cnt] : gameItemCounts) {
-            if (cnt > 0) itemGameCounts[itemId]++;
+        // Aggregate surviving entries for this game.
+        GameData gd;
+        std::unordered_map<int, PerGameItemStat> perItem;  // itemIdx -> aggregate
+        for (auto& [key, vec] : active) {
+            const uint32_t itemId = static_cast<uint32_t>(key & 0xFFFFFFFFu);
+            for (const auto& pe : vec) {
+                int idx;
+                auto it = itemToIdx.find(itemId);
+                if (it == itemToIdx.end()) {
+                    idx = static_cast<int>(idxToItem.size());
+                    itemToIdx[itemId] = idx;
+                    idxToItem.push_back(itemId);
+                } else {
+                    idx = it->second;
+                }
+
+                PerGameItemStat& s = perItem[idx];
+                s.itemIdx = idx;
+                const double winValue = pe.sold ? pe.sellProb
+                                                : (pe.win ? 1.0 : 0.0);
+                s.sumP   += pe.prob;
+                s.sumP2  += pe.prob * pe.prob;
+                s.sumWin += winValue;
+                s.count  += 1;
+            }
         }
+
+        for (auto& [idx, s] : perItem) {
+            gd.itemStats.push_back(s);
+            const uint32_t itemId = idxToItem[idx];
+            itemTotalPurchases[itemId] += s.count;
+        }
+
+        games.push_back(std::move(gd));
         totalGames++;
     }
 
-    std::vector<uint32_t> itemIds;
-    itemIds.reserve(predictions.size());
-    for (const auto& kv : predictions) itemIds.push_back(kv.first);
-    std::sort(itemIds.begin(), itemIds.end());
+    if (totalFiles > 0) {
+        std::cout << "\rProcessing games: " << totalFiles << "/" << totalFiles
+                  << " (100%)" << std::endl;
+    }
+
+    if (totalGames == 0) { std::cerr << "No games processed\n"; return 1; }
+
+    const int numItems = static_cast<int>(idxToItem.size());
+    std::vector<std::vector<double>> bootWPA(numItems);
+    std::vector<std::vector<double>> bootWPE(numItems);
+    std::vector<std::vector<double>> bootWR (numItems);
+
+    std::mt19937 rng(BOOTSTRAP_SEED);
+    std::uniform_int_distribution<int> dist(0, totalGames - 1);
+
+    std::vector<double> accSumP  (numItems, 0.0);
+    std::vector<double> accSumWin(numItems, 0.0);
+    std::vector<int>    accCount (numItems, 0);
+
+    const int bootProgressStep = std::max(1, NUM_BOOTSTRAP / 100);
+
+    for (int b = 0; b < NUM_BOOTSTRAP; ++b) {
+        if ((b + 1) % bootProgressStep == 0 || b + 1 == NUM_BOOTSTRAP) {
+            std::cout << "\rBootstrapping: " << (b + 1) << "/" << NUM_BOOTSTRAP
+                      << " (" << static_cast<int>(100.0 * (b + 1) / NUM_BOOTSTRAP)
+                      << "%)" << std::flush;
+        }
+
+        std::fill(accSumP.begin(),   accSumP.end(),   0.0);
+        std::fill(accSumWin.begin(), accSumWin.end(), 0.0);
+        std::fill(accCount.begin(),  accCount.end(),  0);
+
+        for (int i = 0; i < totalGames; ++i) {
+            const int g = dist(rng);
+            for (const auto& s : games[g].itemStats) {
+                accSumP  [s.itemIdx] += s.sumP;
+                accSumWin[s.itemIdx] += s.sumWin;
+                accCount [s.itemIdx] += s.count;
+            }
+        }
+
+        for (int idx = 0; idx < numItems; ++idx) {
+            if (accCount[idx] == 0) continue;
+            const double n     = static_cast<double>(accCount[idx]);
+            const double meanP = accSumP[idx]   / n;
+            const double wr    = accSumWin[idx] / n;
+            bootWPE[idx].push_back(meanP);
+            bootWR [idx].push_back(wr);
+            bootWPA[idx].push_back(wr - meanP);
+        }
+    }
+    std::cout << "\rBootstrapping: " << NUM_BOOTSTRAP << "/" << NUM_BOOTSTRAP
+              << " (100%)" << std::endl;
+
+    auto meanOf = [](const std::vector<double>& v) {
+        return std::accumulate(v.begin(), v.end(), 0.0) / static_cast<double>(v.size());
+    };
+    auto sdOf = [](const std::vector<double>& v) {
+        const double m = std::accumulate(v.begin(), v.end(), 0.0) / static_cast<double>(v.size());
+        double ss = 0.0;
+        for (double x : v) { const double d = x - m; ss += d * d; }
+        return (v.size() > 1) ? std::sqrt(ss / static_cast<double>(v.size() - 1)) : 0.0;
+    };
 
     std::ofstream csv("lolytics/public/item_stats.csv");
-    if (!csv) {
-        std::cerr << "Failed to open item_stats.csv for writing\n";
-        return 1;
-    }
-    csv << "type,itemId,itemName,n,WPA,WPE,WR,SE(p),SD(wr),pickrate,95% CI,ECE\n";
+    if (!csv) { std::cerr << "Failed to open item_stats.csv for writing\n"; return 1; }
+    csv << "type,itemId,itemName,n,WPA,WPE,WR,SE(wpa),SE(p),SE(wr),pickrate,95% CI\n";
 
     std::cout << "Processed " << totalGames << " games\n";
-    std::cout << "Writing stats for " << itemIds.size() << " items\n";
+    std::cout << "Writing stats for " << numItems << " items (B=" << NUM_BOOTSTRAP << ")\n";
 
-    for (uint32_t itemId : itemIds) {
-        const auto& vec = predictions[itemId];
-        const int n = static_cast<int>(vec.size());
-        if (n == 0) continue;
+    for (int idx = 0; idx < numItems; ++idx) {
+        const uint32_t itemId = idxToItem[idx];
+        const auto& wpaVec = bootWPA[idx];
+        const auto& wpeVec = bootWPE[idx];
+        const auto& wrVec  = bootWR [idx];
+        if (wpaVec.size() < 2) continue;
 
-        double sumP = 0, sumP2 = 0;
-        int nWin = 0;
-        for (const auto& e : vec) {
-            sumP += e.prob;
-            sumP2 += e.prob * e.prob;
-            if (e.win) nWin++;
-        }
-        const double meanProb = sumP / n;
-        const double WR = static_cast<double>(nWin) / n;
+        const double WPA   = meanOf(wpaVec);
+        const double WPE   = meanOf(wpeVec);
+        const double WR    = meanOf(wrVec);
+        const double SEp   = sdOf(wpeVec);
+        const double SEwr  = sdOf(wrVec);
+        const double SEwpa = sdOf(wpaVec);
 
-        double SEp = 0.0;
-        if (n > 1) {
-            const double varP = (sumP2 - n * meanProb * meanProb) / (n - 1);
-            SEp = std::sqrt(std::max(varP, 0.0) / n);
-        }
+        const double ciLow  = WPA - 1.96 * SEwpa;
+        const double ciHigh = WPA + 1.96 * SEwpa;
 
-        const double SDwr = std::sqrt(WR * (1.0 - WR) / n);
-        const double WPE = meanProb;
-        const double WPA = WR - meanProb;
-
-        const int gamesWithItem = itemGameCounts.count(itemId) ? itemGameCounts[itemId] : 0;
+        const int n = itemTotalPurchases.count(itemId) ? itemTotalPurchases[itemId] : 0;
+        // Stat-site convention: total purchases / total games (can exceed 100%).
         const double pickrate = totalGames > 0
-            ? static_cast<double>(gamesWithItem) / totalGames : 0.0;
-
-        const double seWPA = std::sqrt(SEp * SEp + SDwr * SDwr);
-        const double halfCI = 1.96 * seWPA;
-        const double ciLow = WPA - halfCI;
-        const double ciHigh = WPA + halfCI;
-
-        std::array<int, NUM_BINS> binCount{};
-        std::array<double, NUM_BINS> binSumP{}, binSumY{};
-        for (const auto& e : vec) {
-            int b = static_cast<int>(e.prob * NUM_BINS);
-            if (b >= NUM_BINS) b = NUM_BINS - 1;
-            if (b < 0) b = 0;
-            binCount[b]++;
-            binSumP[b] += e.prob;
-            binSumY[b] += e.win ? 1.0 : 0.0;
-        }
-        double ece = 0.0;
-        for (int b = 0; b < NUM_BINS; ++b) {
-            if (binCount[b] == 0) continue;
-            const double acc  = binSumY[b] / binCount[b];
-            const double conf = binSumP[b] / binCount[b];
-            ece += (static_cast<double>(binCount[b]) / n) * std::abs(acc - conf);
-        }
+                                ? static_cast<double>(n) / totalGames : 0.0;
 
         std::string name, type;
         auto it = itemInfo.find(itemId);
-        if (it != itemInfo.end()) {
-            name = it->second.name;
-            type = it->second.type;
-        } else {
-            name = std::to_string(itemId);
-            type = "Unknown";
-        }
+        if (it != itemInfo.end()) { name = it->second.name; type = it->second.type; }
+        else                      { name = std::to_string(itemId); type = "Unknown"; }
 
         csv << csv_escape(type) << ","
-            << itemId << ","
-            << csv_escape(name) << ","
-            << n << ","
-            << WPA << ","
-            << WPE << ","
-            << WR << ","
-            << SEp << ","
-            << SDwr << ","
-            << pickrate << ","
-            << ciLow << "|" << ciHigh << ","
-            << ece << "\n";
+            << itemId                         << ","
+            << csv_escape(name)               << ","
+            << n                              << ","
+            << WPA                            << ","
+            << WPE                            << ","
+            << WR                             << ","
+            << SEwpa                          << ","
+            << SEp                            << ","
+            << SEwr                           << ","
+            << pickrate                       << ","
+            << ciLow << "|" << ciHigh         << "\n";
     }
 
-    std::cout << "CSV written to item_stats.csv\n";
+    std::cout << "CSV written to lolytics/public/item_stats.csv\n";
     return 0;
 }
