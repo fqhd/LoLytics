@@ -254,7 +254,7 @@ for (const r of apexResults) {
 console.log(`  apex accounts: ${apexAccounts.length}`);
 
 const divisions = [];
-for (const tier of ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND'])
+for (const tier of ['EMERALD', 'DIAMOND'])
     for (const rank of ['I', 'II', 'III', 'IV'])
         divisions.push({ tier, rank });
 
