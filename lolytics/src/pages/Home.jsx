@@ -701,16 +701,6 @@ export default function Home() {
                     </div>
                 </div>
             )}
-            <footer className="copyright">
-                © 2025 LoLytics — Open Source (MIT License) ·{' '}
-                <a
-                    href="https://github.com/fqhd/LoLytics"
-                    target="_blank"
-                    className="github"
-                >
-                    View on GitHub
-                </a>
-            </footer>
         </div>
     );
 }

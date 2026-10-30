@@ -128,18 +128,35 @@ input:hover {
     background-color: #3fb3f7;
 }
 
+.app-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-main {
+    flex: 1;
+}
+
 .copyright {
-    font-size: 14px;
-    width: 100%;
-    padding: 0;
-    margin: 0;
     text-align: center;
-    color: gray;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: #888;
+    background: #0d0d0d;
+    border-top: 1px solid #1f1f1f;
+    z-index: 10;
+}
+
+.copyright-fixed {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+}
+
+.copyright-static {
+    position: static;
 }
 
 .github {
