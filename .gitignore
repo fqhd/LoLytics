@@ -35,7 +35,6 @@ integration.json
 match_ids.csv
 *.npy
 match_history_log.jsonl
-*.bin
 *.npz
 games.csv
 build

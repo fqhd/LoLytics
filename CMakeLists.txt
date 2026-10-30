@@ -5,4 +5,5 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(calc_item_wpa src/main.cpp src/Game.cpp)
+add_executable(wpa src/wpa.cpp src/Game.cpp)
+add_executable(dataset src/dataset.cpp src/Game.cpp)

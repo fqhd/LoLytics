@@ -9,7 +9,7 @@ const env = parse_env_file('.env');
 const EUW_BASE        = 'https://euw1.api.riotgames.com';
 const EUROPE_BASE     = 'https://europe.api.riotgames.com';
 const TARGET_ACCOUNTS = 80_000;
-const TOP_N_ACCOUNTS  = 20_000;
+const TOP_N_ACCOUNTS  = 10_000;
 const MATCHES_PER_ACC = 100;
 const CONCURRENCY     = 20;
 

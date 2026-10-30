@@ -58,7 +58,7 @@ def print_by_minute(probs, labels, times):
 
 
 def plot_reliability(probs, labels, ece_val,
-                     out_path='reliability_logreg.png'):
+                     out_path='images/reliability_logreg.png'):
     bins = np.linspace(0, 1, 16)
     idx = np.clip(np.digitize(probs, bins, right=True) - 1, 0, len(bins) - 2)
     centers, accs, counts = [], [], []
@@ -85,7 +85,7 @@ def plot_reliability(probs, labels, ece_val,
     print(f'Saved {out_path}')
 
 
-def plot_distribution(probs, out_path='distribution_logreg.png'):
+def plot_distribution(probs, out_path='images/distribution_logreg.png'):
     plt.figure(figsize=(8, 5))
     sns.histplot(x=probs, kde=True, bins=15)
     plt.xlabel('Predicted P(blue wins)')
