@@ -11,14 +11,16 @@ function Layout() {
     const footerFixed = pathname !== '/research';
 
     return (
-        <>
+        <div className="app-wrapper">
             <Navbar />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/draft" element={<Draft />} />
-                <Route path="/research" element={<Research />} />
-                <Route path="/faq" element={<FAQ />} />
-            </Routes>
+            <main className="app-main">
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/draft" element={<Draft />} />
+                    <Route path="/research" element={<Research />} />
+                    <Route path="/faq" element={<FAQ />} />
+                </Routes>
+            </main>
             <footer className={`copyright ${footerFixed ? 'copyright-fixed' : 'copyright-static'}`}>
                 © 2026 LoLytics — Open Source (MIT License) ·{' '}
                 <a
@@ -30,7 +32,7 @@ function Layout() {
                     View on GitHub
                 </a>
             </footer>
-        </>
+        </div>
     );
 }
 
