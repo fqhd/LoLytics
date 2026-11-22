@@ -18,12 +18,24 @@
 #include "Game.hpp"
 
 static constexpr int N = 161;
-static constexpr int EVENT_SIZE = 25;
 static constexpr int HEADER_SIZE = 15;
 static constexpr int NUM_BOOTSTRAP = 2000;
 static constexpr uint32_t BOOTSTRAP_SEED = 0xC0FFEE;
 
-// Adjust if your binary format uses a different event id for item sells.
+static constexpr int NUM_EVENT_TYPES = 9;
+static constexpr int EVENT_SIZES[NUM_EVENT_TYPES] = {
+    25, // 0 CHAMPION_KILL
+    10, // 1 BUILDING_KILL
+    8,  // 2 ELITE_MONSTER_KILL
+    7,  // 3 LEVEL_UP
+    10, // 4 ITEM_PURCHASED
+    18, // 5 ITEM_UNDO
+    10, // 6 ITEM_DESTROYED
+    10, // 7 ITEM_SOLD
+    7   // 8 CHAMPION_TRANSFORM
+};
+
+// Event type IDs (mirror the JS serializer).
 static constexpr uint8_t EVENT_ITEM_PURCHASE = 4;
 static constexpr uint8_t EVENT_ITEM_UNDO     = 5;
 static constexpr uint8_t EVENT_ITEM_SELL     = 7;
@@ -183,20 +195,25 @@ int main() {
 
         const bool blueWon = buffer[10] != 0;
         const uint32_t eventCount = read_u32(buffer.data() + 11);
-        if (buffer.size() < HEADER_SIZE + static_cast<size_t>(eventCount) * EVENT_SIZE) continue;
+        // Event validation is done while walking below.
 
         Game game;
         // Keyed by (playerId, itemId); holds live purchase entries for this match.
         std::unordered_map<uint64_t, std::vector<PurchaseEntry>> active;
 
+        const uint8_t* ev = buffer.data() + HEADER_SIZE;
         for (uint32_t i = 0; i < eventCount; ++i) {
-            const uint8_t* ev = buffer.data() + HEADER_SIZE + i * EVENT_SIZE;
+            if (ev + 1 > buffer.data() + buffer.size()) break;
             const uint8_t type = ev[0];
+            if (type >= NUM_EVENT_TYPES) break;
+            const size_t esize = EVENT_SIZES[type];
+            if (ev + esize > buffer.data() + buffer.size()) break;
+
             game.updateWithEvent(ev);
 
             if (type == EVENT_ITEM_PURCHASE) {
                 const uint32_t itemId = read_u32(ev + 5);
-                if (is_ignored_item(itemId)) continue;
+                if (is_ignored_item(itemId)) { ev += esize; continue; }
                 const uint8_t pid = ev[9];
                 const double blueProb = predict_prob(model, game.vectorizeState());
                 PurchaseEntry pe;
@@ -213,17 +230,17 @@ int main() {
             }
             else if (type == EVENT_ITEM_UNDO) {
                 // Undo removes the purchase entirely (item never took effect).
-                const uint32_t itemId = read_u32(ev + 10);
-                if (itemId == 0) continue;
-                const uint8_t pid = ev[9];
-                auto it = active.find(make_key(pid, itemId));
-                if (it != active.end() && !it->second.empty()) {
-                    it->second.pop_back();
+                const uint8_t pid = ev[5];
+                const uint32_t itemId = read_u32(ev + 10); // beforeId
+                if (itemId != 0) {
+                    auto it = active.find(make_key(pid, itemId));
+                    if (it != active.end() && !it->second.empty()) {
+                        it->second.pop_back();
+                    }
                 }
             }
             else if (type == EVENT_ITEM_SELL) {
                 // Sell: freeze the win probability at the moment of selling.
-                // Adjust offsets if your sell event layout differs.
                 const uint32_t itemId = read_u32(ev + 5);
                 const uint8_t pid = ev[9];
                 auto it = active.find(make_key(pid, itemId));
@@ -241,6 +258,8 @@ int main() {
                     }
                 }
             }
+
+            ev += esize;
         }
 
         // Aggregate surviving entries for this game.

@@ -13,9 +13,21 @@
 #include "npy.hpp"
 
 static constexpr int N_FEATURES = 161;
-static constexpr int EVENT_SIZE = 25;
 static constexpr int HEADER_SIZE = 15;
 static constexpr int MIN_GAME_MS = 5 * 60 * 1000;
+
+static constexpr int NUM_EVENT_TYPES = 9;
+static constexpr int EVENT_SIZES[NUM_EVENT_TYPES] = {
+    25, // 0 CHAMPION_KILL
+    10, // 1 BUILDING_KILL
+    8,  // 2 ELITE_MONSTER_KILL
+    7,  // 3 LEVEL_UP
+    10, // 4 ITEM_PURCHASED
+    18, // 5 ITEM_UNDO
+    10, // 6 ITEM_DESTROYED
+    10, // 7 ITEM_SOLD
+    7   // 8 CHAMPION_TRANSFORM
+};
 
 std::vector<uint8_t> read_binary_file(const std::string& path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
@@ -43,22 +55,36 @@ bool sample_game(const std::vector<uint8_t>& buffer, std::mt19937& rng,
     const bool blueWon = buffer[10] != 0;
     const uint32_t eventCount = read_u32(buffer.data() + 11);
     if (eventCount == 0) return false;
-    if (buffer.size() < HEADER_SIZE + static_cast<size_t>(eventCount) * EVENT_SIZE)
-        return false;
 
-    const uint8_t* lastEvent = buffer.data() + HEADER_SIZE + (eventCount - 1) * EVENT_SIZE;
-    const int32_t lastTimestamp = read_i32(lastEvent + 1);
+    // Walk events once to validate sizes and find the last timestamp.
+    size_t offset = HEADER_SIZE;
+    int32_t lastTimestamp = 0;
+    for (uint32_t i = 0; i < eventCount; ++i) {
+        if (offset + 1 > buffer.size()) return false;
+        const uint8_t type = buffer[offset];
+        if (type >= NUM_EVENT_TYPES) return false;
+        const size_t esize = EVENT_SIZES[type];
+        if (offset + esize > buffer.size()) return false;
+        lastTimestamp = read_i32(buffer.data() + offset + 1);
+        offset += esize;
+    }
     if (lastTimestamp <= MIN_GAME_MS) return false;
 
     std::uniform_int_distribution<uint32_t> dist(0, eventCount - 1);
     const uint32_t targetIdx = dist(rng);
-    const uint8_t* targetEvent = buffer.data() + HEADER_SIZE + targetIdx * EVENT_SIZE;
-    const int32_t targetTimestamp = read_i32(targetEvent + 1);
 
     Game game;
-    for (uint32_t i = 0; i < targetIdx; ++i) {
-        const uint8_t* ev = buffer.data() + HEADER_SIZE + i * EVENT_SIZE;
+    offset = HEADER_SIZE;
+    int32_t targetTimestamp = 0;
+    for (uint32_t i = 0; i < eventCount; ++i) {
+        const uint8_t* ev = buffer.data() + offset;
+        const uint8_t type = ev[0];
+        if (i == targetIdx) {
+            targetTimestamp = read_i32(ev + 1);
+            break; // do not process the target event itself
+        }
         game.updateWithEvent(ev);
+        offset += EVENT_SIZES[type];
     }
 
     int delta = targetTimestamp - game.time;

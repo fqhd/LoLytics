@@ -30,14 +30,30 @@ const NO_MONSTER_SUB_TYPE = 0xFF;
 const TRANSFORM_TYPES     = { ASSASSIN: 0, SLAYER: 1 };
 const ITEM_EVENT_TYPES    = new Set(['ITEM_PURCHASED', 'ITEM_DESTROYED', 'ITEM_SOLD']);
 
-const EVENT_BIN_SIZE = 25;
-const ASSIST_SLOTS   = 10;
+const ASSIST_SLOTS = 10;
+
+// Per-event byte sizes (no padding). C++ side must mirror this table.
+export const EVENT_SIZES = {
+    CHAMPION_KILL:      25,   // 5 hdr + 10 assists + 4 bounty + 1 killerId + 4 shutdownBounty + 1 victimId
+    BUILDING_KILL:      10,   // 5 hdr + 5 × u8
+    ELITE_MONSTER_KILL:  8,   // 5 hdr + 3 × u8
+    LEVEL_UP:            7,   // 5 hdr + 2 × u8
+    ITEM_PURCHASED:     10,   // 5 hdr + 4 itemId + 1 participantId
+    ITEM_UNDO:          18,   // 5 hdr + 1 participantId + 4 goldGain + 4 beforeId + 4 afterId
+    ITEM_DESTROYED:     10,   // same as ITEM_PURCHASED
+    ITEM_SOLD:          10,   // same as ITEM_PURCHASED
+    CHAMPION_TRANSFORM:  7,   // 5 hdr + 2 × u8
+};
 
 const SERIALIZABLE_TYPES = new Set(EVENT_TYPES);
 
 function eventToBin(event) {
-    const buf = Buffer.alloc(EVENT_BIN_SIZE, 0);
+    const size = EVENT_SIZES[event.type];
+    if (size == null) {
+        throw new Error(`Unserializable event type: ${event.type}`);
+    }
 
+    const buf = Buffer.alloc(size, 0);
     buf.writeUInt8(EVENT_TYPE_TO_ID[event.type], 0);
     buf.writeInt32LE(event.timestamp | 0, 1);
     let off = 5;
@@ -48,9 +64,9 @@ function eventToBin(event) {
             throw new Error(`Too many assists (${assists.length})`);
         }
         for (let i = 0; i < assists.length; i++) {
-            buf.writeUInt8(assists[i], 5 + i);
+            buf.writeUInt8(assists[i], off + i);
         }
-        off = 5 + ASSIST_SLOTS;                          // 15
+        off += ASSIST_SLOTS;
         buf.writeUInt32LE(event.bounty || 0, off); off += 4;
         buf.writeUInt8(event.killerId || 0, off); off += 1;
         buf.writeUInt32LE(event.shutdownBounty || 0, off); off += 4;
@@ -95,8 +111,11 @@ function eventToBin(event) {
         buf.writeUInt8(event.participantId, off); off += 1;
         buf.writeUInt8(TRANSFORM_TYPES[event.transformType], off); off += 1;
     }
-    else {
-        throw new Error(`Unserializable event type: ${event.type}`);
+
+    if (off !== size) {
+        throw new Error(
+            `Event size mismatch for ${event.type}: wrote ${off}, expected ${size}`
+        );
     }
 
     return buf;
