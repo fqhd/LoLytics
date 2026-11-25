@@ -1,0 +1,369 @@
+Boots 1001 Boots
+Basic 1004 Faerie Charm
+Basic 1006 Rejuvenation Bead
+Basic 1011 Giant's Belt
+Basic 1018 Cloak of Agility
+Basic 1026 Blasting Wand
+Basic 1027 Sapphire Crystal
+Basic 1028 Ruby Crystal
+Basic 1029 Cloth Armor
+Basic 1031 Chain Vest
+Basic 1033 Null-Magic Mantle
+Starter 1035 Emberknife
+Basic 1036 Long Sword
+Basic 1037 Pickaxe
+Basic 1038 B. F. Sword
+Starter 1039 Hailblade
+Starter 1040 Obsidian Edge
+Basic 1042 Dagger
+Basic 1043 Recurve Bow
+Basic 1052 Amplifying Tome
+Basic 1053 Vampiric Scepter
+Starter 1054 Doran's Shield
+Starter 1055 Doran's Blade
+Starter 1056 Doran's Ring
+Basic 1057 Negatron Cloak
+Basic 1058 Needlessly Large Rod
+Starter 1082 Dark Seal
+Starter 1083 Cull
+Starter 1086 Doran's Bow
+Basic 1090 Quest: Top
+Basic 1091 Quest: Mid
+Basic 1092 Quest: Bot
+Basic 1093 Quest: Support
+Basic 1094 Quest: Jungle
+Starter 1101 Scorchclaw Pup
+Starter 1102 Gustwalker Hatchling
+Starter 1103 Mosstomper Seedling
+Consumables 1104 Eye of the Herald
+Starter 1105 Mosstomper Seedling
+Starter 1106 Gustwalker Hatchling
+Starter 1107 Scorchclaw Pup
+Starter 1111 Jarvan I's
+Starter 1120 Doran's Helm
+Basic 1200 Top Lane Quest
+Basic 1201 Mid Lane Quest
+Basic 1202 Bot Lane Quest
+Basic 1203 Support Quest
+Basic 1204 Jungle Quest
+Basic 1205 Jungle Quest Reward
+Basic 1206 Mid Lane Quest Reward
+Basic 1207 Bot Lane Quest Reward
+Basic 1208 Support Quest Reward
+Basic 1209 Jungle Quest Reward
+Basic 1210 Jungle Quest Reward
+Basic 1211 Jungle Quest Reward
+Basic 1220 Unleashed Teleport (Top Lane Quest Reward)
+Basic 1221 Top Lane Quest Reward
+Basic 1222 Top Lane Quest
+Basic 1500 Penetrating Bullets
+Basic 1501 Fortification
+Basic 1502 Reinforced Armor
+Basic 1503 Warden's Eye
+Basic 1504 Vanguard
+Basic 1505 Reinforced Armor
+Basic 1506 Reinforced Armor
+Basic 1507 Overcharged
+Basic 1508 Anti-tower Socks
+Basic 1509 Gusto
+Basic 1510 Phreakish Gusto
+Basic 1511 Super Mech Armor
+Basic 1512 Super Mech Power Field
+Basic 1515 Turret Plating
+Basic 1516 Structure Bounty
+Basic 1517 Structure Bounty
+Basic 1518 Structure Bounty
+Basic 1519 Structure Bounty
+Basic 1520 OvererchargedHA
+Basic 1521 Fortification
+Basic 1522 Tower Power-Up
+Basic 1523 Overcharged
+Basic 1524 Overgrowth
+Basic 2001 Recall
+Basic 2002 Enhanced Recall
+Consumables 2003 Health Potion
+Basic 2007 Disabled Recall
+Basic 2008
+Consumables 2010 Total Biscuit of Everlasting Will
+Epic 2015 Kircheis Shard
+Epic 2019 Steel Sigil
+Epic 2020 The Brutalizer
+Epic 2021 Tunneler
+Basic 2022 Glowing Mote
+Consumables 2031 Refillable Potion
+Consumables 2033 Corrupting Potion
+Starter 2049 Guardian's Amulet
+Starter 2050 Guardian's Shroud
+Starter 2051 Guardian's Horn
+Consumables 2052 Poro-Snax
+Consumables 2055 Control Ward
+Consumables 2056 Stealth Ward
+Legendary 2065 Shurelya's Battlesong
+Consumables 2138 Elixir of Iron
+Consumables 2139 Elixir of Sorcery
+Consumables 2140 Elixir of Wrath
+Consumables 2141 Cappa Juice
+Consumables 2142 Juice of Power
+Consumables 2143 Juice of Vitality
+Consumables 2144 Juice of Haste
+Consumables 2145 Lucky Dice
+Consumables 2146 Enhanced Lucky Dice
+Basic 2147 Augment Level
+Consumables 2150 Elixir of Skill
+Consumables 2151 Elixir of Avarice
+Consumables 2152 Elixir of Force
+Consumables 2161 Bandle Juice of Power
+Consumables 2162 Bandle Juice of Vitality
+Consumables 2163 Bandle Juice of Haste
+Consumables 2403 Minion Dematerializer
+Epic 2420 Seeker's Armguard
+Epic 2421 Shattered Armguard
+Boots 2422 Slightly Magical Footwear
+Legendary 2501 Overlord's Bloodmail
+Legendary 2502 Unending Despair
+Legendary 2503 Blackfire Torch
+Legendary 2504 Kaenic Rookern
+Epic 2508 Fated Ashes
+Legendary 2510 Dusk and Dawn
+Legendary 2512 Fiendhunter Bolts
+Legendary 2517 Endless Hunger
+Legendary 2520 Bastionbreaker
+Legendary 2522 Actualizer
+Legendary 2523 Hexoptics C44
+Legendary 2524 Bandlepipes
+Legendary 2525 Protoplasm Harness
+Legendary 2526 Whispering Circlet
+Legendary 2530 Diadem of Songs
+Legendary 3001 Evenshroud
+Legendary 3002 Trailblazer
+Legendary 3003 Archangel's Staff
+Legendary 3004 Manamune
+Boots 3005 Ghostcrawlers
+Boots 3006 Berserker's Greaves
+Boots 3008 Gluttonous Greaves
+Boots 3009 Boots of Swiftness
+Boots 3010 Symbiotic Soles
+Legendary 3011 Chemtech Putrifier
+Epic 3012 Chalice of Blessing
+Boots 3013 Synchronized Souls
+Boots 3020 Sorcerer's Shoes
+Epic 3023 Lifewell Pendant
+Epic 3024 Glacial Buckler
+Legendary 3026 Guardian Angel
+Legendary 3031 Infinity Edge
+Legendary 3032 Yun Tal Wildarrows
+Legendary 3033 Mortal Reminder
+Epic 3035 Last Whisper
+Legendary 3036 Lord Dominik's Regards
+Legendary 3039 Atma's Reckoning
+Legendary 3040 Seraph's Embrace
+Legendary 3041 Mejai's Soulstealer
+Legendary 3042 Muramana
+Epic 3044 Phage
+Legendary 3046 Phantom Dancer
+Boots 3047 Plated Steelcaps
+Legendary 3050 Zeke's Convergence
+Epic 3051 Hearthbound Axe
+Legendary 3053 Sterak's Gage
+Epic 3057 Sheen
+Legendary 3065 Spirit Visage
+Epic 3066 Winged Moonplate
+Epic 3067 Kindlegem
+Legendary 3068 Sunfire Aegis
+Starter 3070 Tear of the Goddess
+Legendary 3071 Black Cleaver
+Legendary 3072 Bloodthirster
+Legendary 3073 Experimental Hexplate
+Legendary 3074 Ravenous Hydra
+Legendary 3075 Thornmail
+Epic 3076 Bramble Vest
+Epic 3077 Tiamat
+Legendary 3078 Trinity Force
+Epic 3082 Warden's Mail
+Legendary 3083 Warmog's Armor
+Legendary 3084 Heartsteel
+Legendary 3085 Runaan's Hurricane
+Epic 3086 Zeal
+Legendary 3087 Statikk Shiv
+Legendary 3089 Rabadon's Deathcap
+Legendary 3091 Wit's End
+Legendary 3094 Rapid Firecannon
+Legendary 3095 Stormrazor
+Legendary 3100 Lich Bane
+Legendary 3102 Banshee's Veil
+Epic 3105 Aegis of the Legion
+Legendary 3107 Redemption
+Epic 3108 Fiendish Codex
+Legendary 3109 Knight's Vow
+Legendary 3110 Frozen Heart
+Boots 3111 Mercury's Treads
+Starter 3112 Guardian's Orb
+Epic 3113 Aether Wisp
+Epic 3114 Forbidden Idol
+Legendary 3115 Nashor's Tooth
+Legendary 3116 Rylai's Crystal Scepter
+Boots 3117 Mobility Boots
+Legendary 3118 Malignance
+Legendary 3119 Winter's Approach
+Legendary 3121 Fimbulwinter
+Epic 3123 Executioner's Calling
+Legendary 3124 Guinsoo's Rageblade
+Legendary 3128 Deathfire Grasp
+Legendary 3131 Sword of the Divine
+Epic 3133 Caulfield's Warhammer
+Epic 3134 Serrated Dirk
+Legendary 3135 Void Staff
+Legendary 3137 Cryptbloom
+Legendary 3139 Mercurial Scimitar
+Epic 3140 Quicksilver Sash
+Legendary 3142 Youmuu's Ghostblade
+Legendary 3143 Randuin's Omen
+Epic 3144 Scout's Slingshot
+Epic 3145 Hextech Alternator
+Legendary 3146 Hextech Gunblade
+Epic 3147 Haunting Guise
+Legendary 3152 Hextech Rocketbelt
+Legendary 3153 Blade of The Ruined King
+Epic 3155 Hexdrinker
+Legendary 3156 Maw of Malmortius
+Legendary 3157 Zhonya's Hourglass
+Boots 3158 Ionian Boots of Lucidity
+Legendary 3161 Spear of Shojin
+Legendary 3165 Morellonomicon
+Boots 3168 Immortal Path
+Boots 3170 Swiftmarch
+Boots 3171 Crimson Lucidity
+Boots 3172 Gunmetal Greaves
+Boots 3173 Chainlaced Crushers
+Boots 3174 Armored Advance
+Boots 3175 Spellslinger's Shoes
+Boots 3176 Forever Forward
+Starter 3177 Guardian's Blade
+Legendary 3179 Umbral Glaive
+Legendary 3181 Hullbreaker
+Starter 3184 Guardian's Hammer
+Legendary 3190 Locket of the Iron Solari
+Legendary 3193 Gargoyle Stoneplate
+Epic 3211 Spectre's Cowl
+Legendary 3222 Mikael's Blessing
+Legendary 3302 Terminus
+Trinket 3330 Scarecrow Effigy
+Trinket 3340 Stealth Ward
+Trinket 3348 Arcane Sweeper
+Trinket 3349 Lucent Singularity
+Trinket 3363 Farsight Alteration
+Trinket 3364 Oracle Lens
+Consumables 3398 Small Party Favor
+Consumables 3399 Party Favor
+Consumables 3400 Your Cut
+Consumables 3430 Rite Of Ruin
+Legendary 3504 Ardent Censer
+Legendary 3508 Essence Reaver
+Consumables 3513 Eye of the Herald
+Legendary 3599 Kalista's Black Spear
+Legendary 3600 Kalista's Black Spear
+Legendary 3742 Dead Man's Plate
+Legendary 3748 Titanic Hydra
+Epic 3801 Crystalline Bracer
+Epic 3802 Lost Chapter
+Epic 3803 Catalyst of Aeons
+Legendary 3814 Edge of Night
+Starter 3850 Spellthief's Edge
+Epic 3851 Frostfang
+Legendary 3853 Shard of True Ice
+Starter 3854 Steel Shoulderguards
+Epic 3855 Runesteel Spaulders
+Legendary 3857 Pauldrons of Whiterock
+Starter 3858 Relic Shield
+Epic 3859 Targon's Buckler
+Legendary 3860 Bulwark of the Mountain
+Starter 3862 Spectral Sickle
+Epic 3863 Harrowing Crescent
+Legendary 3864 Black Mist Scythe
+Starter 3865 World Atlas
+Epic 3866 Runic Compass
+Legendary 3867 Bounty of Worlds
+Legendary 3869 Celestial Opposition
+Legendary 3870 Dream Maker
+Legendary 3871 Zaz'Zak's Realmspike
+Legendary 3876 Solstice Sleigh
+Legendary 3877 Bloodsong
+Legendary 3901 <rarityLegendary>Fire at Will</rarityLegendary><br><subtitleLeft><silver>500 Silver Serpents</silver></subtitleLeft>
+Legendary 3902 <rarityLegendary>Death's Daughter</rarityLegendary><br><subtitleLeft><silver>500 Silver Serpents</silver></subtitleLeft>
+Legendary 3903 <rarityLegendary>Raise Morale</rarityLegendary><br><subtitleLeft><silver>500 Silver Serpents</silver></subtitleLeft>
+Epic 3916 Oblivion Orb
+Legendary 4003 Lifeline
+Legendary 4004 Spectral Cutlass
+Legendary 4005 Imperial Mandate
+Legendary 4010 Bloodletter's Curse
+Legendary 4011 Sword of Blossoming Dawn
+Legendary 4012 Sin Eater
+Legendary 4013 Lightning Braid
+Legendary 4014 Frozen Mallet
+Legendary 4015 Perplexity
+Legendary 4016 Wordless Promise
+Legendary 4017 Hellfire Hatchet
+Legendary 4401 Force of Nature
+Legendary 4402 Innervating Locket
+Legendary 4403 The Golden Spatula
+Legendary 4628 Horizon Focus
+Legendary 4629 Cosmic Drive
+Epic 4630 Blighting Jewel
+Epic 4632 Verdant Barrier
+Legendary 4633 Riftmaker
+Epic 4635 Leeching Leer
+Legendary 4636 Night Harvester
+Legendary 4637 Demonic Embrace
+Epic 4638 Watchful Wardstone
+Epic 4641 Stirring Wardstone
+Epic 4642 Bandleglass Mirror
+Legendary 4643 Vigilant Wardstone
+Legendary 4644 Crown of the Shattered Queen
+Legendary 4645 Shadowflame
+Legendary 4646 Stormsurge
+Epic 6029 Ironspike Whip
+Basic 6032 Stat Bonus
+Legendary 6035 Silvermere Dawn
+Legendary 6333 Death's Dance
+Legendary 6609 Chempunk Chainsword
+Legendary 6610 Sundered Sky
+Legendary 6616 Staff of Flowing Water
+Legendary 6617 Moonstone Renewer
+Legendary 6620 Echoes of Helia
+Legendary 6621 Dawncore
+Legendary 6630 Goredrinker
+Legendary 6631 Stridebreaker
+Legendary 6632 Divine Sunderer
+Legendary 6653 Liandry's Torment
+Legendary 6655 Luden's Echo
+Legendary 6656 Everfrost
+Legendary 6657 Rod of Ages
+Epic 6660 Bami's Cinder
+Legendary 6662 Iceborn Gauntlet
+Legendary 6664 Hollow Radiance
+Legendary 6665 Jak'Sho, The Protean
+Legendary 6667 Radiant Virtue
+Epic 6670 Noonquiver
+Legendary 6671 Galeforce
+Legendary 6672 Kraken Slayer
+Legendary 6673 Immortal Shieldbow
+Legendary 6675 Navori Flickerblade
+Legendary 6676 The Collector
+Epic 6677 Rageknife
+Epic 6690 Rectrix
+Legendary 6691 Duskblade of Draktharr
+Legendary 6692 Eclipse
+Legendary 6693 Prowler's Claw
+Legendary 6694 Serylda's Grudge
+Legendary 6695 Serpent's Fang
+Legendary 6696 Axiom Arc
+Legendary 6697 Hubris
+Legendary 6698 Profane Hydra
+Legendary 6699 Voltaic Cyclosword
+Legendary 6700 Shield of the Rakkor
+Legendary 6701 Opportunity
+Legendary 6702 Scouting Ahead
+Basic 7050 Gangplank Placeholder
+Legendary 8001 Anathema's Chains
+Legendary 8010 Bloodletter's Curse
+Legendary 8020 Abyssal Mask

@@ -3,27 +3,11 @@ from flask import jsonify, request
 from server.network import send_server_error
 from server.utils import find_participant_with_puuid, get_mass_region
 from model.game import sync_timers, create_initial_state, update_with_event
-from model.dataset import vectorize_state, rank_to_elo
-import torch
-from model.network import Network
+from model.dataset import vectorize_state
+import joblib
 
 
-# --- Load GRU ---
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-_ckpt = torch.load('gru_best.pt', map_location=device)
-model = Network(
-    n_numerical=_ckpt['means'].shape[0],
-    means=_ckpt['means'],
-    stds=_ckpt['stds'],
-    n_champions=173,
-    emb_dim=_ckpt['embed.weight'].shape[1],
-    hidden_dim=_ckpt['rnn.weight_hh_l0'].shape[1],
-    num_layers=sum(1 for k in _ckpt if k.startswith('rnn.weight_ih_l')),
-    dropout=0.0,
-).to(device)
-model.load_state_dict(_ckpt)
-model.eval()
-del _ckpt
+lr_pipe = joblib.load('logreg.joblib')
 
 
 with open('./server/runes.json', encoding='utf-8') as f:
@@ -36,64 +20,16 @@ def is_strong_event(event):
     return event['type'] in ['CHAMPION_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL']
 
 
-# --- Sequence-aware inference helpers ---
-
-@torch.no_grad()
-def predict_from_states(states, elo):
-    """Feed a list of state dicts to the GRU; return P(blue wins) at the last step."""
-    if not states:
-        return 0.5
-
-    features = []
-    prev_t = None
-    for state in states:
-        v = vectorize_state(state)
-        v.append(elo)
-        t_min = state['time'] / 60_000.0
-        dt = 0.0 if prev_t is None else (t_min - prev_t)
-        v.append(dt)
-        features.append(v)
-        prev_t = t_min
-
-    x = torch.tensor(np.asarray(features, dtype=np.float32),
-                     device=device).unsqueeze(0)
-    lengths = torch.tensor([len(features)], dtype=torch.long)
-    probs = model(x, lengths)
-    return probs[0, -1].item()
+def predict_prob(state):
+    """Return P(blue wins) for a single state using the trained pipeline."""
+    v = vectorize_state(state)
+    arr = np.asarray(v, dtype=np.float64).reshape(1, -1)
+    return float(lr_pipe.predict_proba(arr)[0, 1])
 
 
-@torch.no_grad()
-def predict_all_timesteps(states, elo):
-    """Return P(blue wins) at every timestep in `states`."""
-    if not states:
-        return []
-    features = []
-    prev_t = None
-    for state in states:
-        v = vectorize_state(state)
-        v.append(elo)
-        t_min = state['time'] / 60_000.0
-        dt = 0.0 if prev_t is None else (t_min - prev_t)
-        v.append(dt)
-        features.append(v)
-        prev_t = t_min
-
-    x = torch.tensor(np.asarray(features, dtype=np.float32),
-                     device=device).unsqueeze(0)
-    lengths = torch.tensor([len(features)], dtype=torch.long)
-    probs = model(x, lengths)
-    return probs[0].tolist()
-
-
-def compute_event_deltas(game, elo):
-    """For each strong event, P(after) - P(before) using the GRU.
-
-    The 'before' sequence is [pre_0, ..., pre_i] and 'after' is
-    [pre_0, ..., pre_i-1, post_i] — same prefix, only the last step
-    swapped — so the delta isolates the event's immediate effect.
-    """
+def compute_event_deltas(game):
+    """For each strong event, P(after) - P(before)."""
     deltas = []
-    pre_states = []
     dynamic_state = create_initial_state(game)
 
     for i, event in enumerate(game['events']):
@@ -103,28 +39,23 @@ def compute_event_deltas(game, elo):
         pre_state = copy.deepcopy(dynamic_state)
         sync_timers(pre_state, delta_t)
         pre_state['time'] = event['timestamp']
-        pre_states.append(pre_state)
-
-        p_before = predict_from_states(pre_states, elo)
+        p_before = predict_prob(pre_state)
 
         update_with_event(dynamic_state, event, delta_t)
-
         post_state = copy.deepcopy(dynamic_state)
         post_state['time'] = event['timestamp']
+        p_after = predict_prob(post_state)
 
-        p_after = predict_from_states(pre_states[:-1] + [post_state], elo)
         deltas.append(p_after - p_before)
 
     return deltas
 
 
-# --- Widgets ---
-
 def get_win_probability_widgets(events, deltas, champions):
     widgets = []
     for i in range(len(events)):
         event = events[i]
-        if event['type'] == 'LEVEL_UP':  # no-op now, kept for safety
+        if event['type'] == 'LEVEL_UP':
             continue
         killer_icon = None
         victim_icon = None
@@ -195,13 +126,11 @@ def find_rune_with_id(id):
     return None
 
 
-def get_states_per_minute(frames, game, elo):
-    """Per-minute states and P(blue wins) using the GRU over the event history."""
+def get_states_per_minute(frames, game):
     client_states = []
     probabilities = []
 
     dynamic_state = create_initial_state(game)
-    strong_event_history = []  # list of pre-event state dicts
 
     i = 0
     for frame in frames:
@@ -209,13 +138,6 @@ def get_states_per_minute(frames, game, elo):
             event = game['events'][i]
             delta = (event['timestamp'] - game['events'][i - 1]['timestamp']
                      if i > 0 else event['timestamp'])
-
-            if is_strong_event(event):
-                pre_state = copy.deepcopy(dynamic_state)
-                sync_timers(pre_state, delta)
-                pre_state['time'] = event['timestamp']
-                strong_event_history.append(pre_state)
-
             update_with_event(dynamic_state, event, delta)
             i += 1
 
@@ -224,9 +146,8 @@ def get_states_per_minute(frames, game, elo):
         sync_timers(current_state, max(frame['timestamp'] - last_event_t, 0))
         current_state['time'] = frame['timestamp']
 
-        prob = predict_from_states(strong_event_history + [current_state], elo)
+        prob = predict_prob(current_state)
 
-        # UI state (unchanged from before)
         state = {
             'teams': [
                 {'players': [], 'towers': []},
@@ -313,24 +234,11 @@ def get_participant_item_purchases(frames, participant_id):
 cache = {}
 
 
-def get_player_rank(resp, queueType):
-    for ranks in resp:
-        if ranks['queueType'] == queueType:
-            return ranks['tier']
-    return 'GOLD'
-
-
 def match_analysis():
     id = request.args.get('id')
     puuid = request.args.get('puuid')
     region = request.args.get('region')
     mass = get_mass_region(region)
-    queue = request.args.get('queue')
-
-    queueType = {
-        'soloq': 'RANKED_SOLO_5x5',
-        'flex': 'RANKED_FLEX_SR',
-    }.get(queue)
 
     cache_key = f'{id}:{puuid}'
     if cache_key in cache:
@@ -340,11 +248,9 @@ def match_analysis():
 
     game_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}?api_key={riot_key}'
     timeline_url = f'https://{mass}.api.riotgames.com/lol/match/v5/matches/{id}/timeline?api_key={riot_key}'
-    league_url = f'https://{region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}?api_key={riot_key}'
 
     game_resp = requests.get(game_url)
     timeline_resp = requests.get(timeline_url)
-    league_resp = requests.get(league_url)
 
     if game_resp.status_code == 404:
         return jsonify({'error': 'Match not found'}), 404
@@ -354,16 +260,9 @@ def match_analysis():
     if timeline_resp.status_code != 200:
         print('API error:', timeline_resp.status_code, timeline_resp.text)
         return send_server_error()
-    if league_resp.status_code != 200:
-        print('API error:', league_resp.status_code, league_resp.text)
-        return send_server_error()
 
     game_data = game_resp.json()
     timeline_data = timeline_resp.json()
-    league_resp = league_resp.json()
-
-    rank = get_player_rank(league_resp, queueType)
-    elo = rank_to_elo(rank)
 
     game = {'champions': [], 'events': [], 'win': None}
     for participant in game_data['info']['participants']:
@@ -373,9 +272,9 @@ def match_analysis():
             if is_strong_event(event):
                 game['events'].append(event)
 
-    deltas = compute_event_deltas(game, elo)
+    deltas = compute_event_deltas(game)
     states_per_minute, probabilities = get_states_per_minute(
-        timeline_data['info']['frames'], game, elo,
+        timeline_data['info']['frames'], game,
     )
     widgets = get_win_probability_widgets(game['events'], deltas, game['champions'])
 
