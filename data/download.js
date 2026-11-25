@@ -16,6 +16,9 @@ lines.pop();
 shuffle(lines);
 
 const BATCH_SIZE = 25;
+// Hard cap on the number of matches that make it into games.csv.
+// Binary event data is still downloaded for every match id regardless.
+const MAX_CSV_GAMES = 1_000_000;
 
 const TEST_SPLIT = parseFloat(process.argv[2]);
 if (!TEST_SPLIT) {
@@ -107,6 +110,17 @@ async function loadAlreadyDone(path) {
 const alreadyDone = await loadAlreadyDone('games.csv');
 console.log(`Already in games.csv: ${alreadyDone.size}`);
 
+// How many unique matches are currently represented in games.csv.
+// Once this reaches MAX_CSV_GAMES we stop appending new matches to the CSV,
+// but we continue downloading and writing binary event data for the rest.
+let csvGameCount = alreadyDone.size;
+if (csvGameCount >= MAX_CSV_GAMES) {
+    console.log(
+        `games.csv already at cap (${csvGameCount} >= ${MAX_CSV_GAMES}); ` +
+        `will only download binaries for remaining matches`
+    );
+}
+
 const append = alreadyDone.size > 0;
 const csvStream = fs.createWriteStream('games.csv', { flags: append ? 'a' : 'w' });
 if (!append) csvStream.write(COLUMNS.join(',') + '\n');
@@ -150,9 +164,14 @@ async function download_games(rows, split) {
                 fs.mkdirSync(binDir, { recursive: true });
                 fs.writeFileSync(binPath, result.binary);
 
-                const rankLabel = formatRank(tierName, division);
-                const csvRows   = extractRows(result.match, rankLabel);
-                await writeCsv(csvRows.join('\n') + '\n');
+                // Reserve a CSV slot synchronously (before any await) so that
+                // concurrent tasks within this batch cannot overshoot the cap.
+                if (csvGameCount < MAX_CSV_GAMES) {
+                    csvGameCount++;
+                    const rankLabel = formatRank(tierName, division);
+                    const csvRows   = extractRows(result.match, rankLabel);
+                    await writeCsv(csvRows.join('\n') + '\n');
+                }
             }
         })());
 
