@@ -6,6 +6,7 @@
     <img alt="Build Badge" src="https://github.com/fqhd/LoLytics/actions/workflows/build.yml/badge.svg">
     <img alt="Tests Badge" src="https://github.com/fqhd/LoLytics/actions/workflows/test.yml/badge.svg">
     <img alt="License Badge" src="https://img.shields.io/github/license/fqhd/lolytics">
+    <img alt="XERJ Contributor Badge" src="https://hub.xerj.org/contributors/fqhd/badge.svg">
 </p>
 
 ## Description
